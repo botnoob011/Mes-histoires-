@@ -495,6 +495,12 @@ $('undo').onclick=()=>{
   lab.append(m,f);
 });
 renderHome();
+const RULES_CANON="Rappel important : si l'histoire se passe dans une œuvre existante (animé, manga, webtoon, roman), respecte son canon : noms, âges, relations, lieux, chronologie et pouvoirs doivent être ceux de l'œuvre. Si tu n'es pas certain d'un fait, ne l'invente pas : reste vague ou contourne ce détail, et ne mélange jamais des personnages ou des arcs différents. Ce que le lecteur a établi (background, notes, mensonges ou secrets de son personnage, noms d'emprunt) est la vérité de l'histoire : ne le contredis jamais et ne le révèle pas aux autres personnages à sa place. Ne t'arrête pas exactement où s'arrête la consigne du lecteur : continue l'histoire de ta propre initiative, il te corrigera.";
+const _callOR=callOR;
+callOR=function(key,model,prompt,onText){
+if(prompt.indexOf("Tu écris une histoire")===0)prompt=prompt+"\n\n"+RULES_CANON;
+return _callOR(key,model,prompt,onText);
+};
 </script>
 </body>
 </html>
