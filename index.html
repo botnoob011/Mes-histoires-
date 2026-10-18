@@ -501,6 +501,11 @@ callOR=function(key,model,prompt,onText){
 if(prompt.indexOf("Tu écris une histoire")===0)prompt=prompt+"\n\n"+RULES_CANON;
 return _callOR(key,model,prompt,onText);
 };
+const _f=fetch;
+window.fetch=function(u,o){
+try{if(String(u).indexOf('openrouter.ai')>=0&&o&&o.body){const b=JSON.parse(o.body);b.temperature=0.7;o=Object.assign({},o,{body:JSON.stringify(b)})}}catch(e){}
+return _f(u,o);
+};
 </script>
 </body>
 </html>
