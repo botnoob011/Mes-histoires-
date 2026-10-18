@@ -506,6 +506,62 @@ window.fetch=function(u,o){
 try{if(String(u).indexOf('openrouter.ai')>=0&&o&&o.body){const b=JSON.parse(o.body);b.temperature=0.7;o=Object.assign({},o,{body:JSON.stringify(b)})}}catch(e){}
 return _f(u,o);
 };
+(function(){
+const H={};
+const btn=document.createElement("button");
+btn.className="alt";btn.textContent="💬 Modification";
+$("cfg").after(btn);
+btn.onclick=()=>{
+const s=S();if(!s)return;
+const hist=H[s.id]=H[s.id]||[];
+const old=$("tw");if(old)old.remove();
+const w=document.createElement("div");w.id="tw";
+w.style.cssText="position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:10;display:flex;align-items:center;justify-content:center;padding:16px";
+const c=document.createElement("div");c.className="card";
+c.style.cssText="width:100%;max-width:520px;max-height:88vh;overflow:auto;margin:0";
+const h=document.createElement("h2");h.textContent="💬 Parler à l’IA (hors histoire)";
+const info=document.createElement("p");info.className="sub";
+info.textContent="Ici tu parles à l’IA, pas à l’histoire. Explique ce que tu veux ajouter ou changer : elle résume ce qu’elle a compris.";
+const log=document.createElement("div");
+const ta=document.createElement("textarea");ta.placeholder="Ex : Je veux que mon personnage ait 17 ans…";
+const st=document.createElement("p");st.className="sub";
+const row=document.createElement("div");row.className="row";
+const send=document.createElement("button");send.textContent="Envoyer";
+const mem=document.createElement("button");mem.className="alt";mem.textContent="✅ Ajouter à la mémoire";
+const cl=document.createElement("button");cl.className="alt";cl.textContent="Fermer";
+const add=(who,t)=>{const p=document.createElement("p");p.style.whiteSpace="pre-wrap";const b=document.createElement("b");b.textContent=who+" : ";p.append(b,t);log.append(p)};
+hist.forEach(m=>add(m.w,m.t));
+const tr=hist=>hist.map(m=>m.w+" : "+m.t).join("\n");
+send.onclick=async()=>{
+const v=ta.value.trim();if(!v)return;
+const sample=await getSample();
+if(!sample){st.textContent="Ajoute ta clé dans ⚙️ Réglages IA (page d’accueil).";return}
+send.disabled=true;st.textContent="L’IA réfléchit…";
+hist.push({w:"Moi",t:v});add("Moi",v);ta.value="";
+const recent=s.chapters.slice(-2).join("\n\n").slice(-3000);
+const prompt="Tu es l’assistant d’écriture d’une histoire interactive. Le lecteur te parle HORS de l’histoire pour t’expliquer ce qu’il veut ajouter ou modifier. Ses messages ne sont PAS les paroles de son personnage et tu n’écris PAS de chapitre. Réponds en français, brièvement : reformule en quelques points ce que tu as compris, signale ce qui est ambigu ou ce dont tu n’es pas sûr (notamment les faits de l’œuvre d’origine), et pose au plus une question si c’est nécessaire.\n\nHistoire : "+s.title+"\nIdée et univers : "+s.idea+"\nPersonnage du lecteur : "+s.hero+(s.bg?"\nBackground : "+s.bg:"")+((s.memo||[]).length?"\nNotes du lecteur :"+s.memo.map(x=>"\n- "+x).join(""):"")+(recent?"\n\nDerniers chapitres :\n"+recent:"")+"\n\nConversation jusqu’ici :\n"+tr(hist);
+try{const r=await sample(prompt,{cache:false});const t=r.text.trim();hist.push({w:"IA",t:t});add("IA",t);st.textContent=""}
+catch(e){st.textContent=(e&&e.message)||"Erreur, réessaie."}
+send.disabled=false;
+};
+mem.onclick=async()=>{
+if(!hist.length)return;
+const sample=await getSample();
+if(!sample){st.textContent="Ajoute ta clé dans ⚙️ Réglages IA (page d’accueil).";return}
+mem.disabled=true;st.textContent="Je note le résumé…";
+try{const r=await sample("Voici une conversation hors histoire entre un lecteur et l’assistant d’écriture :\n"+tr(hist)+"\n\nÉcris en une ou deux phrases claires, à la troisième personne, ce que le lecteur veut ajouter ou modifier dans l’histoire, comme une note à respecter. Réponds uniquement avec la note.",{cache:false});
+const n=r.text.trim();(s.memo=s.memo||[]).push(n);save();hist.length=0;log.innerHTML="";
+st.textContent="✅ Ajouté à la mémoire : "+n;
+if(!$("set").classList.contains("hide"))renderSet();
+}catch(e){st.textContent=(e&&e.message)||"Erreur, réessaie."}
+mem.disabled=false;
+};
+cl.onclick=()=>w.remove();
+w.onclick=ev=>{if(ev.target===w)w.remove()};
+row.append(send,mem,cl);
+c.append(h,info,log,ta,st,row);w.append(c);document.body.append(w);
+};
+})();
 </script>
 </body>
 </html>
