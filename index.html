@@ -98,7 +98,7 @@ try{const o=JSON.parse(localStorage.getItem('histoire'));if(o&&o.chapters){o.id=
 const S=()=>L.list.find(s=>s.id===L.cur);
 function save(){try{localStorage.setItem('lib',JSON.stringify(L))}catch(e){}}
 function say(t){$('smsg').textContent=t||'';$('msg').textContent=t||''}
-function show(v){['home','setup','story','aiset'].forEach(x=>$(x).classList.toggle('hide',x!==v));$('nav').classList.add('hide');$('stb').classList.add('hide');say('');window.scrollTo(0,0)}
+function show(v){['home','setup','story','aiset'].forEach(x=>$(x).classList.toggle('hide',x!==v));$('nav').classList.add('hide');$('stb').classList.add('hide');say('');if(typeof dictEnd==='function')dictEnd();window.scrollTo(0,0)}
 function para(text,box){
   text.split('\n').forEach(l=>{
     if(!l.trim())return;
@@ -217,10 +217,10 @@ function renderSet(){
     const sample=await getSample();
     if(!sample){return}
     fx.disabled=true;fx.textContent='…';
-    try{const r=await sample("Ce texte vient d'une dictée vocale en français et contient des erreurs de transcription (mots mal compris, ponctuation absente, noms propres déformés). Corrige-le en gardant exactement le sens et le style, sans rien ajouter ni retirer. Réponds uniquement avec le texte corrigé.\n\n"+txt,{cache:false});ta.value=r.text.trim();say('')}catch(e){say((e&&e.message)||'Erreur, réessaie.')}
+    try{const r=await sample(fixPrompt(txt),{cache:false});ta.value=cleanFix(r.text);say('')}catch(e){say((e&&e.message)||'Erreur, réessaie.')}
     fx.disabled=false;fx.textContent='✨ Corriger';
   };
-  ln.append(fx);
+  ln.append(makeMic(ta),fx);
   b.append(ln,ta);
   const sn=document.createElement('button');sn.textContent='📨 Envoyer';sn.style.marginTop='8px';
   sn.onclick=()=>{const v=ta.value.trim();if(!v)return;(s.memo=s.memo||[]).push(v);save();ta.value='';renderSet()};
@@ -479,17 +479,82 @@ $('undo').onclick=()=>{
   if(s.imgs)delete s.imgs[k];if(s.butin)delete s.butin[k];
   s.chapters.pop();s.choix=[];save();renderStory();
 };
+/* ===== Dictée vocale intégrée (reconnaissance du navigateur, en français) ===== */
+const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+const ANDROID=/Android/i.test(navigator.userAgent);
+var DC=null;
+function dictEnd(){
+  if(!DC)return;
+  const d=DC;DC=null;d.on=false;
+  try{d.r.abort()}catch(e){}
+  d.btn.textContent='🎤 Dicter';
+}
+function dict(el,btn){
+  if(!SR){el.focus();say("La dictée intégrée n'existe pas sur ce navigateur : utilise le micro du clavier.");return}
+  const same=DC&&DC.btn===btn;
+  dictEnd();
+  if(same){say('');return}
+  const r=new SR();r.lang='fr-FR';r.interimResults=true;r.continuous=!ANDROID;
+  const d={r:r,btn:btn,on:true};DC=d;
+  let base=el.value;
+  const join=(a,b)=>a&&b?a+(/\s$/.test(a)?'':' ')+b:a+b;
+  r.onresult=ev=>{
+    const t=Array.from(ev.results).map(x=>x[0].transcript).join('').trim();
+    el.value=join(base,t);
+  };
+  r.onerror=ev=>{
+    const e=ev&&ev.error;
+    if(e==='no-speech'||e==='aborted')return;
+    const msg={'not-allowed':"Micro refusé : autorise le micro pour ce site dans les réglages du navigateur.",'service-not-allowed':"Dictée non autorisée par ce navigateur (essaie hors navigation privée) ou micro refusé.",'audio-capture':"Aucun micro détecté.",'network':"La dictée a besoin d'internet."}[e]||("Dictée interrompue ("+e+").");
+    if(DC===d)dictEnd();
+    say(msg);
+  };
+  r.onend=()=>{
+    if(DC!==d)return;
+    if(d.on){base=el.value;try{r.start()}catch(e){dictEnd();say('Dictée arrêtée.')}}
+    else dictEnd();
+  };
+  try{r.start();btn.textContent='⏹ Arrêter';say("🎙️ Je t'écoute… Appuie sur ⏹ pour finir, puis sur ✨ Corriger.")}
+  catch(e){dictEnd();say('Impossible de lancer la dictée.')}
+}
+function makeMic(el){
+  const m=document.createElement('button');m.type='button';m.className='mic alt';m.textContent='🎤 Dicter';
+  m.onclick=()=>dict(el,m);
+  return m;
+}
+/* ===== Correction : l'IA reçoit le contexte pour retrouver l'orthographe des noms ===== */
+function glossaire(){
+  const s=S(),parts=[];
+  const add=(l,v)=>{v=(v==null?'':String(v)).trim();if(v)parts.push(l+' : '+v)};
+  if(!$('setup').classList.contains('hide')){
+    add('Titre',$('t').value);add('Idée et univers',$('i').value.slice(0,1500));add('Personnage du lecteur',$('h').value);
+    const w=window.__wk;if(w){add("Moment d'apparition",w.at);add("Fiche de l'œuvre",(w.before||'').slice(0,4000))}
+  }else if(s&&!$('story').classList.contains('hide')){
+    add('Titre',s.title);add('Personnage du lecteur',s.hero);add('Univers',(s.idea||'').slice(0,1500));add('Background du personnage',(s.bg||'').slice(0,800));
+    add('Personnages connus',(s.persos||[]).filter(p=>p.nom).map(p=>p.nom+(p.rel?' ('+p.rel+')':'')).join(', '));
+    if(s.wk)add("Fiche de l'œuvre",(s.wk.before||'').slice(0,4000));
+    add('Notes du lecteur',(s.memo||[]).join(' / ').slice(0,800));
+    add('Fin du dernier chapitre',(s.chapters[s.chapters.length-1]||'').slice(-1200));
+  }
+  return parts.join('\n');
+}
+function fixPrompt(txt){
+  const g=glossaire();
+  return "Ce texte vient d'une dictée vocale en français et contient des erreurs de transcription (mots mal compris, ponctuation absente, noms propres déformés). Corrige-le en gardant exactement le sens et le style, sans rien ajouter ni retirer."
+   +(g?" Voici le contexte de l'histoire : utilise-le UNIQUEMENT pour retrouver l'orthographe exacte des noms de personnages, de lieux, de pouvoirs et de termes de l'œuvre quand un mot du texte leur ressemble à l'oreille ; n'y emprunte aucune information et ne complète jamais le texte avec ce contexte.\n\n=== CONTEXTE ===\n"+g+"\n=== FIN DU CONTEXTE ===\n\n":"\n\n")
+   +"Réponds uniquement avec le texte corrigé.\n\n=== TEXTE À CORRIGER ===\n"+txt;
+}
+const cleanFix=t=>t.replace(/^[\s\S]*=== TEXTE À CORRIGER ===\s*/,'').trim();
 ['t','i','h','d'].forEach(id=>{
   const lab=document.querySelector('label[for='+id+']'),el=$(id);
-  const m=document.createElement('button');m.type='button';m.className='mic alt';m.textContent='🎤 Dicter';
-  m.onclick=()=>{el.focus();say('Appuie sur le 🎤 en bas à droite du clavier de ton téléphone, puis parle.')};
+  const m=makeMic(el);
   const f=document.createElement('button');f.type='button';f.className='mic alt';f.textContent='✨ Corriger';
   f.onclick=async()=>{
     const txt=el.value.trim();if(!txt)return;
     const sample=await getSample();
     if(!sample){return}
     f.disabled=true;f.textContent='…';
-    try{const r=await sample("Ce texte vient d'une dictée vocale en français et contient des erreurs de transcription (mots mal compris, ponctuation absente, noms propres déformés). Corrige-le en gardant exactement le sens et le style, sans rien ajouter ni retirer. Réponds uniquement avec le texte corrigé.\n\n"+txt,{cache:false});el.value=r.text.trim();say('')}catch(e){say((e&&e.message)||'Erreur, réessaie.')}
+    try{const r=await sample(fixPrompt(txt),{cache:false});el.value=cleanFix(r.text);say('')}catch(e){say((e&&e.message)||'Erreur, réessaie.')}
     f.disabled=false;f.textContent='✨ Corriger';
   };
   lab.append(m,f);
@@ -558,7 +623,7 @@ mem.disabled=false;
 };
 cl.onclick=()=>w.remove();
 w.onclick=ev=>{if(ev.target===w)w.remove()};
-row.append(send,mem,cl);
+row.append(makeMic(ta),send,mem,cl);
 c.append(h,info,log,ta,st,row);w.append(c);document.body.append(w);
 };
 })();
