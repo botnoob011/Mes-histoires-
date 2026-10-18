@@ -562,6 +562,90 @@ row.append(send,mem,cl);
 c.append(h,info,log,ta,st,row);w.append(c);document.body.append(w);
 };
 })();
+(function(){
+const _c3=callOR;
+callOR=function(key,model,prompt,onText){
+const s=S();
+if(s&&s.wk&&prompt.indexOf("Tu écris une histoire")===0){const w=s.wk;prompt+="\n\nFICHE DE L’ŒUVRE (vérité absolue : respecte les noms, les relations et les événements, n’invente rien qui les contredise). Le personnage du lecteur apparaît pour la première fois à ce moment : "+w.at+".\nPASSÉ DE L’ŒUVRE (déjà arrivé ; les événements de la dernière partie qui viennent après le moment d’apparition ne sont pas encore arrivés) :\n"+w.before+(w.after?"\n\nSUITE OFFICIELLE DE L’ŒUVRE (à garder en tête ; le lecteur peut la suivre ou en dévier) :\n"+w.after:"\n\nTout ce qui vient après le moment d’apparition est à inventer librement avec le lecteur : ne reprends pas la suite officielle.")}
+return _c3(key,model,prompt,onText);
+};
+const _st=start;
+start=function(s){
+if(window.__wk&&!s.src){s.wk=window.__wk;window.__wk=null;if(s.idea==="Libre, surprends-moi")s.idea="Histoire dans l’œuvre existante, avec le personnage du lecteur ; voir la fiche de l’œuvre."}
+return _st(s);
+};
+const box=document.createElement("div");
+box.innerHTML='<label for="wkm">Départ de l’histoire</label><select id="wkm"><option value="0">🆕 Histoire de zéro</option><option value="1">📖 Dans une œuvre existante (animé, manga, webtoon, roman)</option></select><div id="wkp" class="hide"><label for="wkl">Liens vers l’histoire de l’œuvre (un par ligne : pages de wiki, résumés d’arcs…)</label><textarea id="wkl" placeholder="https://…"></textarea><label for="wkt">Ou colle ici le texte de l’histoire</label><textarea id="wkt"></textarea><div class="row"><button type="button" id="wkg">📥 Charger l’histoire</button></div><p class="sub" id="wks"></p><div id="wkq" class="hide"><label for="wka">À quel moment veux-tu apparaître ?</label><input id="wka" placeholder="Ex : adieux à Perugius, après la guérison de Nanahoshi"><div class="row"><button type="button" id="wkf">🔎 Chercher ce moment</button></div><p class="sub" id="wkr"></p><div id="wkk" class="hide"><label for="wkp2">Pour la suite de l’œuvre</label><select id="wkp2"><option value="keep">Garder en mémoire ce qui se passe après</option><option value="cut">Supprimer ce qui se passe après (histoire nouvelle)</option></select></div></div></div>';
+document.querySelector("#setup h1").after(box);
+let chunks=[],found=null;
+$("wkm").onchange=()=>{const on=$("wkm").value==="1";$("wkp").classList.toggle("hide",!on);if(!on)window.__wk=null};
+const strip=h=>{const d=new DOMParser().parseFromString(h,"text/html");d.querySelectorAll("script,style,sup,table,.mw-editsection,.reference").forEach(e=>e.remove());return (d.body.textContent||"").replace(/\n{3,}/g,"\n\n").trim()};
+async function grab(url){
+let u;try{u=new URL(url)}catch(e){throw new Error("Lien invalide : "+url)}
+if(u.pathname.indexOf("/wiki/")>=0){
+const pre=u.pathname.split("/wiki/")[0];
+const title=decodeURIComponent(u.pathname.split("/wiki/")[1]);
+const api=u.origin+(/wikipedia\.org$/.test(u.hostname)?"/w":pre)+"/api.php";
+const r=await fetch(api+"?action=parse&format=json&prop=text&redirects=1&origin=*&page="+encodeURIComponent(title));
+const j=await r.json();
+if(j.parse&&j.parse.text)return strip(j.parse.text["*"]);
+throw new Error("Page introuvable : "+url);
+}
+const r=await fetch(url);
+if(!r.ok)throw new Error("Lecture impossible ("+r.status+") : "+url);
+return strip(await r.text());
+}
+function setW(){
+if(!found){window.__wk=null;return}
+const keep=$("wkp2").value==="keep";
+const b=chunks.slice(0,found.n).map((c,i)=>"["+(i+1)+"] "+c).join("\n");
+const a=keep?chunks.slice(found.n).map((c,i)=>"["+(found.n+i+1)+"] "+c).join("\n"):"";
+window.__wk={at:found.at,before:b,after:a};
+}
+$("wkp2").onchange=setW;
+$("wkg").onclick=async()=>{
+const st=$("wks"),btn=$("wkg");
+const sample=await getSample();
+if(!sample){st.textContent="Ajoute ta clé dans ⚙️ Réglages IA (page d’accueil), puis reviens.";return}
+btn.disabled=true;found=null;window.__wk=null;$("wkq").classList.add("hide");
+let txt=$("wkt").value.trim();
+const links=$("wkl").value.split("\n").map(x=>x.trim()).filter(Boolean);
+try{
+for(let i=0;i<links.length;i++){st.textContent="Lecture du lien "+(i+1)+"/"+links.length+"…";
+try{txt+="\n\n"+await grab(links[i])}catch(e){throw new Error(e instanceof TypeError?"Ce site bloque la lecture automatique : copie le texte de la page et colle-le dans la case « Ou colle ici le texte ». ("+links[i]+")":e.message)}}
+txt=txt.trim();
+if(txt.length<500)throw new Error("Texte trop court : donne un lien vers une page qui raconte l’histoire, ou colle le texte.");
+if(txt.length>300000)txt=txt.slice(0,300000);
+const parts=[];let cur="";
+txt.split("\n").forEach(l=>{if(cur.length+l.length>10000&&cur){parts.push(cur);cur=""}cur+=l+"\n"});
+if(cur.trim())parts.push(cur);
+chunks=[];
+for(let i=0;i<parts.length;i++){
+st.textContent="Je résume l’histoire : partie "+(i+1)+"/"+parts.length+"…";
+const r=await sample("Voici un extrait (partie "+(i+1)+"/"+parts.length+", dans l’ordre) d’un texte qui raconte l’histoire d’une œuvre. Résume en français, en 700 caractères maximum, UNIQUEMENT les faits présents dans l’extrait : événements dans l’ordre, noms exacts des personnages, relations entre eux, lieux. N’invente rien. Réponds uniquement avec le résumé.\n\n"+parts[i],{cache:false});
+chunks.push(r.text.trim());
+}
+st.textContent="✅ J’ai toute l’histoire ("+parts.length+" partie(s) résumée(s)). Dis-moi maintenant quand tu veux apparaître.";
+$("wkq").classList.remove("hide");
+}catch(e){st.textContent=(e&&e.message)||"Erreur, réessaie."}
+btn.disabled=false;
+};
+$("wkf").onclick=async()=>{
+const st=$("wkr"),at=$("wka").value.trim();
+if(!at||!chunks.length)return;
+const sample=await getSample();
+if(!sample){st.textContent="Ajoute ta clé dans ⚙️ Réglages IA.";return}
+$("wkf").disabled=true;st.textContent="Je cherche ce moment…";$("wkk").classList.add("hide");found=null;window.__wk=null;
+try{
+const list=chunks.map((c,i)=>"["+(i+1)+"] "+c).join("\n\n");
+const r=await sample("Voici les parties d’une histoire, dans l’ordre chronologique :\n\n"+list+"\n\nLe lecteur veut apparaître pour la première fois à ce moment : « "+at+" ». Trouve dans quelle partie il se trouve. Réponds UNIQUEMENT par un JSON sur une seule ligne : {\"trouve\":true,\"n\":NUMERO_DE_PARTIE,\"moment\":\"phrase qui décrit le moment tel qu’il est dans l’histoire\"} ou {\"trouve\":false}.",{cache:false});
+const m=r.text.match(/\{[\s\S]*\}/);let j=null;try{j=JSON.parse(m&&m[0])}catch(e){}
+if(!j||!j.trouve||!(+j.n>=1&&+j.n<=chunks.length)){st.textContent="❌ Je ne trouve pas ce moment. Décris-le autrement (arc, personnage présent, événement)."}
+else{found={n:+j.n,at:at+" ("+(j.moment||"")+")"};st.textContent="✅ Trouvé : "+(j.moment||at)+" (partie "+j.n+"/"+chunks.length+").";$("wkk").classList.remove("hide");setW()}
+}catch(e){st.textContent=(e&&e.message)||"Erreur, réessaie."}
+$("wkf").disabled=false;
+};
+})();
 </script>
 </body>
 </html>
