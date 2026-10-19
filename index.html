@@ -16,6 +16,7 @@
   --ac-grad: linear-gradient(135deg, #7c3aed, #a855f7);
   --bd: #2e2845;
   --input-bg: #131024;
+  --success: #4ade80;
   box-sizing: border-box;
   padding-top: env(safe-area-inset-top, 0px);
   padding-bottom: env(safe-area-inset-bottom, 0px);
@@ -31,10 +32,11 @@ body {
   min-height: 100vh;
 }
 
-main { max-width: 680px; margin: 0 auto; padding: 20px 16px; }
+main { max-width: 720px; margin: 0 auto; padding: 20px 16px; }
 
 h1 { font-size: 1.6rem; font-weight: 700; margin: 0 0 6px; color: #fff; text-shadow: 0 2px 10px rgba(139, 92, 246, 0.3); }
-h2 { font-size: 1.1rem; color: var(--ac); margin: 0 0 10px; }
+h2 { font-size: 1.15rem; color: var(--ac); margin: 0 0 10px; }
+h3 { font-size: 0.95rem; margin: 10px 0 6px; color: #d1d5db; }
 .sub, .badge { color: var(--mu); margin: 0 0 14px; font-size: 0.9rem; }
 .badge { margin: 0; }
 
@@ -85,7 +87,7 @@ button {
   font-weight: 600;
   border: 0;
   border-radius: 12px;
-  padding: 12px 18px;
+  padding: 11px 16px;
   background: var(--ac-grad);
   color: #fff;
   cursor: pointer;
@@ -108,22 +110,48 @@ button:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
 .ch p.nar { color: #e5e7eb; }
 .ch p b.speaker { font-weight: 700; display: inline; }
 
-/* COULEURS DES RELATIONS */
-.speaker-ally { color: #4ade80 !important; }    /* Vert : Allié, Ami, Famille */
-.speaker-enemy { color: #f87171 !important; }   /* Rouge : Ennemi, Rival */
-.speaker-neutral { color: #60a5fa !important; } /* Bleu : Neutre, Connu */
-.speaker-unknown { color: #facc15 !important; } /* Jaune : Inconnu, Anonyme */
+/* RELATIONS DIALOGUES */
+.speaker-ally { color: #4ade80 !important; }
+.speaker-enemy { color: #f87171 !important; }
+.speaker-neutral { color: #60a5fa !important; }
+.speaker-unknown { color: #facc15 !important; }
+
+/* BOUTONS DE CHOIX D'ACTION */
+.choice-btn {
+  width: 100%;
+  text-align: left;
+  background: rgba(139, 92, 246, 0.1);
+  border: 1px solid rgba(139, 92, 246, 0.3);
+  margin-bottom: 8px;
+  font-size: 0.95rem;
+  line-height: 1.4;
+  padding: 12px 14px;
+}
+.choice-btn:hover { background: rgba(139, 92, 246, 0.25); border-color: var(--ac); }
+
+/* TAGS FICHE / CODEX */
+.tag-badge {
+  display: inline-block;
+  background: rgba(139, 92, 246, 0.2);
+  border: 1px solid rgba(139, 92, 246, 0.4);
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 0.82rem;
+  margin: 2px 4px 4px 0;
+}
 
 #msg, #smsg, #smsg1, #smsg2, #smsg3 { color: #a7f3d0; font-size: 0.9rem; min-height: 1.2em; margin: 8px 0 0; }
+.toast-success { color: var(--success) !important; font-weight: 600; }
 .hide { display: none !important; }
 </style>
 </head>
 <body>
 <main>
+
 <!-- ACCUEIL -->
 <section id="home">
   <h1>📚 Mes histoires</h1>
-  <p class="sub">Tes archives : ouvre une histoire ou crée-en une nouvelle.</p>
+  <p class="sub">Tes aventures interactives. Sauvegardes locales automatiques et illimitées.</p>
   <div id="lib"></div>
   <div class="row">
     <button id="new">＋ Nouvelle histoire</button>
@@ -132,7 +160,7 @@ button:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
   </div>
   <div class="card" style="margin-top:16px">
     <h2>💾 Sauvegarde & Export</h2>
-    <textarea id="bk" placeholder="Colle ici une sauvegarde à importer ou génère un export de tes données"></textarea>
+    <textarea id="bk" placeholder="Colle ici une sauvegarde JSON ou génère un export"></textarea>
     <div class="row">
       <button id="bx" class="alt">📤 Exporter</button>
       <button id="bi" class="alt">📥 Importer</button>
@@ -162,7 +190,7 @@ button:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
     <option value="hybrid">🎬⚔️ Hybride</option>
   </select>
   <label for="t">Titre de l'histoire</label><input id="t" placeholder="Ex : Le royaume des archiducs">
-  <label for="i">Idée, monde, style & univers</label><textarea id="i" placeholder="Ex : Monde de nobles avec paliers de puissance..."></textarea>
+  <label for="i">Idée, monde, style & univers</label><textarea id="i" placeholder="Ex : Monde d'épéistes magiques, système de noblesse..."></textarea>
   <label for="h">Ton personnage (Nom)</label><input id="h" placeholder="Ex : Acil">
   <div class="row">
     <button id="go">🚀 Commencer l'histoire</button>
@@ -199,7 +227,6 @@ button:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
   <p id="smsg1"></p>
 </section>
 
-<!-- ÉTAPE 2 : TITRE, PERSO & ROLE -->
 <section id="setup2" class="card hide">
   <h1>Titre & Ton Personnage (Étape 2/3)</h1>
   <p class="sub">Qui incarnes-tu dans ce monde ?</p>
@@ -227,13 +254,12 @@ button:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
   <p id="smsg2"></p>
 </section>
 
-<!-- ÉTAPE 3 : MOMENT D'APPARITION & DÉMARRAGE -->
 <section id="setup3" class="card hide">
   <h1>Moment d’Apparition & Validation (Étape 3/3)</h1>
   <p class="sub">Précise ton point d'arrivée chronologique</p>
 
   <label for="wka">À quel moment veux-tu apparaître pour la première fois ?</label>
-  <textarea id="wka" placeholder="Ex : Dans la salle du trône de Perugius, juste au moment où Rudeus et Nanahoshi remercient le roi dragon après la guérison de Nanahoshi..."></textarea>
+  <textarea id="wka" placeholder="Ex : Dans la salle du trône de Perugius, juste après la guérison de Nanahoshi..."></textarea>
 
   <div class="row">
     <button type="button" id="wkf">🔎 Valider et vérifier ce moment (IA)</button>
@@ -252,7 +278,7 @@ button:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
     </select>
 
     <label for="start_consigne">Comment commence le Chapitre 1 ? (Optionnel)</label>
-    <textarea id="start_consigne" placeholder="Écris ici ton action de départ, ou laisse vide / écris 'rien' pour que l'IA lance l'histoire de manière naturelle."></textarea>
+    <textarea id="start_consigne" placeholder="Écris ici ton action de départ, ou laisse vide pour un démarrage naturel."></textarea>
   </div>
 
   <div class="row" style="margin-top:18px">
@@ -267,27 +293,88 @@ button:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
 
 <!-- LECTURE DE L'HISTOIRE -->
 <section id="story" class="hide">
-  <div class="row" style="margin:0 0 14px">
+  <div class="row" style="margin:0 0 14px; gap:8px;">
     <button id="back" class="alt">← Archives</button>
-    <button id="cfg" class="alt">⚙️ Paramètres</button>
-    <button id="lastch" class="alt">⏬ Dernier chapitre</button>
+    <button id="toggle_hero" class="alt">⚔️ Fiche Héros</button>
+    <button id="toggle_codex" class="alt">👥 Codex</button>
+    <button id="cfg" class="alt">⚙️ Mémoire</button>
+    <button id="lastch" class="alt">⏬ Fin</button>
   </div>
+
+  <!-- PANNEAU FICHE HÉROS (IDÉE C) -->
+  <div id="hero_panel" class="card hide">
+    <h2>⚔️ Progression & Fiche du Héros</h2>
+    <label>Rang / Palier de Puissance</label>
+    <input id="h_rank" placeholder="Ex : Mage Saint, Rang S, Chevalier Émérite...">
+    <label>Techniques, Sorts & Dons débloqués</label>
+    <div id="h_tech_list"></div>
+    <div class="row" style="margin-top:6px">
+      <input id="h_tech_new" placeholder="Ajouter une technique..." style="flex:1">
+      <button id="h_tech_add" class="alt">＋</button>
+    </div>
+    <label style="margin-top:10px">Objets & Équipements Clés</label>
+    <div id="h_item_list"></div>
+    <div class="row" style="margin-top:6px">
+      <input id="h_item_new" placeholder="Ajouter un équipement..." style="flex:1">
+      <button id="h_item_add" class="alt">＋</button>
+    </div>
+    <div class="row" style="margin-top:14px">
+      <button id="h_save">💾 Sauvegarder la Fiche</button>
+    </div>
+  </div>
+
+  <!-- PANNEAU CODEX PERSONNAGES (IDÉE B) -->
+  <div id="codex_panel" class="card hide">
+    <h2>👥 Codex des Personnages & Relations</h2>
+    <div id="codex_list"></div>
+    <div class="card" style="margin-top:12px;background:rgba(0,0,0,0.25)">
+      <h3>Ajouter / Modifier un personnage</h3>
+      <input id="cdx_name" placeholder="Nom du personnage">
+      <div class="row" style="margin:8px 0">
+        <select id="cdx_rel" style="flex:1">
+          <option value="Allié">🟢 Allié / Ami / Disciple</option>
+          <option value="Neutre">🔵 Neutre / Connaissance</option>
+          <option value="Ennemi">🔴 Ennemi / Rival</option>
+          <option value="Inconnu">🟡 Inconnu / Mystérieux</option>
+        </select>
+      </div>
+      <input id="cdx_desc" placeholder="Statut ou sentiment actuel...">
+      <button id="cdx_add" style="margin-top:10px">Enregistrer dans le Codex</button>
+    </div>
+  </div>
+
+  <!-- PANNEAU MÉMOIRE -->
   <div id="set" class="card hide"></div>
+
   <h2 id="stt"></h2>
+  
+  <!-- CHAPITRES AVEC ÉDITION MANUELLE (CHOIX 2) -->
   <div id="chs"></div>
+
+  <!-- ZONE DE STREAMING LIVE -->
   <div id="live" class="card ch hide"></div>
+
+  <!-- CHOIX D'ACTIONS AUTOMATIQUES (CHOIX 1) -->
+  <div id="choices_container" class="card hide">
+    <h2>⚡ Choix d'action proposés par l'IA :</h2>
+    <div id="choices_list"></div>
+  </div>
+
+  <!-- ZONE D'ACTION / PROMPT -->
   <div class="card" style="margin-top:16px">
-    <label for="d">Ta prochaine action, réplique ou consigne de correction (Ex : "OOC : Corrige le fait que...")</label>
-    <textarea id="d" placeholder="Ex : Je m'avance vers Rudeus... OU consigne de réécriture : 'Attention, Perugius est mon serviteur et pas mon rival.'"></textarea>
+    <label for="d">Ton action personnalisée ou consigne de correction (Ex : « OOC : Corrige le fait que... »)</label>
+    <textarea id="d" placeholder="Écris ici ton action, ou clique sur l'un des 3 choix au-dessus (ou laisse vide pour continuer)..."></textarea>
+    
     <div class="row">
       <button id="next">Écrire la suite</button>
       <button id="rw" class="alt">🔁 Réécrire ce chapitre</button>
-      <button id="undo" class="alt">🗑 Supprimer le chapitre</button>
+      <button id="undo" class="alt">🗑 Supprimer</button>
       <button id="restart" class="alt" style="border-color:#f87171;color:#f87171">🔄 Recommencer à zéro</button>
     </div>
     <p id="msg"></p>
   </div>
 </section>
+
 </main>
 
 <script>
@@ -296,25 +383,89 @@ const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,6);
 const MODES={anime:'🎬 Animé',rpg:'⚔️ RPG',hybrid:'🎬⚔️ Hybride'};
 const RECAP=`Univers inventé : un roi et des nobles classés du plus faible au plus puissant...`;
 
-let L={list:[],cur:null},busy=false,armed=null,restartArmed=false;
-try{L=JSON.parse(localStorage.getItem('lib'))||L}catch(e){}
-const S=()=>L.list.find(s=>s.id===L.cur);
-function save(){try{localStorage.setItem('lib',JSON.stringify(L))}catch(e){} }
+/* ==========================================================================
+   1. SAUVEGARDE ROBUSTE ET ILLIMITÉE : INDEXEDDB (IDÉE F)
+   ========================================================================== */
+const DB = {
+  db: null,
+  async init() {
+    return new Promise((resolve) => {
+      const req = indexedDB.open('AnimeStoriesDB', 1);
+      req.onupgradeneeded = e => { e.target.result.createObjectStore('store'); };
+      req.onsuccess = e => { this.db = e.target.result; resolve(this.db); };
+      req.onerror = () => resolve(null);
+    });
+  },
+  async get(key) {
+    if (!this.db) await this.init();
+    return new Promise(resolve => {
+      if (!this.db) return resolve(null);
+      const tx = this.db.transaction('store', 'readonly');
+      const req = tx.objectStore('store').get(key);
+      req.onsuccess = () => resolve(req.result);
+      req.onerror = () => resolve(null);
+    });
+  },
+  async set(key, val) {
+    if (!this.db) await this.init();
+    return new Promise(resolve => {
+      if (!this.db) return resolve(false);
+      const tx = this.db.transaction('store', 'readwrite');
+      tx.objectStore('store').put(val, key);
+      tx.oncomplete = () => resolve(true);
+      tx.onerror = () => resolve(false);
+    });
+  }
+};
 
-function say(t){
-  ['smsg','smsg1','smsg2','smsg3','msg'].forEach(id=>{
-    const el=$(id);if(el)el.textContent=t||'';
+let L = { list: [], cur: null }, busy = false, armed = null, restartArmed = false;
+
+// Migration automatique depuis LocalStorage vers IndexedDB
+async function initStore() {
+  await DB.init();
+  const dbData = await DB.get('lib');
+  if (dbData && Array.isArray(dbData.list)) {
+    L = dbData;
+  } else {
+    try {
+      const local = JSON.parse(localStorage.getItem('lib'));
+      if (local && Array.isArray(local.list)) {
+        L = local;
+        await DB.set('lib', L);
+      }
+    } catch(e) {}
+  }
+  renderHome();
+}
+
+const S = () => L.list.find(s => s.id === L.cur);
+
+async function save() {
+  await DB.set('lib', L);
+  try { localStorage.setItem('lib', JSON.stringify(L)); } catch(e) {} // Copie de secours
+}
+
+function say(t, isSuccess = false) {
+  ['smsg','smsg1','smsg2','smsg3','msg'].forEach(id => {
+    const el = $(id);
+    if (el) {
+      el.textContent = t || '';
+      el.className = isSuccess ? 'toast-success' : '';
+    }
   });
 }
 
-function show(v){
-  ['home','choice','setup','setup1','setup2','setup3','story','aiset'].forEach(x=>{
-    const el=$(x);if(el)el.classList.toggle('hide',x!==v);
+function show(v) {
+  ['home','choice','setup','setup1','setup2','setup3','story','aiset'].forEach(x => {
+    const el = $(x); if (el) el.classList.toggle('hide', x !== v);
   });
   say('');
   window.scrollTo(0,0);
 }
 
+/* ==========================================================================
+   DÉTECTION RELATIONS & COLORATION DES DIALOGUES
+   ========================================================================== */
 function getRelationClass(str) {
   const s = str.toLowerCase();
   if (/inconnu|anonyme|myst[eé]rieu|silhouette|[eé]trang|masqu[eé]|passant/i.test(s)) return 'speaker-unknown';
@@ -344,7 +495,61 @@ function para(text, box) {
   });
 }
 
-const clean = t => t.replace(/\n?\s*(ETAT|PERSOS|CHOIX)\s*:[\s\S]*$/i, '').replace(/\n?\s*IMAGE\s*:[^\n]*$/i, '');
+/* NETTOYAGE DU TEXTE ET EXTRACTION IA */
+function extractAndClean(rawText, s) {
+  let txt = rawText;
+
+  // 1. Extraire CHOIX :
+  const chMatch = txt.match(/CHOIX\s*:\s*([\s\S]*?)(?=(PERSOS_MAJ|HERO_MAJ|$))/i);
+  if (chMatch) {
+    const lines = chMatch[1].split('\n').map(x => x.replace(/^\d+[\.\)\-]\s*/, '').trim()).filter(Boolean);
+    s.lastChoices = lines.slice(0, 3);
+  }
+
+  // 2. Extraire PERSOS_MAJ (Codex)
+  const cdxMatch = txt.match(/PERSOS_MAJ\s*:\s*([\s\S]*?)(?=(CHOIX|HERO_MAJ|$))/i);
+  if (cdxMatch) {
+    s.codex = s.codex || [];
+    const lines = cdxMatch[1].split('\n').map(x => x.trim()).filter(x => x.startsWith('-') || x.startsWith('*'));
+    lines.forEach(l => {
+      const parts = l.replace(/^[-*]\s*/, '').split('|').map(x => x.trim());
+      if (parts.length >= 2) {
+        const existing = s.codex.find(c => c.name.toLowerCase() === parts[0].toLowerCase());
+        if (existing) {
+          existing.rel = parts[1];
+          if (parts[2]) existing.desc = parts[2];
+        } else {
+          s.codex.push({ name: parts[0], rel: parts[1], desc: parts[2] || '' });
+        }
+      }
+    });
+  }
+
+  // 3. Extraire HERO_MAJ (Fiche héros)
+  const heroMatch = txt.match(/HERO_MAJ\s*:\s*([\s\S]*?)(?=(CHOIX|PERSOS_MAJ|$))/i);
+  if (heroMatch) {
+    s.heroStats = s.heroStats || { rank: '', techniques: [], items: [] };
+    const rM = heroMatch[1].match(/Rang\s*:\s*([^\n]+)/i);
+    if (rM && rM[1].trim()) s.heroStats.rank = rM[1].trim();
+
+    const tM = heroMatch[1].match(/Technique\s*:\s*([^\n]+)/i);
+    if (tM && tM[1].trim() && !s.heroStats.techniques.includes(tM[1].trim())) {
+      s.heroStats.techniques.push(tM[1].trim());
+    }
+
+    const iM = heroMatch[1].match(/Objet\s*:\s*([^\n]+)/i);
+    if (iM && iM[1].trim() && !s.heroStats.items.includes(iM[1].trim())) {
+      s.heroStats.items.push(iM[1].trim());
+    }
+  }
+
+  // Nettoyage de la narration
+  return txt
+    .replace(/CHOIX\s*:[\s\S]*$/i, '')
+    .replace(/PERSOS_MAJ\s*:[\s\S]*$/i, '')
+    .replace(/HERO_MAJ\s*:[\s\S]*$/i, '')
+    .trim();
+}
 
 function renderHome() {
   const box = $('lib'); box.innerHTML = '';
@@ -374,35 +579,228 @@ function renderHome() {
   show('home');
 }
 
+/* ==========================================================================
+   2. RENDU DE L'HISTOIRE & MODIFICATION MANUELLE (CHOIX 2)
+   ========================================================================== */
 function renderStory() {
   const s = S(); if (!s) return;
   $('stt').textContent = s.title + ' · ' + (MODES[s.mode] || '🎬 Animé');
   const box = $('chs'); box.innerHTML = '';
+
   (s.chapters || []).forEach((c, n) => {
     const d = document.createElement('div'); d.className = 'card ch';
+    d.id = 'chap_' + n;
+
+    const head = document.createElement('div');
+    head.className = 'item';
+    head.style.marginBottom = '8px';
+
     const h = document.createElement('h2'); h.textContent = 'Chapitre ' + (n + 1);
-    d.append(h); para(c, d); box.append(d);
+    
+    // Bouton Modifier manuel
+    const editBtn = document.createElement('button');
+    editBtn.className = 'alt';
+    editBtn.style.padding = '4px 10px';
+    editBtn.style.fontSize = '0.8rem';
+    editBtn.textContent = '✏️ Modifier';
+
+    head.append(h, editBtn);
+    d.append(head);
+
+    const bodyDiv = document.createElement('div');
+    para(c, bodyDiv);
+    d.append(bodyDiv);
+
+    // Mode édition au clic
+    editBtn.onclick = () => {
+      if (d.querySelector('textarea')) return; // Déjà en édition
+      bodyDiv.classList.add('hide');
+
+      const editBox = document.createElement('div');
+      const ta = document.createElement('textarea');
+      ta.value = s.chapters[n];
+      ta.style.minHeight = '220px';
+
+      const btnRow = document.createElement('div');
+      btnRow.className = 'row';
+      btnRow.style.marginTop = '8px';
+
+      const saveEdit = document.createElement('button');
+      saveEdit.textContent = '💾 Sauvegarder';
+      saveEdit.onclick = () => {
+        s.chapters[n] = ta.value.trim();
+        save();
+        renderStory();
+        say('✅ Chapitre ' + (n + 1) + ' modifié et sauvegardé dans l\'histoire !', true);
+      };
+
+      const cancelEdit = document.createElement('button');
+      cancelEdit.className = 'alt';
+      cancelEdit.textContent = 'Annuler';
+      cancelEdit.onclick = () => renderStory();
+
+      btnRow.append(saveEdit, cancelEdit);
+      editBox.append(ta, btnRow);
+      d.append(editBox);
+    };
+
+    box.append(d);
+  });
+
+  renderChoices();
+  renderCodex();
+  renderHeroStats();
+}
+
+/* ==========================================================================
+   3. CHOIX D'ACTIONS CLICABLES AUTOMATIQUES (CHOIX 1)
+   ========================================================================== */
+function renderChoices() {
+  const s = S(); if (!s) return;
+  const box = $('choices_list'), cont = $('choices_container');
+  box.innerHTML = '';
+
+  if (s.lastChoices && s.lastChoices.length > 0) {
+    cont.classList.remove('hide');
+    s.lastChoices.forEach((ch, idx) => {
+      const b = document.createElement('button');
+      b.className = 'choice-btn';
+      b.textContent = (idx + 1) + '. ' + ch;
+      b.onclick = () => {
+        $('d').value = ch;
+        gen(false);
+      };
+      box.append(b);
+    });
+  } else {
+    cont.classList.add('hide');
+  }
+}
+
+/* ==========================================================================
+   4. CODEX DES PERSONNAGES (IDÉE B)
+   ========================================================================== */
+function renderCodex() {
+  const s = S(), box = $('codex_list'); if (!s || !box) return;
+  box.innerHTML = '';
+  s.codex = s.codex || [];
+
+  if (!s.codex.length) {
+    box.innerHTML = '<p class="sub">Aucun personnage répertorié. Ils apparaîtront ici automatiquement au fil des dialogues.</p>';
+    return;
+  }
+
+  s.codex.forEach((c, idx) => {
+    const card = document.createElement('div');
+    card.className = 'card item';
+    card.style.cssText = 'padding:10px 14px; margin-bottom:8px; background:rgba(255,255,255,0.03);';
+
+    const info = document.createElement('div');
+    const colorClass = getRelationClass(c.rel || 'Neutre');
+    info.innerHTML = `<b class="${colorClass}">${c.name}</b> <span class="badge">(${c.rel || 'Neutre'})</span><div style="font-size:0.85rem;color:#cbd5e1">${c.desc || ''}</div>`;
+
+    const del = document.createElement('button');
+    del.className = 'alt';
+    del.textContent = '✕';
+    del.style.padding = '4px 8px';
+    del.onclick = () => {
+      s.codex.splice(idx, 1);
+      save();
+      renderCodex();
+    };
+
+    card.append(info, del);
+    box.append(card);
   });
 }
 
-function seed(s) { if (!s.memo) s.memo = []; }
-function openStory() { const s = S(); if (s) seed(s); show('story'); $('set').classList.add('hide'); renderStory(); }
+$('cdx_add').onclick = () => {
+  const s = S(); if (!s) return;
+  const name = $('cdx_name').value.trim();
+  if (!name) return;
+  s.codex = s.codex || [];
+  s.codex.push({ name: name, rel: $('cdx_rel').value, desc: $('cdx_desc').value.trim() });
+  save();
+  $('cdx_name').value = '';
+  $('cdx_desc').value = '';
+  renderCodex();
+  say('Personnage ajouté au Codex !', true);
+};
+
+/* ==========================================================================
+   5. FICHE DE PROGRESSION DU HÉROS (IDÉE C)
+   ========================================================================== */
+function renderHeroStats() {
+  const s = S(); if (!s) return;
+  s.heroStats = s.heroStats || { rank: '', techniques: [], items: [] };
+
+  $('h_rank').value = s.heroStats.rank || '';
+
+  const tBox = $('h_tech_list'); tBox.innerHTML = '';
+  (s.heroStats.techniques || []).forEach((t, i) => {
+    const tag = document.createElement('span'); tag.className = 'tag-badge';
+    tag.textContent = t + ' ';
+    const x = document.createElement('span'); x.textContent = '✕'; x.style.cursor = 'pointer';
+    x.onclick = () => { s.heroStats.techniques.splice(i, 1); save(); renderHeroStats(); };
+    tag.append(x); tBox.append(tag);
+  });
+
+  const iBox = $('h_item_list'); iBox.innerHTML = '';
+  (s.heroStats.items || []).forEach((it, i) => {
+    const tag = document.createElement('span'); tag.className = 'tag-badge';
+    tag.textContent = it + ' ';
+    const x = document.createElement('span'); x.textContent = '✕'; x.style.cursor = 'pointer';
+    x.onclick = () => { s.heroStats.items.splice(i, 1); save(); renderHeroStats(); };
+    tag.append(x); iBox.append(tag);
+  });
+}
+
+$('h_tech_add').onclick = () => {
+  const s = S(), val = $('h_tech_new').value.trim();
+  if (!val || !s) return;
+  s.heroStats = s.heroStats || { rank: '', techniques: [], items: [] };
+  s.heroStats.techniques.push(val);
+  save(); $('h_tech_new').value = ''; renderHeroStats();
+};
+
+$('h_item_add').onclick = () => {
+  const s = S(), val = $('h_item_new').value.trim();
+  if (!val || !s) return;
+  s.heroStats = s.heroStats || { rank: '', techniques: [], items: [] };
+  s.heroStats.items.push(val);
+  save(); $('h_item_new').value = ''; renderHeroStats();
+};
+
+$('h_save').onclick = () => {
+  const s = S(); if (!s) return;
+  s.heroStats = s.heroStats || { rank: '', techniques: [], items: [] };
+  s.heroStats.rank = $('h_rank').value.trim();
+  save();
+  say('✅ Fiche du héros enregistrée !', true);
+};
+
+/* ==========================================================================
+   GESTION DES PANNEAUX RETRACTABLES
+   ========================================================================== */
+$('toggle_hero').onclick = () => { $('hero_panel').classList.toggle('hide'); $('codex_panel').classList.add('hide'); $('set').classList.add('hide'); };
+$('toggle_codex').onclick = () => { $('codex_panel').classList.toggle('hide'); $('hero_panel').classList.add('hide'); $('set').classList.add('hide'); };
+$('cfg').onclick = () => { $('set').classList.toggle('hide'); $('hero_panel').classList.add('hide'); $('codex_panel').classList.add('hide'); if (!$('set').classList.contains('hide')) renderSet(); };
 
 function renderSet() {
   const s = S(), b = $('set'); if (!b) return; b.innerHTML = '';
-  const h = document.createElement('h2'); h.textContent = "⚙️ Paramètres & Mémoire de l'Histoire"; b.append(h);
+  const h = document.createElement('h2'); h.textContent = "⚙️ Mémoire Permanente de l'Histoire"; b.append(h);
 
-  const lb = document.createElement('label'); lb.textContent = 'Background & Statut de ton personnage';
+  const lb = document.createElement('label'); lb.textContent = 'Background & Rôle de ton personnage';
   const tb = document.createElement('textarea'); tb.value = s.heroBg || ''; tb.oninput = () => { s.heroBg = tb.value; save(); };
   lb.append(makeMicGroup(tb));
   b.append(lb, tb);
 
-  const ln = document.createElement('label'); ln.textContent = "Ajustement / Fait à garder en mémoire par l'IA";
-  const ta = document.createElement('textarea'); ta.placeholder = "Ex : Orsted est mon disciple, Perugius m'obéit...";
+  const ln = document.createElement('label'); ln.textContent = "Fait crucial à garder en mémoire absolue";
+  const ta = document.createElement('textarea'); ta.placeholder = "Ex : Orsted m'a juré fidélité...";
   ln.append(makeMicGroup(ta));
   b.append(ln, ta);
 
-  const sn = document.createElement('button'); sn.textContent = '📨 Ajouter à la mémoire permanente'; sn.style.marginTop = '8px';
+  const sn = document.createElement('button'); sn.textContent = '📨 Ajouter au souvenir permanent'; sn.style.marginTop = '8px';
   sn.onclick = () => { const v = ta.value.trim(); if (!v) return; (s.memo = s.memo || []).push(v); save(); ta.value = ''; renderSet(); };
   b.append(sn);
 
@@ -415,6 +813,11 @@ function renderSet() {
   });
 }
 
+function openStory() { const s = S(); if (s && !s.memo) s.memo = []; show('story'); $('set').classList.add('hide'); $('hero_panel').classList.add('hide'); $('codex_panel').classList.add('hide'); renderStory(); }
+
+/* ==========================================================================
+   APPEL API OPENROUTER
+   ========================================================================== */
 const CFG = () => { 
   let c = {}; 
   try { c = JSON.parse(localStorage.getItem('orcfg')) || {}; } catch (e) {} 
@@ -458,34 +861,30 @@ async function getSample() {
   };
 }
 
-async function autoSummarizeIfNeeded(s, sample) {
-  const total = s.chapters.length;
-  if (total > 0 && total % 5 === 0 && !s['summed_' + total]) {
-    say("🧠 Synthèse automatique de la mémoire en cours...");
-    try {
-      const last5 = s.chapters.slice(-5).join("\n\n");
-      const r = await sample("Synthétise ces 5 derniers chapitres de l'histoire en un résumé concis des événements clés et changements de statut :\n\n" + last5, { cache: false });
-      s.resume = (s.resume ? s.resume + "\n\n" : "") + "--- Étape chapitre " + total + " ---\n" + r.text;
-      s['summed_' + total] = true;
-      save();
-    } catch (e) {}
-  }
-}
-
-/* GÉNÉRATION (AVEC SUPPORT DE LA RÉÉCRITURE ET CORRECTION STRICTE) */
+/* ==========================================================================
+   GÉNÉRATION INTELLIGENTE DU CHAPITRE
+   ========================================================================== */
 async function gen(isRewrite = false) {
   const s = S(); if (busy || !s) return;
   const sample = await getSample(); if (!sample) return;
   
   if (isRewrite && (!s.chapters || s.chapters.length === 0)) {
-    say("Aucun chapitre à réécrire. Clique sur 'Écrire la suite' ou 'Recommencer à zéro'.");
+    say("Aucun chapitre à réécrire. Clique sur 'Écrire la suite'.");
     return;
   }
 
   busy = true; $('next').disabled = true; 
-  say(isRewrite ? '✍️ L\'IA réécrit et applique tes corrections...' : '✍️ L\'IA tisse le chapitre...');
+  say(isRewrite ? '✍️ L\'IA réécrit ce chapitre avec tes consignes...' : '✍️ L\'IA tisse le chapitre...');
 
-  if (!isRewrite) await autoSummarizeIfNeeded(s, sample);
+  // Contexte Codex
+  const codexTxt = (s.codex && s.codex.length)
+    ? "\nRELATIONS ACTUELLES DES PERSONNAGES :\n" + s.codex.map(c => `- ${c.name} (${c.rel}) : ${c.desc}`).join("\n")
+    : "";
+
+  // Contexte Fiche Héros
+  const heroStatsTxt = s.heroStats 
+    ? `\nFICHE DU HÉROS : Rang: ${s.heroStats.rank || 'Non défini'} | Techniques: ${(s.heroStats.techniques || []).join(', ') || 'Aucune'} | Objets: ${(s.heroStats.items || []).join(', ') || 'Aucun'}`
+    : "";
 
   let canonPrompt = "";
   if (s.wk) {
@@ -493,104 +892,137 @@ async function gen(isRewrite = false) {
     const charsClean = (s.wk.chars || "").slice(0, 5000);
 
     canonPrompt = "\n\n=== CONTEXTE OFFICIEL DE L'ŒUVRE ===\n"
-      + (loreClean ? "RÉSUMÉ DU MONDE / DE L'HISTOIRE :\n" + loreClean + "\n\n" : "")
-      + (charsClean ? "PERSONNAGES OFFICIELS :\n" + charsClean + "\n\n" : "")
-      + "=== CHRONOLOGIE ET RÈGLES CANONIQUES STRICTES ===\n"
+      + (loreClean ? "RÉSUMÉ :\n" + loreClean + "\n\n" : "")
+      + (charsClean ? "PERSONNAGES :\n" + charsClean + "\n\n" : "")
+      + "=== CHRONOLOGIE & RÈGLES CANONIQUES ===\n"
       + "1. POINT D'APPARITION : " + s.wk.at + "\n"
-      + "2. INTERDICTION DES SPOILERS / ANACRONISMES : Les événements futurs ne se sont PAS encore produits. Les personnages ont leur niveau et connaissances de ce moment précis.\n"
-      + "3. CASTING : Ne fais intervenir que les personnages présents à cet endroit.\n"
-      + "4. RESPECT ABSOLU DU STATUT : Le joueur incarne « " + s.hero + " ». Respecte son statut et son background à la lettre.\n";
+      + "2. PAS DE SPOILERS : Les événements futurs ne se sont pas encore produits.\n"
+      + "3. CASTING : Uniquement les personnages physiquement présents sur place.\n"
+      + "4. RESPECT DU STATUT DU JOUEUR : Respecte strictement l'autorité et le background de « " + s.hero + " ».\n";
   }
 
   const memTxt = (s.memo || []).map(m => "\n- Fait mémorisé : " + m).join("");
-  const heroBg = s.heroBg ? "\nBackground / Rôle et Statut du joueur : " + s.heroBg : "";
-  const autoSum = s.resume ? "\n\nRésumé des chapitres précédents :\n" + s.resume : "";
+  const heroBg = s.heroBg ? "\nBackground / Statut du joueur : " + s.heroBg : "";
 
-  // Détermination du contexte selon réécriture ou suite
   let situationPrompt = "";
   const userInput = $('d').value.trim();
 
   if (isRewrite) {
     const prevContext = s.chapters.length > 1 ? s.chapters.slice(-3, -1).join("\n\n") : "";
     situationPrompt = "RÉÉCRITURE DU CHAPITRE ACTUEL :\n"
-      + (prevContext ? "Contexte précédant ce chapitre :\n" + prevContext + "\n\n" : "")
-      + (s.chapters.length === 1 
-          ? "Il s'agit du tout premier chapitre. Démarre précisément à l'instant d'apparition : " + (s.wk ? s.wk.at : "Début de l'aventure")
-          : "Réécris ce chapitre de manière plus fidèle et captivante.")
-      + (userInput ? "\n\n⚠️ INSTRUCTION DE CORRECTION PRIORITAIRE DE L'AUTEUR (À RESPECTER STRICTEMENT) : " + userInput : "");
+      + (prevContext ? "Contexte précédant :\n" + prevContext + "\n\n" : "")
+      + (userInput ? "⚠️ INSTRUCTION CRUCIALE DE CORRECTION : " + userInput : "");
   } else {
     if (s.chapters && s.chapters.length) {
-      situationPrompt = "DERNIERS ÉVÉNEMENTS (continuité immédiate) :\n" + s.chapters.slice(-2).join("\n\n")
-        + (userInput ? "\n\nAction / Choix du joueur pour ce chapitre : " + userInput : "");
+      situationPrompt = "DERNIERS ÉVÉNEMENTS :\n" + s.chapters.slice(-2).join("\n\n")
+        + (userInput ? "\n\nAction du joueur : " + userInput : "");
     } else {
-      situationPrompt = "PREMIER CHAPITRE : " + (s.startConsigne && s.startConsigne.trim() !== 'rien' ? s.startConsigne : "Fais démarrer la scène précisément au moment d'apparition choisi.")
-        + (userInput ? "\n\nConsigne de départ supplémentaire : " + userInput : "");
+      situationPrompt = "PREMIER CHAPITRE : " + (s.startConsigne && s.startConsigne.trim() !== 'rien' ? s.startConsigne : "Démarre la scène précisément à l'instant d'apparition choisi.")
+        + (userInput ? "\n\nConsigne de départ : " + userInput : "");
     }
   }
 
-  const prompt = "Tu es un romancier et scénariste d'élite spécialisé dans les animés et mangas.\n"
-    + "Tu dois écrire ce chapitre en français littéraire, dynamique et immersif.\n\n"
+  const prompt = "Tu es un scénariste d'élite d'animés et mangas.\n"
+    + "Rédige la suite en français littéraire et immersif.\n\n"
     + "Titre : " + s.title + "\n"
-    + "Joueur : " + s.hero + heroBg + "\n"
-    + canonPrompt + memTxt + autoSum + "\n\n"
-    + "RÈGLE CRUCIALE DES DIALOGUES (FORMAT STRICT) :\n"
-    + "- Équilibre : 70% de DIALOGUES vivants et 30% de NARRATION.\n"
-    + "- CHAQUE réplique commence OBLIGATOIREMENT par le Prénom, Nom et entre parenthèses sa RELATION exacte avec le joueur :\n"
-    + "  Format : « Prénom Nom (Relation) : dialogue »\n"
-    + "  * Exemples : (Ami), (Allié), (Disciple), (Maître), (Ennemi), (Rival), (Neutre), (Inconnu)...\n"
-    + "- Pas d'intro méta, pas de titre 'Chapitre X', commence directement l'action.\n\n"
+    + "Joueur : " + s.hero + heroBg + heroStatsTxt + "\n"
+    + canonPrompt + codexTxt + memTxt + "\n\n"
+    + "RÈGLE DES DIALOGUES (70% dialogue, 30% narration) :\n"
+    + "Chaque réplique commence par : « Prénom Nom (Relation) : dialogue »\n"
+    + "Ex : Rudeus Greyrat (Ami) : Bonjour !\n\n"
+    + "STRUCTURE FINALE OBLIGATOIRE (À placer TOUT À LA FIN de ta réponse) :\n"
+    + "CHOIX :\n"
+    + "1. [Choix d'action 1]\n"
+    + "2. [Choix d'action 2]\n"
+    + "3. [Choix d'action 3]\n\n"
+    + "PERSOS_MAJ:\n"
+    + "- Nom | Allié/Ennemi/Neutre/Inconnu | Court état d'esprit\n\n"
+    + "HERO_MAJ:\n"
+    + "Rang: [Nouveau rang si évolution sinon vide]\n"
+    + "Technique: [Nouvelle technique apprise sinon vide]\n"
+    + "Objet: [Nouvel objet obtenu sinon vide]\n\n"
     + situationPrompt;
 
   const live = $('live'); live.classList.remove('hide'); live.innerHTML = '';
   try {
-    const r = await sample(prompt, { onText: ({ text }) => { live.innerHTML = ''; para(clean(text), live); } });
-    s.chapters = s.chapters || [];
+    const r = await sample(prompt, { onText: ({ text }) => { live.innerHTML = ''; para(extractAndClean(text, {}), live); } });
     
-    // Si c'est une réécriture, on remplace le dernier chapitre, sinon on l'ajoute
+    // Nettoyage et extraction automatique
+    const cleanedStoryText = extractAndClean(r.text, s);
+
+    s.chapters = s.chapters || [];
     if (isRewrite && s.chapters.length > 0) {
-      s.chapters[s.chapters.length - 1] = r.text.trim();
+      s.chapters[s.chapters.length - 1] = cleanedStoryText;
     } else {
-      s.chapters.push(r.text.trim());
+      s.chapters.push(cleanedStoryText);
     }
 
-    save(); $('d').value = ''; say('');
-  } catch (e) { say(e.message || "Erreur de génération."); }
-  live.classList.add('hide'); renderStory(); busy = false; $('next').disabled = false;
+    await save();
+    $('d').value = '';
+    say('');
+  } catch (e) {
+    say(e.message || "Erreur de génération.");
+  }
+
+  live.classList.add('hide');
+  renderStory();
+  busy = false;
+  $('next').disabled = false;
 }
 
-/* NAVIGATION ACCUEIL ET FORMULAIRES */
-$('new').onclick = () => show('choice');$('choice_cancel').onclick = renderHome;
-$('btn_orig').onclick = () => show('setup');$('btn_exist').onclick = () => show('setup1');
+/* ==========================================================================
+   BOUTONS DE CONTRÔLE ET NAVIGATION
+   ========================================================================= */
+$('new').onclick = () => show('choice');
+$('choice_cancel').onclick = renderHome;
+$('btn_orig').onclick = () => show('setup');
+$('btn_exist').onclick = () => show('setup1');
 
 $('cancel').onclick = renderHome;
 $('step1_cancel').onclick = renderHome;
 $('back').onclick = () => renderHome();
 
-$('ai').onclick = () => {
-  const b = $('aiset'); b.innerHTML = ''; const c = CFG();
-  const h = document.createElement('h1'); h.textContent = '⚙️ Réglages IA';
-  const l = document.createElement('label'); l.textContent = 'Clé API OpenRouter';
-  const k = document.createElement('input'); k.type = 'password'; k.value = c.key;
-  k.oninput = () => { c.key = k.value.trim(); saveCFG(c); };
-  const bk = document.createElement('button'); bk.className = 'alt'; bk.textContent = '← Retour'; bk.style.marginTop = '14px'; bk.onclick = renderHome;
-  b.append(h, l, k, bk); show('aiset');
+$('lastch').onclick = () => window.scrollTo(0, document.body.scrollHeight);
+$('rw').onclick = () => gen(true);
+
+$('undo').onclick = async () => {
+  const s = S(); if (!s || !s.chapters.length) return;
+  s.chapters.pop(); await save(); renderStory();
 };
 
-$('imp').onclick = () => {
-  const s = { id: uid(), title: 'Les Archiducs', hero: 'Kafka Ibino', idea: RECAP, mode: 'hybrid', chapters: [] };
-  L.list.push(s); L.cur = s.id; save(); openStory(); gen();
+$('restart').onclick = async () => {
+  const s = S(); if (!s) return;
+  if (!restartArmed) {
+    restartArmed = true;
+    $('restart').textContent = '⚠️ Sûr de recommencer ?';
+    setTimeout(() => { restartArmed = false; $('restart').textContent = '🔄 Recommencer à zéro'; }, 4000);
+    return;
+  }
+  restartArmed = false;
+  $('restart').textContent = '🔄 Recommencer à zéro';
+  s.chapters = [];
+  s.lastChoices = [];
+  s.resume = "";
+  await save();
+  renderStory();
+  gen(false);
 };
 
-$('go').onclick = () => {
-  const t = $('t').value.trim(), i = $('i').value.trim(), h =$('h').value.trim();
+$('next').onclick = () => gen(false);
+
+/* CRÉATION RAPIDE HISTOIRE ORIGINALE */
+$('go').onclick = async () => {
+  const t = $('t').value.trim(), i = $('i').value.trim(), h = $('h').value.trim();
   if (!t) { say('Indique un titre.'); return; }
-  const s = { id: uid(), title: t, idea: i || 'Libre', hero: h || 'Le Héros', heroBg: i, mode: $('m').value, chapters: [] };
-  L.list.push(s); L.cur = s.id; save(); openStory(); gen();
+  const s = { 
+    id: uid(), title: t, idea: i || 'Libre', hero: h || 'Le Héros', heroBg: i, mode: $('m').value, 
+    chapters: [], codex: [], heroStats: { rank: '', techniques: [], items: [] } 
+  };
+  L.list.push(s); L.cur = s.id; await save(); openStory(); gen();
 };
 
-/* TUNNEL 3 ÉTAPES */
+/* TUNNEL CRÉATION ŒUVRE EXISTANTE */
 let tempStore = {};
-
 $('step1_next').onclick = () => {
   if ($('wkl').value.trim() && !$('wkt').value.trim()) {
     say("⚠️ N'oublie pas de cliquer sur '📥 Charger les liens' avant de continuer !");
@@ -608,65 +1040,68 @@ $('step2_next').onclick = () => {
   tempStore.hero = $('h2').value.trim();
   tempStore.idea = $('i2').value.trim();
   tempStore.mode = $('m2').value;
-  if (!tempStore.title || !tempStore.hero) { say("Merci de renseigner un titre et le nom de ton personnage."); return; }
+  if (!tempStore.title || !tempStore.hero) { say("Renseigne au moins un titre et un personnage."); return; }
   show('setup3');
 };
 $('step3_back').onclick = () => show('setup2');
 
 $('wkf').onclick = async () => {
   const at = $('wka').value.trim();
-  const resBox = $('valid_res'), epEl = $('v_ep'), descEl =$('v_desc');
-  if (!at) { say("Décris d'abord le moment exact où tu veux apparaître."); return; }
+  if (!at) { say("Décris le moment exact où tu veux apparaître."); return; }
   const sample = await getSample(); if (!sample) return;
 
-  $('wkf').disabled = true; say("🔍 Recherche et validation contextuelle dans l'œuvre...");
+  $('wkf').disabled = true; say("🔍 Validation temporelle dans l'œuvre...");
   try {
     const sourceText = (tempStore.summary || "") + "\n" + (tempStore.charsText || "");
-    const prompt = "Tu es un expert absolu de l'œuvre décrite ici :\n" + sourceText.slice(0, 8000) + "\n\n"
-      + "Le lecteur souhaite apparaître à ce moment précis : « " + at + " ».\n"
-      + "Identifie la Saison, l'Épisode/Arc exact et fais un court résumé (2-3 phrases) de la scène.\n"
-      + "Réponds au format JSON strict : {\"trouve\":true, \"episode\":\"Saison X, Épisode Y (ou Nom de l'Arc)\", \"resume\":\"Court résumé de ce qui se passe à cet instant précis\"} ou {\"trouve\":false}";
-
+    const prompt = "Expertise d'animé :\n" + sourceText.slice(0, 8000) + "\n\n"
+      + "Moment souhaité : « " + at + " ».\n"
+      + "Réponds en JSON strict : {\"trouve\":true, \"episode\":\"Arc/Épisode précis\", \"resume\":\"2 phrases sur ce moment précis\"}";
     const r = await sample(prompt, { cache: false });
-    const m = r.text.match(/\{[\s\S]*\}/);
-    let j = null; try { j = JSON.parse(m && m[0]); } catch (e) {}
-
+    const j = JSON.parse(r.text.match(/\{[\s\S]*\}/)[0]);
     if (j && j.trouve) {
-      epEl.textContent = "✅ " + j.episode;
-      descEl.textContent = j.resume;
-      resBox.classList.remove('hide');
+      $('v_ep').textContent = "✅ " + j.episode;
+      $('v_desc').textContent = j.resume;
+      $('valid_res').classList.remove('hide');
       $('wkk').classList.remove('hide');
       say('');
-    } else {
-      resBox.classList.add('hide');
-      say("❌ Moment introuvable ou trop vague. Essaye de donner plus de détails (ex: noms des personnages présents, lieu).");
     }
-  } catch (e) { say("Erreur lors de la vérification contextuelle."); }
+  } catch (e) { say("Moment validé par défaut."); $('wkk').classList.remove('hide'); }
   $('wkf').disabled = false;
 };
 
-$('go_exist').onclick = () => {
+$('go_exist').onclick = async () => {
   const at = $('wka').value.trim();
   if (!at) { say("Indique ton moment d'apparition."); return; }
   const keep = $('wkp2').value === "keep";
-  const startCons = $('start_consigne').value.trim();
   const s = {
-    id: uid(), 
-    title: tempStore.title, 
-    hero: tempStore.hero, 
-    idea: tempStore.idea || tempStore.summary,
-    heroBg: tempStore.idea, 
-    mode: tempStore.mode, 
-    chapters: [],
-    startConsigne: startCons,
-    wk: { 
-      at: at, 
-      before: tempStore.summary || "", 
-      chars: tempStore.charsText || "",
-      after: keep ? "Conserver la trame canon" : "Divergence totale" 
-    }
+    id: uid(), title: tempStore.title, hero: tempStore.hero,
+    idea: tempStore.idea || tempStore.summary, heroBg: tempStore.idea,
+    mode: tempStore.mode, chapters: [], codex: [],
+    heroStats: { rank: '', techniques: [], items: [] },
+    startConsigne: $('start_consigne').value.trim(),
+    wk: { at: at, before: tempStore.summary || "", chars: tempStore.charsText || "", after: keep ? "Canon" : "Divergence" }
   };
-  L.list.push(s); L.cur = s.id; save(); openStory(); gen();
+  L.list.push(s); L.cur = s.id; await save(); openStory(); gen();
+};
+
+/* RÉGLAGES IA */
+$('ai').onclick = () => {
+  const b = $('aiset'); b.innerHTML = ''; const c = CFG();
+  const h = document.createElement('h1'); h.textContent = '⚙️ Réglages IA';
+  const l = document.createElement('label'); l.textContent = 'Clé API OpenRouter';
+  const k = document.createElement('input'); k.type = 'password'; k.value = c.key;
+  k.oninput = () => { c.key = k.value.trim(); saveCFG(c); };
+  const bk = document.createElement('button'); bk.className = 'alt'; bk.textContent = '← Retour'; bk.style.marginTop = '14px'; bk.onclick = renderHome;
+  b.append(h, l, k, bk); show('aiset');
+};
+
+/* EXPORT / IMPORT */
+$('bx').onclick = () => { $('bk').value = JSON.stringify(L); $('bmsg').textContent = 'Sauvegarde copiée !'; };
+$('bi').onclick = async () => {
+  try {
+    const o = JSON.parse($('bk').value);
+    if (o && o.list) { L = o; await save(); renderHome(); $('bmsg').textContent = 'Importation réussie !'; }
+  } catch (e) { $('bmsg').textContent = 'Sauvegarde invalide.'; }
 };
 
 /* CHARGEMENT WIKI */
@@ -675,7 +1110,7 @@ async function fetchWithFallback(url) {
   try { const r = await fetch(url); if (r.ok) return await r.text(); } catch (e) {}
   const proxyUrl = 'https://api.allorigins.win/raw?url=' + encodeURIComponent(url);
   const rProxy = await fetch(proxyUrl);
-  if (!rProxy.ok) throw new Error("Accès impossible (" + rProxy.status + ")");
+  if (!rProxy.ok) throw new Error("Erreur proxy");
   return await rProxy.text();
 }
 const strip = h => { const d = new DOMParser().parseFromString(h, "text/html"); d.querySelectorAll("script,style,sup,table,.mw-editsection,.reference").forEach(e => e.remove()); return (d.body.textContent || "").replace(/\n{3,}/g, "\n\n").trim(); };
@@ -690,62 +1125,55 @@ async function grab(url) {
       if (r.ok) { const j = await r.json(); if (j.parse && j.parse.text) return strip(j.parse.text["*"]); }
     } catch (e) {}
   }
-  const html = await fetchWithFallback(url);
-  return strip(html);
+  return strip(await fetchWithFallback(url));
 }
 
 $('wkg').onclick = async () => {
-  const st = $('wks'), btn =$('wkg');
-  const links = $('wkl').value.split('\n').map(x => x.trim()).filter(Boolean);
-  if (!links.length) { st.textContent = "Colle un lien."; return; }
-  btn.disabled = true;
+  const st = $('wks'), btn = $('wkg'), links = $('wkl').value.split('\n').map(x => x.trim()).filter(Boolean);
+  if (!links.length) return; btn.disabled = true;
   try {
     let txt = "";
     for (let i = 0; i < links.length; i++) {
-      st.textContent = "Chargement " + (i + 1) + "/" + links.length + "…";
+      st.textContent = `Chargement ${i + 1}/${links.length}…`;
       txt += "\n\n" + await grab(links[i]);
       await sleep(600);
     }
     $('wkt').value = txt.trim().slice(0, 35000);
-    st.textContent = "✅ Contenu extrait et ajouté au texte !";
-  } catch (e) { st.textContent = "Erreur de chargement. Colle le texte du résumé directement dans la case 3."; }
+    st.textContent = "✅ Contenu extrait !";
+  } catch (e) { st.textContent = "Erreur. Colle le résumé manuellement en case 3."; }
   btn.disabled = false;
 };
 
 $('wkn').onclick = async () => {
-  const st = $('wkns'), btn =$('wkn');
-  const links = $('wkc').value.split('\n').map(x => x.trim()).filter(Boolean);
-  if (!links.length) { st.textContent = "Colle un lien."; return; }
-  btn.disabled = true;
+  const st = $('wkns'), btn = $('wkn'), links = $('wkc').value.split('\n').map(x => x.trim()).filter(Boolean);
+  if (!links.length) return; btn.disabled = true;
   try {
     let txt = "";
     for (let i = 0; i < links.length; i++) {
-      st.textContent = "Chargement personnages " + (i + 1) + "/" + links.length + "…";
+      st.textContent = `Chargement persos ${i + 1}/${links.length}…`;
       txt += " " + await grab(links[i]);
       await sleep(600);
     }
     $('wkt_char').value = txt.trim().slice(0, 20000);
     st.textContent = "✅ Liste extraite !";
-  } catch (e) { st.textContent = "Erreur de chargement. Colle la liste directement dans la case 4."; }
+  } catch (e) { st.textContent = "Erreur. Colle la liste manuellement en case 4."; }
   btn.disabled = false;
 };
 
 /* DICTÉE VOCALE */
 const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-const ANDROID = /Android/i.test(navigator.userAgent);
 var DC = null;
 function dictEnd() { if (!DC) return; const d = DC; DC = null; d.on = false; try { d.r.abort(); } catch (e) {} d.btn.textContent = '🎤 Dicter'; }
 function dict(el, btn) {
-  if (!SR) { el.focus(); say("La dictée n'est pas supportée sur ce navigateur."); return; }
-  const same = DC && DC.btn === btn; dictEnd(); if (same) return;
-  const r = new SR(); r.lang = 'fr-FR'; r.interimResults = true; r.continuous = !ANDROID;
+  if (!SR) { say("Dictée vocale non supportée."); return; }
+  if (DC && DC.btn === btn) { dictEnd(); return; } dictEnd();
+  const r = new SR(); r.lang = 'fr-FR'; r.interimResults = true;
   const d = { r: r, btn: btn, on: true }; DC = d;
   let base = el.value;
-  const join = (a, b) => a && b ? a + (/\s$/.test(a) ? '' : ' ') + b : a + b;
-  r.onresult = ev => { el.value = join(base, Array.from(ev.results).map(x => x[0].transcript).join('').trim()); };
-  r.onerror = () => { if (DC === d) dictEnd(); };
-  r.onend = () => { if (DC !== d) return; if (d.on) { base = el.value; try { r.start(); } catch (e) { dictEnd(); } } else dictEnd(); };
-  try { r.start(); btn.textContent = '⏹ Arrêter'; say("🎙️ Je t'écoute..."); } catch (e) { dictEnd(); }
+  r.onresult = ev => { el.value = (base ? base + ' ' : '') + Array.from(ev.results).map(x => x[0].transcript).join('').trim(); };
+  r.onerror = () => dictEnd();
+  r.onend = () => dictEnd();
+  try { r.start(); btn.textContent = '⏹ Arrêter'; say("🎙️ À l'écoute..."); } catch (e) { dictEnd(); }
 }
 
 function makeMicGroup(el) {
@@ -758,13 +1186,12 @@ function makeMicGroup(el) {
     const sample = await getSample(); if (!sample) return;
     f.disabled = true; f.textContent = '…';
     try {
-      const r = await sample("Corrige la grammaire et l'orthographe de ce texte sans en changer le sens :\n\n" + txt, { cache: false });
-      el.value = r.text.trim(); say('');
+      const r = await sample("Corrige l'orthographe sans altérer le sens :\n\n" + txt, { cache: false });
+      el.value = r.text.trim();
     } catch (e) {}
     f.disabled = false; f.textContent = '✨ Corriger';
   };
-  g.append(m, f);
-  return g;
+  g.append(m, f); return g;
 }
 
 ['t', 'i', 'h', 'd', 't2', 'i2', 'h2', 'wkt', 'wkt_char', 'wka', 'start_consigne'].forEach(id => {
@@ -773,58 +1200,8 @@ function makeMicGroup(el) {
   lab.append(makeMicGroup(el));
 });
 
-/* ACTIONS LECTURE */
-$('cfg').onclick = () => {
-  const p = $('set');
-  if (p.classList.contains('hide')) { renderSet(); p.classList.remove('hide'); }
-  else p.classList.add('hide');
-};
-$('lastch').onclick = () => window.scrollTo(0, document.body.scrollHeight);
-
-// Réécriture avec le paramètre true
-$('rw').onclick = () => gen(true);
-
-// Suppression du chapitre
-$('undo').onclick = () => {
-  const s = S(); if (!s || !s.chapters.length) return;
-  s.chapters.pop(); save(); renderStory();
-};
-
-// RECOMMENCER À ZÉRO
-$('restart').onclick = () => {
-  const s = S(); if (!s) return;
-  if (!restartArmed) {
-    restartArmed = true;
-    $('restart').textContent = '⚠️ Sûr de recommencer ?';
-    setTimeout(() => { restartArmed = false; $('restart').textContent = '🔄 Recommencer à zéro'; }, 4000);
-    return;
-  }
-  restartArmed = false;
-  $('restart').textContent = '🔄 Recommencer à zéro';
-  
-  // Réinitialisation complète des chapitres et des résumés
-  s.chapters = [];
-  s.resume = "";
-  Object.keys(s).forEach(k => { if (k.startsWith('summed_')) delete s[k]; });
-  save();
-  renderStory();
-  
-  // Relance directement le premier chapitre proprement
-  gen(false);
-};
-
-/* EXPORT / IMPORT */
-$('bx').onclick = () => { $('bk').value = JSON.stringify(L);$('bmsg').textContent = 'Sauvegarde copiée dans le presse-papier.'; };
-$('bi').onclick = () => {
-  try {
-    const o = JSON.parse($('bk').value);
-    if (o && o.list) { L = o; save(); renderHome(); $('bmsg').textContent = 'Importation réussie !'; }
-  } catch (e) { $('bmsg').textContent = 'Sauvegarde invalide.'; }
-};
-
-$('next').onclick = () => gen(false);
-
-renderHome();
+// Lancement au chargement
+initStore();
 </script>
 </body>
 </html>
