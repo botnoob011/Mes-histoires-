@@ -314,7 +314,6 @@ function para(text, box) {
   text.split('\n').forEach(l => {
     if (!l.trim()) return;
     const p = document.createElement('p');
-    // Format attendu : "Nom (Relation) : dialogue" ou "Nom : dialogue"
     const m = l.match(/^\s*\*?\*?([^:：]{1,80})\*?\*?\s*[:：]\s*(.*)$/);
     if (m && !l.startsWith('http')) {
       const b = document.createElement('b');
@@ -403,7 +402,14 @@ function renderSet() {
 
 /* OPENROUTER API & GÉNÉRATION */
 let MODEL_USED = '';
-const CFG = () => { let c = {}; try { c = JSON.parse(localStorage.getItem('orcfg')) || {}; } catch (e) {} return { key: c.key || '', models: Array.isArray(c.models) ? c.models : ['openrouter/free'] }; };
+const CFG = () => { 
+  let c = {}; 
+  try { c = JSON.parse(localStorage.getItem('orcfg')) || {}; } catch (e) {} 
+  return { 
+    key: c.key || '', 
+    models: Array.isArray(c.models) && c.models.length ? c.models : ['meta-llama/llama-3.3-70b-instruct:free', 'openrouter/free'] 
+  }; 
+};
 const saveCFG = c => { try { localStorage.setItem('orcfg', JSON.stringify(c)); } catch (e) {} };
 
 async function callOR(key, model, prompt, onText) {
@@ -435,7 +441,7 @@ async function getSample() {
   const c = CFG();
   if (!c.key) { say("Ajoute ta clé OpenRouter dans ⚙️ Réglages IA."); return null; }
   return async (prompt, opts) => {
-    return { text: await callOR(c.key, c.models[0] || 'openrouter/free', prompt, opts.onText) };
+    return { text: await callOR(c.key, c.models[0] || 'meta-llama/llama-3.3-70b-instruct:free', prompt, opts && opts.onText) };
   };
 }
 
@@ -454,7 +460,7 @@ async function autoSummarizeIfNeeded(s, sample) {
   }
 }
 
-/* GÉNÉRATION DU CHAPITRE */
+/* GÉNÉRATION DU CHAPITRE (AVEC PROMPT STRICT ANTI-ERREURS) */
 async function gen() {
   const s = S(); if (busy || !s) return;
   const sample = await getSample(); if (!sample) return;
@@ -464,25 +470,36 @@ async function gen() {
 
   let canonPrompt = "";
   if (s.wk) {
-    canonPrompt = "\n\nFICHE CONTEXTUELLE DE L'OEUVRE & VERROUILLAGE CANON :\n"
-      + "- Moment d'apparition exact du lecteur : " + s.wk.at + "\n"
-      + "- Contexte / Lieu : " + s.wk.before + "\n"
-      + "- RÈGLE STRICTE SUR LE CASTING : Ne fais intervenir dans la scène QUE les personnages physiquement présent à cet instant précis du récit. INTERDICTION ABSOLUE d'inventer la présence de personnages absents à ce moment.\n"
-      + "- STATUT ET RELATIONS : Le lecteur est " + s.hero + ". Respecte scrupuleusement son rôle, son titre et son autorité par rapport aux autres PNJ présent.\n";
+    const loreClean = (s.wk.before || "").slice(0, 10000);
+    const charsClean = (s.wk.chars || "").slice(0, 5000);
+
+    canonPrompt = "\n\n=== CONTEXTE OFFICIEL DE L'ŒUVRE ===\n"
+      + (loreClean ? "RÉSUMÉ DU MONDE / DE L'HISTOIRE :\n" + loreClean + "\n\n" : "")
+      + (charsClean ? "PERSONNAGES OFFICIELS :\n" + charsClean + "\n\n" : "")
+      + "=== CHRONOLOGIE ET RÈGLES CANONIQUES STRICTES ===\n"
+      + "1. POINT D'APPARITION : " + s.wk.at + "\n"
+      + "2. INTERDICTION DES SPOILERS / ANACRONISMES : Les événements qui se déroulent APRÈS ce moment précis dans l'œuvre ne se sont PAS encore produits. Les personnages doivent avoir le niveau, le caractère et les connaissances de ce moment précis.\n"
+      + "3. CASTING : Ne fais intervenir dans la scène QUE les personnages physiquement présents à cet instant précis sur le lieu. N'invente pas l'apparition magique d'autres personnages.\n"
+      + "4. RESPECT DU JOUEUR : Le joueur incarne « " + s.hero + " ». Respecte son statut, son identité et les réactions des PNJ face à lui.\n";
   }
 
-  const memTxt = (s.memo || []).map(m => "\n- Note mémoire : " + m).join("");
-  const heroBg = s.heroBg ? "\nBackground du lecteur : " + s.heroBg : "";
+  const memTxt = (s.memo || []).map(m => "\n- Fait mémorisé : " + m).join("");
+  const heroBg = s.heroBg ? "\nBackground / Rôle du joueur : " + s.heroBg : "";
   const autoSum = s.resume ? "\n\nRésumé des chapitres précédents :\n" + s.resume : "";
 
-  const prompt = "Tu es un auteur expert de récits animés/fandoms. Écris un chapitre fluide en français.\n"
-    + "Titre : " + s.title + "\nUnivers : " + s.idea + "\nPersonnage du lecteur : " + s.hero + heroBg + canonPrompt + memTxt + autoSum + "\n\n"
-    + "RÈGLES IMPÉRATIVES DE STYLE :\n"
-    + "1. Équilibre du chapitre : 70% de DIALOGUES vivants et 30% de NARRATION/DESCRIPTION.\n"
-    + "2. Format des répliques : Commence CHAQUE réplique par le Nom et la Relation entre parenthèses suivi d'un deux-points (ex. « Nom (Sa relation avec toi) : ... »). N'utilise aucune balise de couleur HTML.\n"
-    + "3. Pas de titre de chapitre (comme 'Chapitre X').\n\n"
-    + ((s.chapters && s.chapters.length) ? "Derniers événements :\n" + s.chapters.slice(-2).join("\n\n") : "C'est le Chapitre 1 : " + (s.startConsigne && s.startConsigne.trim() !== 'rien' ? s.startConsigne : "Intègre le lecteur immédiatement au moment choisi."))
-    + ($('d').value.trim() ? "\nConsigne du lecteur : " + $('d').value.trim() : "");
+  const prompt = "Tu es un romancier et scénariste d'élite spécialisé dans les animés et mangas.\n"
+    + "Tu dois écrire la suite de l'histoire en français littéraire et immersif.\n\n"
+    + "Titre : " + s.title + "\n"
+    + "Joueur : " + s.hero + heroBg + "\n"
+    + canonPrompt + memTxt + autoSum + "\n\n"
+    + "RÈGLES D'ÉCRITURE OBLIGATOIRES :\n"
+    + "- Équilibre : 70% de DIALOGUES percutants et vivants, 30% de NARRATION/ACTIONS.\n"
+    + "- Format des dialogues : Chaque réplique commence obligatoirement par « Nom (Relation ou Titre) : dialogue ».\n"
+    + "- Pas d'intro méta, pas de 'Chapitre X', commence directement par la scène.\n\n"
+    + ((s.chapters && s.chapters.length) 
+        ? "DERNIERS ÉVÉNEMENTS (sois dans la continuité immédiate) :\n" + s.chapters.slice(-2).join("\n\n") 
+        : "PREMIER CHAPITRE : " + (s.startConsigne && s.startConsigne.trim() !== 'rien' ? s.startConsigne : "Fais démarrer la scène précisément au moment d'apparition choisi, avec l'entrée en scène du joueur."))
+    + ($('d').value.trim() ? "\n\nAction / Choix du joueur pour ce chapitre : " + $('d').value.trim() : "");
 
   const live = $('live'); live.classList.remove('hide'); live.innerHTML = '';
   try {
@@ -528,6 +545,10 @@ $('go').onclick = () => {
 let tempStore = {};
 
 $('step1_next').onclick = () => {
+  if ($('wkl').value.trim() && !$('wkt').value.trim()) {
+    say("⚠️ N'oublie pas de cliquer sur '📥 Charger les liens' avant de continuer !");
+    return;
+  }
   tempStore.summary = $('wkt').value.trim();
   tempStore.links = $('wkl').value.trim();
   tempStore.charsText = $('wkt_char').value.trim();
@@ -545,7 +566,7 @@ $('step2_next').onclick = () => {
 };
 $('step3_back').onclick = () => show('setup2');
 
-/* VALIDATION CONTEXTUELLE DU MOMENT PAR L'IA (SAISON, ÉPISODE, RÉSULTAT) */
+/* VALIDATION CONTEXTUELLE DU MOMENT PAR L'IA */
 $('wkf').onclick = async () => {
   const at = $('wka').value.trim();
   const resBox = $('valid_res'), epEl = $('v_ep'), descEl =$('v_desc');
@@ -554,7 +575,7 @@ $('wkf').onclick = async () => {
 
   $('wkf').disabled = true; say("🔍 Recherche et validation contextuelle dans l'œuvre...");
   try {
-    const sourceText = (tempStore.summary || "") + "\n" + (tempStore.links || "");
+    const sourceText = (tempStore.summary || "") + "\n" + (tempStore.charsText || "");
     const prompt = "Tu es un expert absolu de l'œuvre décrite ici :\n" + sourceText.slice(0, 8000) + "\n\n"
       + "Le lecteur souhaite apparaître à ce moment précis : « " + at + " ».\n"
       + "Identifie la Saison, l'Épisode/Arc exact et fais un court résumé (2-3 phrases) de la scène.\n"
@@ -584,10 +605,20 @@ $('go_exist').onclick = () => {
   const keep = $('wkp2').value === "keep";
   const startCons = $('start_consigne').value.trim();
   const s = {
-    id: uid(), title: tempStore.title, hero: tempStore.hero, idea: tempStore.idea || tempStore.summary,
-    heroBg: tempStore.idea, mode: tempStore.mode, chapters: [],
+    id: uid(), 
+    title: tempStore.title, 
+    hero: tempStore.hero, 
+    idea: tempStore.idea || tempStore.summary,
+    heroBg: tempStore.idea, 
+    mode: tempStore.mode, 
+    chapters: [],
     startConsigne: startCons,
-    wk: { at: at, before: tempStore.summary || tempStore.links || "Œuvre existante", after: keep ? "Conserver la trame canon" : "Divergence totale" }
+    wk: { 
+      at: at, 
+      before: tempStore.summary || "", 
+      chars: tempStore.charsText || "",
+      after: keep ? "Conserver la trame canon" : "Divergence totale" 
+    }
   };
   L.list.push(s); L.cur = s.id; save(); openStory(); gen();
 };
