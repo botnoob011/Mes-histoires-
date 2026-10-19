@@ -511,19 +511,18 @@ function para(text, box) {
 }
 
 /* ==========================================================================
-   NETTOYAGE STRICT ET EXTRACTION DES CHOIX SANS BUGS D'ÉTOILES
+   NETTOYAGE DU TEXTE ET EXTRACTION PROPRE
    ========================================================================== */
 function extractAndClean(rawText, s) {
   let txt = rawText;
 
-  // 1. Supprime les artefacts de sécurité ou d'écho de prompt
   txt = txt.replace(/User Safety\s*:\s*safe/gi, '')
            .replace(/^Choix du joueur\s*:\s*[^\n]+\n?/gi, '')
            .replace(/^Action du joueur\s*:\s*[^\n]+\n?/gi, '')
            .replace(/^\s*Chapitre\s*\d+\s*[:\-–—]?\s*/gi, '')
            .trim();
 
-  // 2. Extraire les 3 CHOIX proprement (supprime les **, les puces, les numéros)
+  // Extraction propre des choix
   const chMatch = txt.match(/CHOIX\s*:\s*([\s\S]*?)(?=(PERSOS_MAJ|HERO_MAJ|$))/i);
   if (chMatch) {
     const rawLines = chMatch[1].split('\n');
@@ -537,7 +536,7 @@ function extractAndClean(rawText, s) {
     s.lastChoices = validChoices.slice(0, 3);
   }
 
-  // 3. Extraire PERSOS_MAJ (Codex)
+  // Extraction Codex
   const cdxMatch = txt.match(/PERSOS_MAJ\s*:\s*([\s\S]*?)(?=(CHOIX|HERO_MAJ|$))/i);
   if (cdxMatch) {
     s.codex = s.codex || [];
@@ -556,7 +555,7 @@ function extractAndClean(rawText, s) {
     });
   }
 
-  // 4. Extraire HERO_MAJ (Fiche héros)
+  // Extraction Héros
   const heroMatch = txt.match(/HERO_MAJ\s*:\s*([\s\S]*?)(?=(CHOIX|PERSOS_MAJ|$))/i);
   if (heroMatch) {
     s.heroStats = s.heroStats || { rank: '', techniques: [], items: [] };
@@ -576,7 +575,6 @@ function extractAndClean(rawText, s) {
     }
   }
 
-  // Retourne le texte pur du chapitre
   return txt
     .replace(/CHOIX\s*:[\s\S]*$/i, '')
     .replace(/PERSOS_MAJ\s*:[\s\S]*$/i, '')
@@ -681,26 +679,31 @@ function renderStory() {
   renderHeroStats();
 }
 
+/* ==========================================================================
+   CORRECTION CRUCIALE DE L'AFFICHAGE DES CHOIX
+   ========================================================================== */
 function renderChoices() {
   const s = S(); if (!s) return;
   const box = $('choices_list'), cont = $('choices_container');
   box.innerHTML = '';
 
-  if (s.lastChoices && s.lastChoices.length > 0) {
-    cont.classList.remove('hide');
-    s.lastChoices.forEach((ch, idx) => {
-      const b = document.createElement('button');
-      b.className = 'choice-btn';
-      b.textContent = (idx + 1) + '. ' + ch;
-      b.onclick = () => {
-        $('d').value = ch;
-        gen(false);
-      };
-      box.append(b);
-    });
-  } else {
+  // SI AUCUN CHAPITRE EXISTE OU PAS DE CHOIX VALIDES -> CACHE IMMÉDIATEMENT
+  if (!s.chapters || s.chapters.length === 0 || !s.lastChoices || s.lastChoices.length === 0) {
     cont.classList.add('hide');
+    return;
   }
+
+  cont.classList.remove('hide');
+  s.lastChoices.forEach((ch, idx) => {
+    const b = document.createElement('button');
+    b.className = 'choice-btn';
+    b.textContent = (idx + 1) + '. ' + ch;
+    b.onclick = () => {
+      $('d').value = ch;
+      gen(false);
+    };
+    box.append(b);
+  });
 }
 
 function renderCodex() {
@@ -830,11 +833,17 @@ function renderSet() {
   });
 }
 
-function openStory() { const s = S(); if (s && !s.memo) s.memo = []; show('story'); $('set').classList.add('hide'); $('hero_panel').classList.add('hide'); $('codex_panel').classList.add('hide'); $('rw_box').classList.add('hide'); renderStory(); }
+function openStory() { 
+  const s = S(); 
+  if (s && !s.memo) s.memo = []; 
+  show('story'); 
+  $('set').classList.add('hide'); 
+  $('hero_panel').classList.add('hide'); 
+  $('codex_panel').classList.add('hide'); 
+  $('rw_box').classList.add('hide'); 
+  renderStory(); 
+}
 
-/* ==========================================================================
-   CONFIG MODÈLES ROBUSTES (ANTI-CRASH)
-   ========================================================================== */
 const CFG = () => { 
   let c = {}; 
   try { c = JSON.parse(localStorage.getItem('orcfg')) || {}; } catch (e) {} 
@@ -899,9 +908,6 @@ async function getSample() {
   };
 }
 
-/* ==========================================================================
-   GÉNÉRATION AVEC CONTINUITÉ CHRONOLOGIQUE STRICTE (ANTI-RÉPÉTITION)
-   ========================================================================== */
 async function gen(isRewrite = false, rwOptions = null) {
   const s = S(); if (busy || !s) return;
   const sample = await getSample(); if (!sample) return;
@@ -963,7 +969,6 @@ async function gen(isRewrite = false, rwOptions = null) {
     }
   } else {
     if (s.chapters && s.chapters.length > 0) {
-      // FIX CRUCIAL : On ne transmet que la FIN du chapitre précédent pour éviter que l'IA ne recopie le début
       const lastChap = s.chapters[s.chapters.length - 1];
       const lastLines = lastChap.split('\n').filter(l => l.trim()).slice(-4).join('\n');
 
@@ -1039,7 +1044,7 @@ async function gen(isRewrite = false, rwOptions = null) {
 }
 
 /* ==========================================================================
-   NAVIGATION & GESTION DU PANNEAU DE RÉÉCRITURE
+   NAVIGATION & ACTIONS
    ========================================================================== */
 $('new').onclick = () => show('choice');
 $('choice_cancel').onclick = renderHome;
@@ -1071,11 +1076,17 @@ $('rw_confirm').onclick = () => {
   gen(true, { type, critique: crit });
 };
 
+// CORRECTION ICI : Quand on supprime un chapitre, on réinitialise ses choix
 $('undo').onclick = async () => {
   const s = S(); if (!s || !s.chapters.length) return;
-  s.chapters.pop(); await save(); renderStory();
+  s.chapters.pop();
+  s.lastChoices = []; // Efface les choix immédiatement
+  await save();
+  renderStory();
+  say("Chapitre supprimé.");
 };
 
+// CORRECTION ICI : Recommencer à zéro vide totalement l'histoire et les choix
 $('restart').onclick = async () => {
   const s = S(); if (!s) return;
   if (!restartArmed) {
@@ -1086,12 +1097,13 @@ $('restart').onclick = async () => {
   }
   restartArmed = false;
   $('restart').textContent = '🔄 Recommencer à zéro';
+  
   s.chapters = [];
-  s.lastChoices = [];
+  s.lastChoices = []; // Efface les choix
   s.resume = "";
   await save();
   renderStory();
-  gen(false);
+  gen(false); // Relance proprement le Chapitre 1
 };
 
 $('next').onclick = () => gen(false);
