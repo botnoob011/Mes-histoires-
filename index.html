@@ -150,7 +150,7 @@ button:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
   margin: 2px 4px 4px 0;
 }
 
-#msg, #smsg, #smsg1, #smsg2, #smsg3 { color: #a7f3d0; font-size: 0.9rem; min-height: 1.2em; margin: 8px 0 0; }
+#msg, #smsg, #smsg_insp, #smsg1, #smsg2, #smsg3 { color: #a7f3d0; font-size: 0.9rem; min-height: 1.2em; margin: 8px 0 0; }
 .toast-success { color: var(--success) !important; font-weight: 600; }
 .hide { display: none !important; }
 </style>
@@ -182,15 +182,16 @@ button:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
 <!-- CHOIX DU TYPE DE CRÉATION -->
 <section id="choice" class="card hide">
   <h1>Nouvelle histoire</h1>
-  <p class="sub">Quel univers veux-tu explorer ?</p>
+  <p class="sub">Quel type d'univers souhaites-tu lancer ?</p>
   <div class="row" style="flex-direction:column;gap:12px">
-    <button id="btn_orig">🆕 Histoire originale (de zéro)</button>
-    <button id="btn_exist" class="alt">📖 Dans une œuvre existante (animé, manga, roman...)</button>
+    <button id="btn_orig">🆕 Histoire originale (De zéro, 100% inventée)</button>
+    <button id="btn_inspired" style="background:linear-gradient(135deg, #06b6d4, #8b5cf6);">✨ Histoire inspirée d'un animé (Mêmes thèmes & pouvoirs, intrigue originale)</button>
+    <button id="btn_exist" class="alt">📖 Dans une œuvre existante (Canon officiel avec les vrais personnages)</button>
     <button id="choice_cancel" class="alt">← Retour</button>
   </div>
 </section>
 
-<!-- FORMULAIRE CLASSIQUE (ORIGINAL) -->
+<!-- FORMULAIRE 1 : HISTOIRE ORIGINALE -->
 <section id="setup" class="card hide">
   <h1>Nouvelle histoire originale</h1>
   <label for="m">Type d'histoire</label>
@@ -199,7 +200,7 @@ button:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
     <option value="rpg">⚔️ RPG (stats, loots, niveaux)</option>
     <option value="hybrid">🎬⚔️ Hybride</option>
   </select>
-  <label for="t">Titre de l'histoire</label><input id="t" placeholder="Ex : Le royaume des archiducs">
+  <label for="t">Titre de l'histoire</label><input id="t" placeholder="Ex : Le Sanctuaire Éthéré">
   <label for="i">Idée, monde, style & univers</label><textarea id="i" placeholder="Ex : Monde d'épéistes magiques, système de noblesse, un empereur craint..."></textarea>
   <label for="h">Ton personnage (Nom)</label><input id="h" placeholder="Ex : Acil">
   <div class="row">
@@ -209,7 +210,41 @@ button:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
   <p id="smsg"></p>
 </section>
 
-<!-- TUNNEL 3 ÉTAPES (ŒUVRE EXISTANTE) -->
+<!-- FORMULAIRE 2 : HISTOIRE INSPIRÉE D'UN ANIMÉ (NOUVEAU !) -->
+<section id="setup_inspired" class="card hide">
+  <h1>✨ Histoire inspirée d'un animé</h1>
+  <p class="sub">Crée une nouvelle histoire originale basée sur les mécaniques, l'ambiance et les pouvoirs d'une œuvre existante.</p>
+  
+  <label for="mi">Type d'histoire</label>
+  <select id="mi">
+    <option value="anime">🎬 Animé / Roman (histoire narrative)</option>
+    <option value="rpg">⚔️ RPG (stats, loots, niveaux)</option>
+    <option value="hybrid">🎬⚔️ Hybride</option>
+  </select>
+
+  <label for="ti">Titre de ton histoire</label>
+  <input id="ti" placeholder="Ex : L'Ordre des Fléaux, Le Monarque Déchu...">
+
+  <label for="ai_insp">Animé ou Manga d'inspiration</label>
+  <input id="ai_insp" placeholder="Ex : Jujutsu Kaisen, Solo Leveling, Hunter x Hunter, Bleach, Chainsaw Man...">
+
+  <label for="ii">Éléments à reprendre (Système de pouvoirs, ambiance, thèmes)</label>
+  <textarea id="ii" placeholder="Ex : Le même système d'énergie occulte et de pactes, une académie secrète dans un monde moderne, mais avec une guerre de clans originale..."></textarea>
+
+  <label for="hi">Ton personnage (Nom)</label>
+  <input id="hi" placeholder="Ex : Kael">
+
+  <label for="hbi">Background & particularité de ton personnage</label>
+  <textarea id="hbi" placeholder="Ex : Un exorciste né sans aucune énergie occulte, mais capable d'annuler les sorts d'autrui au contact physique..."></textarea>
+
+  <div class="row">
+    <button id="go_inspired">🚀 Lancer l'histoire inspirée</button>
+    <button id="cancel_inspired" class="alt">Retour</button>
+  </div>
+  <p id="smsg_insp"></p>
+</section>
+
+<!-- FORMULAIRE 3 : TUNNEL 3 ÉTAPES (ŒUVRE EXISTANTE) -->
 <section id="setup1" class="card hide">
   <h1>Configuration de l'Œuvre (Étape 1/3)</h1>
   <p class="sub">Données et contexte de l'animé</p>
@@ -315,7 +350,7 @@ button:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
   <div id="hero_panel" class="card hide">
     <h2>⚔️ Progression & Fiche du Héros</h2>
     <label>Rang / Palier de Puissance</label>
-    <input id="h_rank" placeholder="Ex : Mage Saint, Rang S, Chevalier Émérite...">
+    <input id="h_rank" placeholder="Ex : Exorciste Rang S, Mage Saint, Chasseur Rang Élite...">
     <label>Techniques, Sorts & Dons débloqués</label>
     <div id="h_tech_list"></div>
     <div class="row" style="margin-top:6px">
@@ -495,7 +530,7 @@ async function save() {
 }
 
 function say(t, isSuccess = false) {
-  ['smsg','smsg1','smsg2','smsg3','msg'].forEach(id => {
+  ['smsg','smsg_insp','smsg1','smsg2','smsg3','msg'].forEach(id => {
     const el = $(id);
     if (el) {
       el.textContent = t || '';
@@ -505,7 +540,7 @@ function say(t, isSuccess = false) {
 }
 
 function show(v) {
-  ['home','choice','setup','setup1','setup2','setup3','story','aiset'].forEach(x => {
+  ['home','choice','setup','setup_inspired','setup1','setup2','setup3','story','aiset'].forEach(x => {
     const el = $(x); if (el) el.classList.toggle('hide', x !== v);
   });
   say('');
@@ -539,7 +574,6 @@ function para(text, box) {
       const b = document.createElement('b');
       let speakerText = m[1].replace(/[*_`]/g, '').trim();
 
-      // Sécurité : si l'IA a oublié la relation entre parenthèses, on la cherche dans le Codex
       if (!speakerText.includes('(') && curStory && curStory.codex) {
         const found = curStory.codex.find(c => c.name.toLowerCase() === speakerText.toLowerCase());
         if (found) {
@@ -561,7 +595,7 @@ function para(text, box) {
 }
 
 /* ==========================================================================
-   EXTRACTION ROBUSTE (CODEX, CHOIX, STATS)
+   EXTRACTION DU FLUX IA
    ========================================================================== */
 function extractAndClean(rawText, s) {
   let txt = rawText;
@@ -587,7 +621,7 @@ function extractAndClean(rawText, s) {
     s.lastChoices = validChoices.slice(0, 3);
   }
 
-  // 2. Enregistrement automatique des personnages dans le Codex
+  // 2. Codex
   const cdxMatch = txt.match(/PERSOS_MAJ\s*:\s*([\s\S]*?)(?=(CHOIX|HERO_MAJ|$))/i);
   if (cdxMatch && s) {
     s.codex = s.codex || [];
@@ -676,7 +710,12 @@ function renderHome() {
     const t = document.createElement('div');
     const b = document.createElement('b'); b.textContent = s.title;
     const sm = document.createElement('div'); sm.className = 'badge';
-    sm.textContent = (MODES[s.mode] || '🎬 Animé') + ' · ' + (s.chapters ? s.chapters.length : 0) + ' chapitre(s) (' + countTotalScenes(s) + ' scènes)';
+    
+    let kindTag = '🆕 Original';
+    if (s.inspiredBy) kindTag = `✨ Inspiré de ${s.inspiredBy}`;
+    else if (s.wk) kindTag = '📖 Œuvre officielle';
+
+    sm.textContent = (MODES[s.mode] || '🎬 Animé') + ' · ' + kindTag + ' · ' + (s.chapters ? s.chapters.length : 0) + ' chapitre(s) (' + countTotalScenes(s) + ' scènes)';
     t.append(b, sm);
     const r = document.createElement('div'); r.className = 'row'; r.style.margin = 0;
     const o = document.createElement('button'); o.textContent = 'Ouvrir';
@@ -693,7 +732,7 @@ function renderHome() {
 }
 
 /* ==========================================================================
-   RENDU DE L'HISTOIRE & DES PANNEAUX
+   AFFICHAGE DE L'HISTOIRE
    ========================================================================== */
 function renderStory() {
   const s = S(); if (!s) return;
@@ -1008,7 +1047,7 @@ async function getSample() {
 }
 
 /* ==========================================================================
-   GÉNÉRATION : PROMPT RENFORCÉ (ORIGINAL + DIALOGUES + CODEX AUTO)
+   GÉNÉRATION : GESTION DES 3 MODES (ORIGINAL, INSPIRÉ, CANON)
    ========================================================================== */
 async function gen(options = {}) {
   const s = S(); if (busy || !s) return;
@@ -1040,6 +1079,7 @@ async function gen(options = {}) {
 
   let canonPrompt = "";
   if (s.wk) {
+    // Mode Canon
     const loreClean = (s.wk.before || "").slice(0, 10000);
     const charsClean = (s.wk.chars || "").slice(0, 5000);
 
@@ -1051,7 +1091,15 @@ async function gen(options = {}) {
       + "2. PAS DE SPOILERS : Les événements futurs ne se sont pas encore produits.\n"
       + "3. CASTING : Uniquement les personnages physiquement présents sur place.\n"
       + "4. RESPECT DU STATUT DU JOUEUR : Respecte strictement l'autorité et le background de « " + s.hero + " ».\n";
+  } else if (s.inspiredBy) {
+    // Mode Inspiré d'un Animé
+    canonPrompt = "\n\n=== UNIVERS INSPIRÉ ET HOMMAGE À L'ANIMÉ : « " + s.inspiredBy.toUpperCase() + " » ===\n"
+      + "RÈGLES DU MONDE INSPIRÉ :\n"
+      + "1. C'est une histoire et un monde 100% ORIGINAUX mais basés fidèlement sur les thèmes, l'ambiance et les règles de l'œuvre « " + s.inspiredBy + " ».\n"
+      + "2. POUVOIRS ET MÉCANIQUES : Reprends le système de pouvoir (ex: énergie occulte/fléaux, rangs de chasseurs, magie, hiérarchie) et les dilemmes de cette œuvre : « " + (s.idea || "") + " ».\n"
+      + "3. CASTING ORIGINAL OBLIGATOIRE : Ne fais PAS apparaître les protagonistes officiels de l'animé (ex: pas de Gojo, pas de Sung Jinwoo). Invente des personnages originaux charismatiques (rivaux, mentors, monstres ou alliés) taillés sur mesure pour cet univers et pour le joueur « " + s.hero + " ».\n";
   } else {
+    // Mode 100% Original
     canonPrompt = "\n\n=== CONTEXTE DE CETTE CRÉATION ORIGINALE D'ANIMÉ ===\n"
       + "UNIVERS & STYLE INVENTÉ : « " + (s.idea || "Monde original") + " »\n"
       + "RÈGLE MONDE ORIGINAL : C'est une œuvre inventée. Tu as une liberté créative totale pour créer des factions, des mystères, des enjeux épiques et des personnages secondaires charismatiques.\n";
@@ -1103,12 +1151,19 @@ async function gen(options = {}) {
         + (userInput ? "« " + userInput + " »" : "L'action continue naturellement.") + "\n\n"
         + "Fais réagir les personnages sur place, décris les répercussions et développe la scène.";
     } else {
-      // DÉMARRAGE TOUTE PREMIÈRE SCÈNE
+      // PREMIÈRE SCÈNE
       if (s.wk) {
         situationPrompt = "=== PREMIER CHAPITRE - SCÈNE 1 (ŒUVRE EXISTANTE) ===\n"
           + "Démarre précisément à l'instant d'apparition : « " + s.wk.at + " ».\n"
           + (s.startConsigne && s.startConsigne.trim() !== 'rien' ? "Consigne : " + s.startConsigne : "")
           + (userInput ? "\nAction du joueur : " + userInput : "");
+      } else if (s.inspiredBy) {
+        situationPrompt = "=== PREMIER CHAPITRE - SCÈNE 1 (UNIVERS INSPIRÉ DE « " + s.inspiredBy.toUpperCase() + " ») ===\n"
+          + "Éléments et mécaniques repris : « " + s.idea + " ».\n"
+          + "Le joueur incarne « " + s.hero + " » (" + (s.heroBg || "Personnage principal") + ").\n"
+          + "CONSIGNE D'OUVERTURE OBLIGATOIRE : Plonge immédiatement le joueur au cœur d'une situation intense, d'un combat ou d'un incident qui rappelle l'ambiance et les enjeux cultes de " + s.inspiredBy + ".\n"
+          + "Fais impérativement intervenir dès cette première scène au moins 1 ou 2 personnages importants (mentor, rival ou allié) qui s'adressent à " + s.hero + ".\n"
+          + (userInput ? "Action initiale du joueur : « " + userInput + " »" : "");
       } else {
         situationPrompt = "=== PREMIER CHAPITRE - SCÈNE 1 (CRÉATION ORIGINALE D'ANIMÉ) ===\n"
           + "Plonge immédiatement le lecteur dans l'univers : « " + s.idea + " ».\n"
@@ -1127,7 +1182,7 @@ async function gen(options = {}) {
     + canonPrompt + codexTxt + memTxt + "\n\n"
     + "========================================================\n"
     + "RÈGLE ABSOLUE POUR LES DIALOGUES (70% dialogue, 30% narration) :\n"
-    + "Que l'animé existe déjà ou soit 100% INVENTÉ de toutes pièces, CHAQUE réplique de personnage DOIT OBLIGATOIREMENT commencer par son nom ET sa relation avec « " + s.hero + " » entre parenthèses.\n"
+    + "Que l'animé soit 100% original, inspiré d'une œuvre ou officiel, CHAQUE réplique de personnage DOIT OBLIGATOIREMENT commencer par son nom ET sa relation avec « " + s.hero + " » entre parenthèses.\n"
     + "Format obligatoire : Prénom Nom (Relation) : Sa réplique\n"
     + "Les 4 relations autorisées entre parenthèses sont : (Allié), (Ennemi), (Neutre), (Inconnu) [ou leurs variantes : Rival, Ami, Disciple, etc.].\n"
     + "Exemples stricts :\n"
@@ -1195,9 +1250,11 @@ async function gen(options = {}) {
 $('new').onclick = () => show('choice');
 $('choice_cancel').onclick = renderHome;
 $('btn_orig').onclick = () => show('setup');
+$('btn_inspired').onclick = () => show('setup_inspired');
 $('btn_exist').onclick = () => show('setup1');
 
 $('cancel').onclick = renderHome;
+$('cancel_inspired').onclick = renderHome;
 $('step1_cancel').onclick = renderHome;
 $('back').onclick = () => renderHome();
 
@@ -1259,11 +1316,25 @@ $('restart').onclick = async () => {
   gen({ mode: 'scene' });
 };
 
+// Lancement Histoire 100% Originale
 $('go').onclick = async () => {
   const t = $('t').value.trim(), i = $('i').value.trim(), h = $('h').value.trim();
   if (!t) { say('Indique un titre.'); return; }
   const s = { 
     id: uid(), title: t, idea: i || 'Monde original', hero: h || 'Le Héros', heroBg: i, mode: $('m').value, 
+    chapters: [], codex: [], heroStats: { rank: '', techniques: [], items: [] } 
+  };
+  L.list.push(s); L.cur = s.id; await save(); openStory(); gen({ mode: 'scene' });
+};
+
+// Lancement Histoire Inspirée (NOUVEAU !)
+$('go_inspired').onclick = async () => {
+  const t = $('ti').value.trim(), insp = $('ai_insp').value.trim(), i = $('ii').value.trim(), h = $('hi').value.trim(), bg = $('hbi').value.trim();
+  if (!t) { say('Indique un titre.'); return; }
+  if (!insp) { say("Précise l'animé qui t'inspire."); return; }
+  const s = { 
+    id: uid(), title: t, inspiredBy: insp, idea: i || `Inspiré de l'univers et du style de ${insp}`, 
+    hero: h || 'Le Héros', heroBg: bg || i, mode: $('mi').value, 
     chapters: [], codex: [], heroStats: { rank: '', techniques: [], items: [] } 
   };
   L.list.push(s); L.cur = s.id; await save(); openStory(); gen({ mode: 'scene' });
@@ -1456,7 +1527,7 @@ function makeMicGroup(el) {
   g.append(m, f); return g;
 }
 
-['t', 'i', 'h', 'd', 't2', 'i2', 'h2', 'wkt', 'wkt_char', 'wka', 'start_consigne', 'rw_critique'].forEach(id => {
+['t', 'i', 'h', 'd', 'ti', 'ai_insp', 'ii', 'hi', 'hbi', 't2', 'i2', 'h2', 'wkt', 'wkt_char', 'wka', 'start_consigne', 'rw_critique'].forEach(id => {
   const el = $(id); if (!el) return;
   const lab = document.querySelector('label[for=' + id + ']'); if (!lab) return;
   lab.append(makeMicGroup(el));
