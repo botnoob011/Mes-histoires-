@@ -300,7 +300,7 @@ button:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
     <button id="lastch" class="alt">⏬ Fin</button>
   </div>
 
-  <!-- PANNEAU FICHE HÉROS (IDÉE C) -->
+  <!-- PANNEAU FICHE HÉROS -->
   <div id="hero_panel" class="card hide">
     <h2>⚔️ Progression & Fiche du Héros</h2>
     <label>Rang / Palier de Puissance</label>
@@ -322,7 +322,7 @@ button:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
     </div>
   </div>
 
-  <!-- PANNEAU CODEX PERSONNAGES (IDÉE B) -->
+  <!-- PANNEAU CODEX PERSONNAGES -->
   <div id="codex_panel" class="card hide">
     <h2>👥 Codex des Personnages & Relations</h2>
     <div id="codex_list"></div>
@@ -403,7 +403,7 @@ const MODES={anime:'🎬 Animé',rpg:'⚔️ RPG',hybrid:'🎬⚔️ Hybride'};
 const RECAP=`Univers inventé : un roi et des nobles classés du plus faible au plus puissant...`;
 
 /* ==========================================================================
-   INDEXEDDB (STOCKAGE ILLIMITÉ SANS LIMITE DE 5 MO)
+   INDEXEDDB (STOCKAGE ILLIMITÉ)
    ========================================================================== */
 const DB = {
   db: null,
@@ -481,9 +481,6 @@ function show(v) {
   window.scrollTo(0,0);
 }
 
-/* ==========================================================================
-   DÉTECTION RELATIONS & COLORATION DIALOGUES
-   ========================================================================== */
 function getRelationClass(str) {
   const s = str.toLowerCase();
   if (/inconnu|anonyme|myst[eé]rieu|silhouette|[eé]trang|masqu[eé]|passant/i.test(s)) return 'speaker-unknown';
@@ -514,28 +511,39 @@ function para(text, box) {
 }
 
 /* ==========================================================================
-   NETTOYAGE DU TEXTE & FIX « USER SAFETY »
+   NETTOYAGE STRICT ET EXTRACTION DES CHOIX SANS BUGS D'ÉTOILES
    ========================================================================== */
 function extractAndClean(rawText, s) {
   let txt = rawText;
 
-  // FIX DU BUG : Supprime le préfixe ou artefact 'User Safety: safe' généré par les proxys
-  txt = txt.replace(/User Safety\s*:\s*safe/gi, '').trim();
+  // 1. Supprime les artefacts de sécurité ou d'écho de prompt
+  txt = txt.replace(/User Safety\s*:\s*safe/gi, '')
+           .replace(/^Choix du joueur\s*:\s*[^\n]+\n?/gi, '')
+           .replace(/^Action du joueur\s*:\s*[^\n]+\n?/gi, '')
+           .replace(/^\s*Chapitre\s*\d+\s*[:\-–—]?\s*/gi, '')
+           .trim();
 
-  // 1. Extraire CHOIX :
+  // 2. Extraire les 3 CHOIX proprement (supprime les **, les puces, les numéros)
   const chMatch = txt.match(/CHOIX\s*:\s*([\s\S]*?)(?=(PERSOS_MAJ|HERO_MAJ|$))/i);
   if (chMatch) {
-    const lines = chMatch[1].split('\n').map(x => x.replace(/^\d+[\.\)\-]\s*/, '').trim()).filter(Boolean);
-    s.lastChoices = lines.slice(0, 3);
+    const rawLines = chMatch[1].split('\n');
+    const validChoices = [];
+    for (let line of rawLines) {
+      let c = line.replace(/^\d+[\.\)\-:\s]+/, '').replace(/[*_~`]/g, '').trim();
+      if (c.length >= 4 && !/^[-*•\s]+$/.test(c)) {
+        validChoices.push(c);
+      }
+    }
+    s.lastChoices = validChoices.slice(0, 3);
   }
 
-  // 2. Extraire PERSOS_MAJ (Codex)
+  // 3. Extraire PERSOS_MAJ (Codex)
   const cdxMatch = txt.match(/PERSOS_MAJ\s*:\s*([\s\S]*?)(?=(CHOIX|HERO_MAJ|$))/i);
   if (cdxMatch) {
     s.codex = s.codex || [];
     const lines = cdxMatch[1].split('\n').map(x => x.trim()).filter(x => x.startsWith('-') || x.startsWith('*'));
     lines.forEach(l => {
-      const parts = l.replace(/^[-*]\s*/, '').split('|').map(x => x.trim());
+      const parts = l.replace(/^[-*]\s*/, '').replace(/[*_`]/g, '').split('|').map(x => x.trim());
       if (parts.length >= 2) {
         const existing = s.codex.find(c => c.name.toLowerCase() === parts[0].toLowerCase());
         if (existing) {
@@ -548,30 +556,32 @@ function extractAndClean(rawText, s) {
     });
   }
 
-  // 3. Extraire HERO_MAJ (Fiche héros)
+  // 4. Extraire HERO_MAJ (Fiche héros)
   const heroMatch = txt.match(/HERO_MAJ\s*:\s*([\s\S]*?)(?=(CHOIX|PERSOS_MAJ|$))/i);
   if (heroMatch) {
     s.heroStats = s.heroStats || { rank: '', techniques: [], items: [] };
     const rM = heroMatch[1].match(/Rang\s*:\s*([^\n]+)/i);
-    if (rM && rM[1].trim()) s.heroStats.rank = rM[1].trim();
+    if (rM && rM[1].trim()) s.heroStats.rank = rM[1].replace(/[*_`]/g, '').trim();
 
     const tM = heroMatch[1].match(/Technique\s*:\s*([^\n]+)/i);
-    if (tM && tM[1].trim() && !s.heroStats.techniques.includes(tM[1].trim())) {
-      s.heroStats.techniques.push(tM[1].trim());
+    if (tM && tM[1].trim()) {
+      const tech = tM[1].replace(/[*_`]/g, '').trim();
+      if (!s.heroStats.techniques.includes(tech)) s.heroStats.techniques.push(tech);
     }
 
     const iM = heroMatch[1].match(/Objet\s*:\s*([^\n]+)/i);
-    if (iM && iM[1].trim() && !s.heroStats.items.includes(iM[1].trim())) {
-      s.heroStats.items.push(iM[1].trim());
+    if (iM && iM[1].trim()) {
+      const item = iM[1].replace(/[*_`]/g, '').trim();
+      if (!s.heroStats.items.includes(item)) s.heroStats.items.push(item);
     }
   }
 
-  // Nettoyage final pour l'affichage de l'histoire
+  // Retourne le texte pur du chapitre
   return txt
     .replace(/CHOIX\s*:[\s\S]*$/i, '')
     .replace(/PERSOS_MAJ\s*:[\s\S]*$/i, '')
     .replace(/HERO_MAJ\s*:[\s\S]*$/i, '')
-    .replace(/User Safety\s*:\s*safe/gi, '')
+    .replace(/^\s*Chapitre\s*\d+\s*[:\-–—]?\s*/gi, '')
     .trim();
 }
 
@@ -603,9 +613,6 @@ function renderHome() {
   show('home');
 }
 
-/* ==========================================================================
-   RENDU HISTOIRE & MODIFICATION MANUELLE
-   ========================================================================== */
 function renderStory() {
   const s = S(); if (!s) return;
   $('stt').textContent = s.title + ' · ' + (MODES[s.mode] || '🎬 Animé');
@@ -867,7 +874,6 @@ async function callOR(key, model, prompt, onText) {
   return out;
 }
 
-// Fonction avec tentative automatique sur modèle de secours si l'IA renvoie un message vide ou User Safety
 async function getSample() {
   const c = CFG();
   if (!c.key) { say("Ajoute ta clé OpenRouter dans ⚙️ Réglages IA."); return null; }
@@ -881,9 +887,7 @@ async function getSample() {
         const textRes = await callOR(c.key, modelList[m], prompt, opts && opts.onText);
         const cleanCheck = textRes.replace(/User Safety\s*:\s*safe/gi, '').trim();
         
-        // Si la réponse est anormalement courte (bug User Safety ou refus silencieux), on bascule sur le modèle suivant
         if (cleanCheck.split(/\s+/).length < 20 && m < modelList.length - 1) {
-          console.warn("Réponse anormale détectée avec " + modelList[m] + ", basculement automatique...");
           continue;
         }
         return { text: textRes };
@@ -896,7 +900,7 @@ async function getSample() {
 }
 
 /* ==========================================================================
-   GÉNÉRATION DU CHAPITRE AVEC GESTION AVANCÉE DE RÉÉCRITURE
+   GÉNÉRATION AVEC CONTINUITÉ CHRONOLOGIQUE STRICTE (ANTI-RÉPÉTITION)
    ========================================================================== */
 async function gen(isRewrite = false, rwOptions = null) {
   const s = S(); if (busy || !s) return;
@@ -908,7 +912,7 @@ async function gen(isRewrite = false, rwOptions = null) {
   }
 
   busy = true; $('next').disabled = true; 
-  say(isRewrite ? '✍️ L\'IA réécrit ce chapitre avec tes consignes...' : '✍️ L\'IA tisse le chapitre...');
+  say(isRewrite ? '✍️ L\'IA réécrit ce chapitre avec tes consignes...' : '✍️ L\'IA tisse la suite...');
 
   const codexTxt = (s.codex && s.codex.length)
     ? "\nRELATIONS ACTUELLES DES PERSONNAGES :\n" + s.codex.map(c => `- ${c.name} (${c.rel}) : ${c.desc}`).join("\n")
@@ -938,6 +942,7 @@ async function gen(isRewrite = false, rwOptions = null) {
 
   let situationPrompt = "";
   const userInput = $('d').value.trim();
+  const nextChapNum = (s.chapters ? s.chapters.length : 0) + 1;
 
   if (isRewrite) {
     const currentChapterText = s.chapters[s.chapters.length - 1];
@@ -957,18 +962,32 @@ async function gen(isRewrite = false, rwOptions = null) {
         + "Écris une toute nouvelle scène originale répondant à ses attentes.";
     }
   } else {
-    if (s.chapters && s.chapters.length) {
-      situationPrompt = "DERNIERS ÉVÉNEMENTS :\n" + s.chapters.slice(-2).join("\n\n")
-        + (userInput ? "\n\nAction du joueur : " + userInput : "");
+    if (s.chapters && s.chapters.length > 0) {
+      // FIX CRUCIAL : On ne transmet que la FIN du chapitre précédent pour éviter que l'IA ne recopie le début
+      const lastChap = s.chapters[s.chapters.length - 1];
+      const lastLines = lastChap.split('\n').filter(l => l.trim()).slice(-4).join('\n');
+
+      situationPrompt = "=== CONTINUITÉ CHRONOLOGIQUE STRICTE ===\n"
+        + "Tu écris le NOUVEAU CHAPITRE (Chapitre " + nextChapNum + ").\n"
+        + "RÈGLES CAPITALES :\n"
+        + "1. INTERDICTION FORMELLE DE RÉPÉTER, RÉSUMER OU RÉÉCRIRE CE QUI EST DÉJÀ ARRIVÉ DANS LE CHAPITRE 1.\n"
+        + "2. Le chapitre précédent s'est arrêté EXACTEMENT sur ces dernières paroles / actions :\n"
+        + "«««\n" + lastLines + "\n»»»\n\n"
+        + "3. CE QUI SE PASSE MAINTENANT :\n"
+        + (userInput 
+            ? "Le joueur réalise l'action suivante : « " + userInput + " ». Fais réagir immédiatement les personnages et décris la suite des événements dans cette nouvelle scène." 
+            : "L'histoire continue immédiatement après la dernière phrase. Développe la scène suivante et les nouvelles péripéties.") + "\n\n"
+        + "4. Commence DIRECTEMENT par l'action ou les paroles. Ne commence JAMAIS par 'Chapitre " + nextChapNum + "'.";
     } else {
-      situationPrompt = "PREMIER CHAPITRE : " + (s.startConsigne && s.startConsigne.trim() !== 'rien' ? s.startConsigne : "Démarre la scène précisément à l'instant d'apparition choisi.")
-        + (userInput ? "\n\nConsigne de départ : " + userInput : "");
+      situationPrompt = "=== PREMIER CHAPITRE (CHAPITRE 1) ===\n"
+        + (s.startConsigne && s.startConsigne.trim() !== 'rien' ? s.startConsigne : "Démarre la scène précisément à l'instant d'apparition choisi.")
+        + (userInput ? "\nConsigne de départ : " + userInput : "");
     }
   }
 
   const prompt = "Tu es un scénariste d'élite d'animés et mangas.\n"
-    + "Rédige le chapitre complet en français littéraire et immersif (au moins 250 mots).\n"
-    + "Interdiction formelle de renvoyer des messages de sécurité méta comme 'User Safety'. Écris directement le récit.\n\n"
+    + "Rédige le récit en français littéraire et immersif.\n"
+    + "Interdiction d'écrire des en-têtes comme 'Chapitre X' ou 'Choix du joueur'. Écris directement le texte de l'histoire.\n\n"
     + "Titre : " + s.title + "\n"
     + "Joueur : " + s.hero + heroBg + heroStatsTxt + "\n"
     + canonPrompt + codexTxt + memTxt + "\n\n"
@@ -977,9 +996,9 @@ async function gen(isRewrite = false, rwOptions = null) {
     + "Ex : Perugius Dola (Disciple) : Bienvenue, Maître.\n\n"
     + "STRUCTURE FINALE OBLIGATOIRE (TOUT À LA FIN) :\n"
     + "CHOIX :\n"
-    + "1. [Choix d'action 1]\n"
-    + "2. [Choix d'action 2]\n"
-    + "3. [Choix d'action 3]\n\n"
+    + "1. [Court choix d'action 1]\n"
+    + "2. [Court choix d'action 2]\n"
+    + "3. [Court choix d'action 3]\n\n"
     + "PERSOS_MAJ:\n"
     + "- Nom | Allié/Ennemi/Neutre/Inconnu | Court état d'esprit\n\n"
     + "HERO_MAJ:\n"
@@ -994,9 +1013,8 @@ async function gen(isRewrite = false, rwOptions = null) {
     
     const cleanedStoryText = extractAndClean(r.text, s);
 
-    // Vérification de sécurité finale : si le texte est vide ou buggé, on ne corrompt pas l'histoire
     if (cleanedStoryText.split(/\s+/).length < 15) {
-      throw new Error("L'IA a généré une réponse trop courte. Réessaie en cliquant sur Écrire la suite.");
+      throw new Error("L'IA a généré une réponse trop courte. Clique à nouveau sur 'Écrire la suite'.");
     }
 
     s.chapters = s.chapters || [];
@@ -1034,7 +1052,6 @@ $('back').onclick = () => renderHome();
 
 $('lastch').onclick = () => window.scrollTo(0, document.body.scrollHeight);
 
-// Affiche la boîte de réécriture au clic
 $('rw').onclick = () => {
   const s = S();
   if (!s || !s.chapters || !s.chapters.length) {
