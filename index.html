@@ -3,184 +3,293 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Mes histoires</title>
+<title>Mes Histoires Interactives</title>
 <style>
-:root{--bg:#f6f4fb;--card:#fff;--tx:#1d1b26;--mu:#6b6780;--ac:#6d4aff;--ac2:#fff;--bd:#e2deef;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#14121c;--card:#1e1b2a;--tx:#ece9f7;--mu:#9a96b0;--ac:#9a82ff;--ac2:#14121c;--bd:#322e45;color-scheme:dark}}
-:root[data-theme="dark"]{--bg:#14121c;--card:#1e1b2a;--tx:#ece9f7;--mu:#9a96b0;--ac:#9a82ff;--ac2:#14121c;--bd:#322e45;color-scheme:dark}
-*{box-sizing:border-box}
-html{scroll-padding-top:env(safe-area-inset-top,0px)}
-body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif}
-main{max-width:640px;margin:0 auto;padding:16px}
-h1{font-size:1.4rem;margin:0 0 4px}
-.sub,.badge{color:var(--mu);margin:0 0 12px;font-size:.9rem}
-.badge{margin:0}
-.card{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:14px;margin-bottom:14px}
-.item{display:flex;justify-content:space-between;align-items:center;gap:8px}
-label{display:block;font-weight:600;font-size:.85rem;margin:10px 0 4px}
-input,textarea,select{width:100%;padding:10px;border-radius:10px;border:1px solid var(--bd);background:var(--bg);color:var(--tx);font:inherit}
-textarea{min-height:84px;resize:vertical}
-button{font:inherit;font-weight:600;border:0;border-radius:10px;padding:11px 16px;background:var(--ac);color:var(--ac2);cursor:pointer}
-button.alt{background:transparent;color:var(--mu);border:1px solid var(--bd)}
-button:disabled{opacity:.5}
-.mic{padding:5px 10px;margin-left:8px;font-size:.8rem}
-.row{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
-h2{font-size:1rem;color:var(--ac);margin:0 0 8px}
-.ch p,#rpg p{margin:0 0 .7em}
-.ch p.nar{font-size:.88em}
-.ch b{color:var(--ac)}
-.ch b.c-b{color:#0284c7}.ch b.c-f{color:#1e3a8a}.ch b.c-r{color:#dc2626}.ch b.c-j{color:#ca8a04}
-@media (prefers-color-scheme:dark){.ch b.c-b{color:#7dd3fc}.ch b.c-f{color:#4c6ef5}.ch b.c-r{color:#f87171}.ch b.c-j{color:#facc15}}
-#msg,#smsg,#smsg1,#smsg2,#smsg3{color:var(--mu);font-size:.9rem;min-height:1.2em;margin:8px 0 0}
-#nav{position:fixed;right:calc(6px + env(safe-area-inset-right,0px));top:50%;transform:translateY(-50%);display:flex;flex-direction:column;align-items:center;gap:6px;z-index:5}
-#nav button,#nav select{width:auto;padding:7px 9px;border-radius:999px;font-size:.8rem;font-weight:600;text-align:center;background:var(--card);color:var(--tx);border:1px solid var(--bd);box-shadow:0 1px 5px rgba(0,0,0,.3)}
-#nav.hide{display:none}
-#stb{position:fixed;right:calc(12px + env(safe-area-inset-right,0px));bottom:calc(14px + env(safe-area-inset-bottom,0px));z-index:6;border-radius:999px;padding:12px 14px;box-shadow:0 2px 8px rgba(0,0,0,.35)}
-#stb.hide{display:none}
-.hide{display:none}
+:root {
+  --bg: #0b0914;
+  --card: rgba(23, 20, 38, 0.85);
+  --card-border: rgba(139, 92, 246, 0.25);
+  --tx: #f3f0ff;
+  --mu: #9ca3af;
+  --ac: #8b5cf6;
+  --ac-hover: #7c3aed;
+  --ac-grad: linear-gradient(135deg, #7c3aed, #a855f7);
+  --bd: #2e2845;
+  --input-bg: #131024;
+  box-sizing: border-box;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--tx);
+  font: 16px/1.6 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  background-image: radial-gradient(circle at 50% 0%, rgba(124, 58, 237, 0.15), transparent 70%);
+  min-height: 100vh;
+}
+
+main { max-width: 680px; margin: 0 auto; padding: 20px 16px; }
+
+h1 { font-size: 1.6rem; font-weight: 700; margin: 0 0 6px; color: #fff; text-shadow: 0 2px 10px rgba(139, 92, 246, 0.3); }
+h2 { font-size: 1.1rem; color: var(--ac); margin: 0 0 10px; }
+.sub, .badge { color: var(--mu); margin: 0 0 14px; font-size: 0.9rem; }
+.badge { margin: 0; }
+
+.card {
+  background: var(--card);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--card-border);
+  border-radius: 18px;
+  padding: 18px;
+  margin-bottom: 16px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.37);
+}
+
+.item { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+
+label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-weight: 600;
+  font-size: 0.88rem;
+  margin: 12px 0 6px;
+  color: #d1d5db;
+}
+
+input, textarea, select {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid var(--bd);
+  background: var(--input-bg);
+  color: var(--tx);
+  font: inherit;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+input:focus, textarea:focus, select:focus {
+  outline: none;
+  border-color: var(--ac);
+  box-shadow: 0 0 12px rgba(139, 92, 246, 0.3);
+}
+
+textarea { min-height: 90px; resize: vertical; }
+
+button {
+  font: inherit;
+  font-weight: 600;
+  border: 0;
+  border-radius: 12px;
+  padding: 12px 18px;
+  background: var(--ac-grad);
+  color: #fff;
+  cursor: pointer;
+  transition: transform 0.15s, opacity 0.15s, box-shadow 0.15s;
+  box-shadow: 0 4px 14px rgba(124, 58, 237, 0.3);
+}
+
+button:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(124, 58, 237, 0.4); }
+button:active { transform: translateY(0); }
+button.alt { background: transparent; color: var(--tx); border: 1px solid var(--bd); box-shadow: none; }
+button.alt:hover { background: rgba(255, 255, 255, 0.05); border-color: var(--ac); }
+button:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+.mic-group { display: flex; gap: 4px; }
+.mic { padding: 4px 8px; font-size: 0.78rem; border-radius: 8px; }
+
+.row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 14px; }
+
+.ch p { margin: 0 0 0.8em; line-height: 1.65; }
+.ch p.nar { color: #e5e7eb; }
+.ch p b.speaker { color: #fff; font-weight: 700; display: inline; }
+
+#msg, #smsg, #smsg1, #smsg2, #smsg3 { color: #a7f3d0; font-size: 0.9rem; min-height: 1.2em; margin: 8px 0 0; }
+.hide { display: none !important; }
 </style>
 </head>
 <body>
 <main>
-<!-- PAGE ACCUEIL -->
+<!-- ACCUEIL -->
 <section id="home">
-<h1>📚 Mes histoires</h1>
-<p class="sub">Tes archives : ouvre une histoire ou crée-en une nouvelle.</p>
-<div id="lib"></div>
-<div class="row">
-  <button id="new">＋ Nouvelle histoire</button>
-  <button id="imp" class="alt">📥 Ajouter l'histoire des archiducs</button>
-  <button id="ai" class="alt">⚙️ Réglages IA</button>
-</div>
-<div class="card" style="margin-top:14px">
-  <h2>💾 Sauvegarde</h2>
-  <textarea id="bk" placeholder="Ici s'affichent tes histoires à copier, ou colle ici une sauvegarde à importer"></textarea>
+  <h1>📚 Mes histoires</h1>
+  <p class="sub">Tes archives : ouvre une histoire ou crée-en une nouvelle.</p>
+  <div id="lib"></div>
   <div class="row">
-    <button id="bx" class="alt">📤 Exporter</button>
-    <button id="bi" class="alt">📥 Importer</button>
+    <button id="new">＋ Nouvelle histoire</button>
+    <button id="imp" class="alt">📥 Ajouter l'histoire des archiducs</button>
+    <button id="ai" class="alt">⚙️ Réglages IA</button>
   </div>
-  <p id="bmsg" class="sub"></p>
-</div>
+  <div class="card" style="margin-top:16px">
+    <h2>💾 Sauvegarde & Export</h2>
+    <textarea id="bk" placeholder="Colle ici une sauvegarde à importer ou génère un export de tes données"></textarea>
+    <div class="row">
+      <button id="bx" class="alt">📤 Exporter</button>
+      <button id="bi" class="alt">📥 Importer</button>
+    </div>
+    <p id="bmsg" class="sub"></p>
+  </div>
 </section>
 
-<!-- CHOIX DU TYPE DE CREATION -->
+<!-- CHOIX DU TYPE DE CRÉATION -->
 <section id="choice" class="card hide">
-<h1>Nouvelle histoire</h1>
-<p class="sub">Comment souhaites-tu créer ton histoire ?</p>
-<div class="row" style="flex-direction:column;gap:10px">
-  <button id="btn_orig">🆕 Histoire originale (de zéro)</button>
-  <button id="btn_exist" class="alt">📖 Dans une œuvre existante (animé, manga...)</button>
-  <button id="choice_cancel" class="alt">← Retour</button>
-</div>
+  <h1>Nouvelle histoire</h1>
+  <p class="sub">Quel univers veux-tu explorer ?</p>
+  <div class="row" style="flex-direction:column;gap:12px">
+    <button id="btn_orig">🆕 Histoire originale (de zéro)</button>
+    <button id="btn_exist" class="alt">📖 Dans une œuvre existante (animé, manga, roman...)</button>
+    <button id="choice_cancel" class="alt">← Retour</button>
+  </div>
 </section>
 
-<!-- 1. FORMULAIRE CLASSIQUE (ORIGINAL) -->
+<!-- FORMULAIRE CLASSIQUE (ORIGINAL) -->
 <section id="setup" class="card hide">
-<h1>Nouvelle histoire originale</h1>
-<label for="m">Type d'histoire</label>
-<select id="m"><option value="anime">🎬 Animé (histoire)</option><option value="rpg">⚔️ RPG (stats, loots, niveaux)</option><option value="hybrid">🎬⚔️ Hybride (les deux)</option></select>
-<label for="t">Titre</label><input id="t" placeholder="Ex : Le royaume des archiducs">
-<label for="i">Idée, monde, style (genre, pouvoirs, ennemis…)</label><textarea id="i" placeholder="Ex : Monde de nobles..."></textarea>
-<label for="h">Ton personnage</label><input id="h" placeholder="Ex : Acil">
-<div class="row"><button id="go">Commencer l'histoire</button><button id="cancel" class="alt">Retour</button></div>
-<p id="smsg"></p>
-</section>
-
-<!-- 2. TUNNEL EN 3 ÉTAPES (ŒUVRE EXISTANTE) -->
-<!-- ÉTAPE 1 : Données et Liens -->
-<section id="setup1" class="card hide">
-<h1>Étape 1 sur 3 : Contexte de l'œuvre</h1>
-<label for="wkl">1. Liens vers l’histoire de l’œuvre (Wiki, Résumés...)</label>
-<textarea id="wkl" placeholder="https://…"></textarea>
-<div class="row"><button type="button" id="wkg">📥 Charger les liens</button></div>
-<p class="sub" id="wks"></p>
-
-<label for="wkc">2. Lien vers la liste des personnages</label>
-<textarea id="wkc" style="min-height:56px" placeholder="https://…"></textarea>
-<div class="row"><button type="button" id="wkn">📥 Charger les personnages</button></div>
-<p class="sub" id="wkns"></p>
-
-<label for="wkt">3. Ou écris / colle ici le résumé de l'animé</label>
-<textarea id="wkt" placeholder="Résumé de l'œuvre..."></textarea>
-
-<label for="wkt_char">4. Ou écris / colle ici la liste des personnages</label>
-<textarea id="wkt_char" placeholder="Liste des personnages..."></textarea>
-
-<div class="row">
-  <button id="step1_next">Suivant (Titre & Personnage) →</button>
-  <button id="step1_cancel" class="alt">Retour</button>
-</div>
-<p id="smsg1"></p>
-</section>
-
-<!-- ÉTAPE 2 : Titre, Perso & Background -->
-<section id="setup2" class="card hide">
-<h1>Étape 2 sur 3 : Titre & Personnage</h1>
-<label for="m2">Type d'histoire</label>
-<select id="m2"><option value="anime">🎬 Animé (histoire)</option><option value="rpg">⚔️ RPG (stats, loots, niveaux)</option><option value="hybrid">🎬⚔️ Hybride (les deux)</option></select>
-<label for="t2">Titre de l'histoire</label><input id="t2" placeholder="Ex : Mon aventure dans l'animé...">
-<label for="h2">Ton personnage (Nom)</label><input id="h2" placeholder="Ex : Acil">
-<label for="i2">Histoire de ton personnage (background, pouvoirs...)</label><textarea id="i2" placeholder="Ex : Un mercenaire de l'ombre..."></textarea>
-<div class="row">
-  <button id="step2_next">Suivant (Moment d'Apparition) →</button>
-  <button id="step2_back" class="alt">← Retour</button>
-</div>
-<p id="smsg2"></p>
-</section>
-
-<!-- ÉTAPE 3 : Moment d'Apparition & Lancement -->
-<section id="setup3" class="card hide">
-<h1>Étape 3 sur 3 : Moment d’Apparition</h1>
-<label for="wka">À quel moment veux-tu apparaître pour la première fois ?</label>
-<input id="wka" placeholder="Ex : Pendant l'examen Chunin, ou juste après le combat contre Freezer...">
-<div class="row">
-  <button type="button" id="wkf">🔎 Chercher / Valider ce moment</button>
-</div>
-<p class="sub" id="wkr" style="margin-top:6px"></p>
-
-<div id="wkk" class="hide" style="margin-top:10px">
-  <label for="wkp2">Pour la suite de l’œuvre</label>
-  <select id="wkp2">
-    <option value="keep">Garder en mémoire la suite canon</option>
-    <option value="cut">Bifurquer (histoire 100% originale à partir de mon arrivée)</option>
+  <h1>Nouvelle histoire originale</h1>
+  <label for="m">Type d'histoire</label>
+  <select id="m">
+    <option value="anime">🎬 Animé / Roman (histoire narrative)</option>
+    <option value="rpg">⚔️ RPG (stats, loots, niveaux)</option>
+    <option value="hybrid">🎬⚔️ Hybride</option>
   </select>
-</div>
-
-<div class="row" style="margin-top:14px">
-  <button id="go_exist">🚀 Commencer l'histoire (Chapitre 1)</button>
-  <button id="step3_back" class="alt">← Retour</button>
-</div>
-<p id="smsg3"></p>
+  <label for="t">Titre de l'histoire</label><input id="t" placeholder="Ex : Le royaume des archiducs">
+  <label for="i">Idée, monde, style & univers</label><textarea id="i" placeholder="Ex : Monde de nobles avec paliers de puissance..."></textarea>
+  <label for="h">Ton personnage (Nom)</label><input id="h" placeholder="Ex : Acil">
+  <div class="row">
+    <button id="go">🚀 Commencer l'histoire</button>
+    <button id="cancel" class="alt">Retour</button>
+  </div>
+  <p id="smsg"></p>
 </section>
 
-<!-- REGLAGES IA -->
+<!-- TUNNEL 3 ÉTAPES (ŒUVRE EXISTANTE) -->
+<!-- ÉTAPE 1 : OEUVRE & PERSONNAGES -->
+<section id="setup1" class="card hide">
+  <h1>Configuration de l'Œuvre (Étape 1/3)</h1>
+  <p class="sub">Données et contexte de l'animé</p>
+
+  <label for="wkl">1. Liens vers l’histoire (Wiki, Fandom, Résumés...)</label>
+  <textarea id="wkl" placeholder="https://…"></textarea>
+  <div class="row"><button type="button" id="wkg" class="alt">📥 Charger les liens de l'histoire</button></div>
+  <p class="sub" id="wks"></p>
+
+  <label for="wkc">2. Liens vers la liste des personnages</label>
+  <textarea id="wkc" style="min-height:56px" placeholder="https://…"></textarea>
+  <div class="row"><button type="button" id="wkn" class="alt">📥 Charger la liste des personnages</button></div>
+  <p class="sub" id="wkns"></p>
+
+  <label for="wkt">3. Ou écris / colle le résumé de l'animé</label>
+  <textarea id="wkt" placeholder="Résumé global de l'œuvre..."></textarea>
+
+  <label for="wkt_char">4. Ou écris / colle la liste des personnages</label>
+  <textarea id="wkt_char" placeholder="Personnages principaux et leurs rôles..."></textarea>
+
+  <div class="row" style="margin-top:18px">
+    <button id="step1_next">Suivant (Titre & Personnage) →</button>
+    <button id="step1_cancel" class="alt">Retour</button>
+  </div>
+  <p id="smsg1"></p>
+</section>
+
+<!-- ÉTAPE 2 : TITRE, PERSO & ROLE -->
+<section id="setup2" class="card hide">
+  <h1>Titre & Ton Personnage (Étape 2/3)</h1>
+  <p class="sub">Qui incarnes-tu dans ce monde ?</p>
+
+  <label for="m2">Type d'histoire</label>
+  <select id="m2">
+    <option value="anime">🎬 Animé (histoire narrative)</option>
+    <option value="rpg">⚔️ RPG (stats, loots, niveaux)</option>
+    <option value="hybrid">🎬⚔️ Hybride</option>
+  </select>
+
+  <label for="t2">Titre de ton histoire</label>
+  <input id="t2" placeholder="Ex : Mon aventure dans Mushoku Tensei...">
+
+  <label for="h2">Nom de ton personnage</label>
+  <input id="h2" placeholder="Ex : Acil">
+
+  <label for="i2">Histoire, background et statut de ton personnage</label>
+  <textarea id="i2" placeholder="Ex : Je suis le maître de Perugius Dola. Il me doit un respect absolu..."></textarea>
+
+  <div class="row" style="margin-top:18px">
+    <button id="step2_next">Suivant (Moment d'Apparition) →</button>
+    <button id="step2_back" class="alt">← Retour</button>
+  </div>
+  <p id="smsg2"></p>
+</section>
+
+<!-- ÉTAPE 3 : MOMENT D'APPARITION & DÉMARRAGE -->
+<section id="setup3" class="card hide">
+  <h1>Moment d’Apparition & Validation (Étape 3/3)</h1>
+  <p class="sub">Précise ton point d'arrivée chronologique</p>
+
+  <label for="wka">À quel moment veux-tu apparaître pour la première fois ?</label>
+  <textarea id="wka" placeholder="Ex : Dans la salle du trône de Perugius, juste au moment où Rudeus et Nanahoshi remercient le roi dragon après la guérison de Nanahoshi..."></textarea>
+
+  <div class="row">
+    <button type="button" id="wkf">🔎 Valider et vérifier ce moment (IA)</button>
+  </div>
+  
+  <div id="valid_res" class="card hide" style="margin-top:14px; background: rgba(139, 92, 246, 0.1); border-color: var(--ac);">
+    <h2 id="v_ep"></h2>
+    <p id="v_desc" style="font-size:0.92rem; color:#e5e7eb; margin:0;"></p>
+  </div>
+
+  <div id="wkk" class="hide" style="margin-top:14px">
+    <label for="wkp2">Trame pour la suite de l'œuvre</label>
+    <select id="wkp2">
+      <option value="keep">Garder en mémoire la suite canonique</option>
+      <option value="cut">Bifurquer (Trame 100% originale à partir de mon arrivée)</option>
+    </select>
+
+    <label for="start_consigne">Comment commence le Chapitre 1 ? (Optionnel)</label>
+    <textarea id="start_consigne" placeholder="Écris ici ton action de départ, ou laisse vide / écris 'rien' pour que l'IA lance l'histoire de manière naturelle."></textarea>
+  </div>
+
+  <div class="row" style="margin-top:18px">
+    <button id="go_exist">🚀 Lancer le Chapitre 1</button>
+    <button id="step3_back" class="alt">← Retour</button>
+  </div>
+  <p id="smsg3"></p>
+</section>
+
+<!-- RÉGLAGES IA -->
 <section id="aiset" class="card hide"></section>
 
 <!-- LECTURE DE L'HISTOIRE -->
 <section id="story" class="hide">
-<div class="row" style="margin:0 0 10px"><button id="back" class="alt">← Archives</button><button id="cfg" class="alt">⚙️ Paramètres</button><button id="lastch" class="alt">⏬ Dernier chapitre</button></div>
-<div id="set" class="card hide"></div>
-<h2 id="stt"></h2>
-<div id="rpg" class="card hide"></div>
-<div id="chs"></div>
-<div id="live" class="card ch hide"></div>
-<div id="opts" class="card hide"></div>
-<div class="card">
-<label for="d">Ce que tu veux ensuite (ou « OOC : … » pour parler hors histoire)</label>
-<textarea id="d" placeholder="Laisse vide pour que l'histoire avance toute seule"></textarea>
-<div class="row"><button id="next">Écrire la suite</button><button id="rw" class="alt">🔁 Réécrire le dernier chapitre</button><button id="undo" class="alt">Supprimer le dernier chapitre</button></div>
-<p id="msg"></p>
-</div>
+  <div class="row" style="margin:0 0 14px">
+    <button id="back" class="alt">← Archives</button>
+    <button id="cfg" class="alt">⚙️ Paramètres</button>
+    <button id="lastch" class="alt">⏬ Dernier chapitre</button>
+  </div>
+  <div id="set" class="card hide"></div>
+  <h2 id="stt"></h2>
+  <div id="chs"></div>
+  <div id="live" class="card ch hide"></div>
+  <div class="card" style="margin-top:16px">
+    <label for="d">Ta prochaine action ou réplique (ou « OOC : ... » pour donner un ordre à l'IA)</label>
+    <textarea id="d" placeholder="Ex : Je m'avance vers Rudeus et je prends la parole... (Laisse vide pour faire avancer l'histoire)"></textarea>
+    <div class="row">
+      <button id="next">Écrire la suite</button>
+      <button id="rw" class="alt">🔁 Réécrire le dernier chapitre</button>
+      <button id="undo" class="alt">🗑 Supprimer le chapitre</button>
+    </div>
+    <p id="msg"></p>
+  </div>
 </section>
 </main>
-<button id="stb" class="hide">📊</button>
-<div id="nav" class="hide"><button id="np">▲</button><select id="ns"></select><button id="nn">▼</button></div>
 
 <script>
 const $=id=>document.getElementById(id);
 const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,6);
 const MODES={anime:'🎬 Animé',rpg:'⚔️ RPG',hybrid:'🎬⚔️ Hybride'};
 const RECAP=`Univers inventé : un roi et des nobles classés du plus faible au plus puissant...`;
+
 let L={list:[],cur:null},busy=false,armed=null;
 try{L=JSON.parse(localStorage.getItem('lib'))||L}catch(e){}
 const S=()=>L.list.find(s=>s.id===L.cur);
@@ -196,276 +305,419 @@ function show(v){
   ['home','choice','setup','setup1','setup2','setup3','story','aiset'].forEach(x=>{
     const el=$(x);if(el)el.classList.toggle('hide',x!==v);
   });
-  $('nav').classList.add('hide');$('stb').classList.add('hide');say('');
+  say('');
   window.scrollTo(0,0);
 }
 
-function para(text,box){
-  text.split('\n').forEach(l=>{
-    if(!l.trim())return;
-    const p=document.createElement('p');
-    const m=l.match(/^\s*(?:\[([BFRJ])\]\s*)?([^:：]{1,80}):\s*(.*)$/);
-    if(m){const b=document.createElement('b');if(m[1])b.className='c-'+m[1].toLowerCase();b.textContent=m[2]+' : ';p.append(b,m[3])}else{p.textContent=l;p.className='nar'}
+/* RENDER DIALOGUES (70% DIALOGUE / 30% NARRATION, NOMS EN GRAS) */
+function para(text, box) {
+  text.split('\n').forEach(l => {
+    if (!l.trim()) return;
+    const p = document.createElement('p');
+    // Format attendu : "Nom (Relation) : dialogue" ou "Nom : dialogue"
+    const m = l.match(/^\s*\*?\*?([^:：]{1,80})\*?\*?\s*[:：]\s*(.*)$/);
+    if (m && !l.startsWith('http')) {
+      const b = document.createElement('b');
+      b.className = 'speaker';
+      b.textContent = m[1].trim() + ' : ';
+      p.append(b, m[2]);
+    } else {
+      p.textContent = l;
+      p.className = 'nar';
+    }
     box.append(p);
   });
 }
-const clean=t=>t.replace(/\n?\s*(ETAT|PERSOS|CHOIX)\s*:[\s\S]*$/i,'').replace(/\n?\s*IMAGE\s*:[^\n]*$/i,'');
 
-function renderHome(){
-  const box=$('lib');box.innerHTML='';
-  if(!L.list.length){const p=document.createElement('p');p.className='sub';p.textContent="Aucune histoire pour l'instant.";box.append(p)}
-  L.list.forEach(s=>{
-    const d=document.createElement('div');d.className='card item';
-    const t=document.createElement('div');
-    const b=document.createElement('b');b.textContent=s.title;
-    const sm=document.createElement('div');sm.className='badge';sm.textContent=(MODES[s.mode]||'🎬 Animé')+' · '+(s.chapters?s.chapters.length:0)+' chapitre(s)';
-    t.append(b,sm);
-    const r=document.createElement('div');r.className='row';r.style.margin=0;
-    const o=document.createElement('button');o.textContent='Ouvrir';o.onclick=()=>{L.cur=s.id;save();openStory()};
-    const x=document.createElement('button');x.className='alt';x.textContent='🗑';
-    x.onclick=()=>{
-      if(armed!==s.id){armed=s.id;x.textContent='Sûr ?';setTimeout(()=>{armed=null;x.textContent='🗑'},4000);return}
-      L.list=L.list.filter(z=>z.id!==s.id);armed=null;save();renderHome();
+const clean = t => t.replace(/\n?\s*(ETAT|PERSOS|CHOIX)\s*:[\s\S]*$/i, '').replace(/\n?\s*IMAGE\s*:[^\n]*$/i, '');
+
+function renderHome() {
+  const box = $('lib'); box.innerHTML = '';
+  if (!L.list.length) {
+    const p = document.createElement('p'); p.className = 'sub';
+    p.textContent = "Aucune histoire pour l'instant. Clique sur 'Nouvelle histoire' pour démarrer !";
+    box.append(p);
+  }
+  L.list.forEach(s => {
+    const d = document.createElement('div'); d.className = 'card item';
+    const t = document.createElement('div');
+    const b = document.createElement('b'); b.textContent = s.title;
+    const sm = document.createElement('div'); sm.className = 'badge';
+    sm.textContent = (MODES[s.mode] || '🎬 Animé') + ' · ' + (s.chapters ? s.chapters.length : 0) + ' chapitre(s)';
+    t.append(b, sm);
+    const r = document.createElement('div'); r.className = 'row'; r.style.margin = 0;
+    const o = document.createElement('button'); o.textContent = 'Ouvrir';
+    o.onclick = () => { L.cur = s.id; save(); openStory(); };
+    const x = document.createElement('button'); x.className = 'alt'; x.textContent = '🗑';
+    x.onclick = () => {
+      if (armed !== s.id) { armed = s.id; x.textContent = 'Sûr ?'; setTimeout(() => { armed = null; x.textContent = '🗑'; }, 4000); return; }
+      L.list = L.list.filter(z => z.id !== s.id); armed = null; save(); renderHome();
     };
-    r.append(o,x);d.append(t,r);box.append(d);
+    r.append(o, x); d.append(t, r); box.append(d);
   });
-  $('imp').classList.toggle('hide',L.list.some(s=>s.src==='archiducs'));
+  $('imp').classList.toggle('hide', L.list.some(s => s.src === 'archiducs'));
   show('home');
 }
 
-function renderStory(){
-  const s=S();if(!s)return;
-  $('stt').textContent=s.title+' · '+(MODES[s.mode]||'🎬 Animé');
-  const box=$('chs');box.innerHTML='';
-  (s.chapters||[]).forEach((c,n)=>{
-    const d=document.createElement('div');d.className='card ch';
-    const h=document.createElement('h2');h.textContent='Chapitre '+(n+1);
-    d.append(h);para(c,d);box.append(d);
+function renderStory() {
+  const s = S(); if (!s) return;
+  $('stt').textContent = s.title + ' · ' + (MODES[s.mode] || '🎬 Animé');
+  const box = $('chs'); box.innerHTML = '';
+  (s.chapters || []).forEach((c, n) => {
+    const d = document.createElement('div'); d.className = 'card ch';
+    const h = document.createElement('h2'); h.textContent = 'Chapitre ' + (n + 1);
+    d.append(h); para(c, d); box.append(d);
   });
 }
 
-function openStory(){show('story');renderStory();}
+function seed(s) { if (!s.memo) s.memo = []; }
+function openStory() { const s = S(); if (s) seed(s); show('story'); $('set').classList.add('hide'); renderStory(); }
 
-/* API OPENROUTER */
-let MODEL_USED='';
-const CFG=()=>{let c={};try{c=JSON.parse(localStorage.getItem('orcfg'))||{}}catch(e){}return {key:c.key||'',models:Array.isArray(c.models)?c.models:['openrouter/free']}};
-const saveCFG=c=>{try{localStorage.setItem('orcfg',JSON.stringify(c))}catch(e){}};
+/* PANNEAU PARAMÈTRES (MÉMOIRE & BACKGROUND) */
+function renderSet() {
+  const s = S(), b = $('set'); if (!b) return; b.innerHTML = '';
+  const h = document.createElement('h2'); h.textContent = "⚙️ Paramètres & Mémoire de l'Histoire"; b.append(h);
 
-async function callOR(key,model,prompt,onText){
-  const r=await fetch('https://openrouter.ai/api/v1/chat/completions',{method:'POST',headers:{'Authorization':'Bearer '+key,'Content-Type':'application/json'},body:JSON.stringify({model:model,messages:[{role:'user',content:prompt}],stream:true})});
-  if(!r.ok) throw new Error('Erreur API '+r.status);
-  const rd=r.body.getReader(),dec=new TextDecoder();let buf='',out='';
-  for(;;){
-    const x=await rd.read();if(x.done)break;
-    buf+=dec.decode(x.value,{stream:true});
+  const lb = document.createElement('label'); lb.textContent = 'Background & Statut de ton personnage';
+  const tb = document.createElement('textarea'); tb.value = s.heroBg || ''; tb.oninput = () => { s.heroBg = tb.value; save(); };
+  lb.append(makeMicGroup(tb));
+  b.append(lb, tb);
+
+  const ln = document.createElement('label'); ln.textContent = "Ajustement / Fait à garder en mémoire par l'IA";
+  const ta = document.createElement('textarea'); ta.placeholder = "Ex : Orsted est mon disciple, Perugius m'obéit...";
+  ln.append(makeMicGroup(ta));
+  b.append(ln, ta);
+
+  const sn = document.createElement('button'); sn.textContent = '📨 Ajouter à la mémoire permanente'; sn.style.marginTop = '8px';
+  sn.onclick = () => { const v = ta.value.trim(); if (!v) return; (s.memo = s.memo || []).push(v); save(); ta.value = ''; renderSet(); };
+  b.append(sn);
+
+  (s.memo || []).forEach((n, i) => {
+    const r = document.createElement('div'); r.className = 'row'; r.style.cssText = 'margin-top:8px;align-items:center;flex-wrap:nowrap';
+    const t = document.createElement('div'); t.style.flex = '1'; t.textContent = '📌 ' + n;
+    const x = document.createElement('button'); x.className = 'alt'; x.textContent = '✕';
+    x.onclick = () => { s.memo.splice(i, 1); save(); renderSet(); };
+    r.append(t, x); b.append(r);
+  });
+}
+
+/* OPENROUTER API & GÉNÉRATION */
+let MODEL_USED = '';
+const CFG = () => { let c = {}; try { c = JSON.parse(localStorage.getItem('orcfg')) || {}; } catch (e) {} return { key: c.key || '', models: Array.isArray(c.models) ? c.models : ['openrouter/free'] }; };
+const saveCFG = c => { try { localStorage.setItem('orcfg', JSON.stringify(c)); } catch (e) {} };
+
+async function callOR(key, model, prompt, onText) {
+  const r = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+    method: 'POST',
+    headers: { 'Authorization': 'Bearer ' + key, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ model: model, messages: [{ role: 'user', content: prompt }], stream: true })
+  });
+  if (!r.ok) throw new Error('Erreur API ' + r.status);
+  const rd = r.body.getReader(), dec = new TextDecoder(); let buf = '', out = '';
+  for (; ;) {
+    const x = await rd.read(); if (x.done) break;
+    buf += dec.decode(x.value, { stream: true });
     let i;
-    while((i=buf.indexOf('\n'))>=0){
-      const line=buf.slice(0,i).trim();buf=buf.slice(i+1);
-      if(line.indexOf('data:')!==0)continue;
-      const d=line.slice(5).trim();if(d==='[DONE]')continue;
-      let j=null;try{j=JSON.parse(d)}catch(e){}
-      if(!j)continue;
-      const t=j.choices&&j.choices[0]&&j.choices[0].delta&&j.choices[0].delta.content;
-      if(t){out+=t;if(onText)onText({text:out})}
+    while ((i = buf.indexOf('\n')) >= 0) {
+      const line = buf.slice(0, i).trim(); buf = buf.slice(i + 1);
+      if (line.indexOf('data:') !== 0) continue;
+      const d = line.slice(5).trim(); if (d === '[DONE]') continue;
+      let j = null; try { j = JSON.parse(d); } catch (e) {}
+      if (!j) continue;
+      const t = j.choices && j.choices[0] && j.choices[0].delta && j.choices[0].delta.content;
+      if (t) { out += t; if (onText) onText({ text: out }); }
     }
   }
   return out;
 }
 
-async function getSample(){
-  const c=CFG();
-  if(!c.key){say("Ajoute ta clé OpenRouter dans ⚙️ Réglages IA.");return null}
-  return async (prompt, opts)=>{
-    return {text: await callOR(c.key, c.models[0]||'openrouter/free', prompt, opts.onText)};
+async function getSample() {
+  const c = CFG();
+  if (!c.key) { say("Ajoute ta clé OpenRouter dans ⚙️ Réglages IA."); return null; }
+  return async (prompt, opts) => {
+    return { text: await callOR(c.key, c.models[0] || 'openrouter/free', prompt, opts.onText) };
   };
 }
 
-async function gen(){
-  const s=S();if(busy||!s)return;
-  const sample=await getSample();if(!sample)return;
-  busy=true;$('next').disabled=true;say('Écriture en cours…');
-  
-  let canonPrompt="";
-  if(s.wk){canonPrompt="\n\nFICHE DE L'OEUVRE (Vérité absolue) :\nMoment d'apparition du lecteur : "+s.wk.at+"\nContexte avant l'arrivée :\n"+s.wk.before;}
-  
-  const prompt="Tu écris une histoire en français, chapitre par chapitre.\nTitre : "+s.title+"\nUnivers : "+s.idea+"\nPersonnage : "+s.hero+canonPrompt+"\n\n"
-   +"Règles : narration COURTE ; dialogues LONGS. N'écris pas 'Chapitre X'.\n\n"
-   +((s.chapters&&s.chapters.length)?"Suite de l'histoire :\n"+s.chapters.slice(-2).join("\n\n"):"C'est le début : écris le chapitre 1 en intégrant le personnage au moment choisi.")
-   +($('d').value.trim()?"\nConsigne : "+$('d').value.trim():"");
-
-  const live=$('live');live.classList.remove('hide');live.innerHTML='';
-  try{
-    const r=await sample(prompt,{onText:({text})=>{live.innerHTML='';para(clean(text),live)}});
-    s.chapters=s.chapters||[];s.chapters.push(r.text.trim());
-    save();$('d').value='';say('');
-  }catch(e){say(e.message||"Erreur.");}
-  live.classList.add('hide');renderStory();busy=false;$('next').disabled=false;
+/* RÉSUMÉ AUTOMATIQUE TOUS LES 5 CHAPITRES */
+async function autoSummarizeIfNeeded(s, sample) {
+  const total = s.chapters.length;
+  if (total > 0 && total % 5 === 0 && !s['summed_' + total]) {
+    say("🧠 Synthèse automatique de la mémoire en cours...");
+    try {
+      const last5 = s.chapters.slice(-5).join("\n\n");
+      const r = await sample("Synthétise ces 5 derniers chapitres de l'histoire en un résumé concis des événements clés et changements de statut :\n\n" + last5, { cache: false });
+      s.resume = (s.resume ? s.resume + "\n\n" : "") + "--- Étape chapitre " + total + " ---\n" + r.text;
+      s['summed_' + total] = true;
+      save();
+    } catch (e) {}
+  }
 }
 
-/* NAVIGATION & BOUTONS ACCUEIL */
-$('new').onclick=()=>show('choice');$('choice_cancel').onclick=renderHome;
-$('btn_orig').onclick=()=>show('setup');$('btn_exist').onclick=()=>show('setup1');
+/* GÉNÉRATION DU CHAPITRE */
+async function gen() {
+  const s = S(); if (busy || !s) return;
+  const sample = await getSample(); if (!sample) return;
+  busy = true; $('next').disabled = true; say('✍️ L\'IA tisse le chapitre...');
 
-$('cancel').onclick=renderHome;
-$('step1_cancel').onclick=renderHome;
-$('back').onclick=()=>renderHome();
+  await autoSummarizeIfNeeded(s, sample);
 
-$('ai').onclick=()=>{
-  const b=$('aiset');b.innerHTML='';const c=CFG();
-  const h=document.createElement('h1');h.textContent='⚙️ Réglages IA';
-  const l=document.createElement('label');l.textContent='Clé OpenRouter';
-  const k=document.createElement('input');k.type='password';k.value=c.key;
-  k.oninput=()=>{c.key=k.value.trim();saveCFG(c)};
-  const bk=document.createElement('button');bk.className='alt';bk.textContent='← Retour';bk.style.marginTop='12px';bk.onclick=renderHome;
-  b.append(h,l,k,bk);show('aiset');
+  let canonPrompt = "";
+  if (s.wk) {
+    canonPrompt = "\n\nFICHE CONTEXTUELLE DE L'OEUVRE & VERROUILLAGE CANON :\n"
+      + "- Moment d'apparition exact du lecteur : " + s.wk.at + "\n"
+      + "- Contexte / Lieu : " + s.wk.before + "\n"
+      + "- RÈGLE STRICTE SUR LE CASTING : Ne fais intervenir dans la scène QUE les personnages physiquement présent à cet instant précis du récit. INTERDICTION ABSOLUE d'inventer la présence de personnages absents à ce moment.\n"
+      + "- STATUT ET RELATIONS : Le lecteur est " + s.hero + ". Respecte scrupuleusement son rôle, son titre et son autorité par rapport aux autres PNJ présent.\n";
+  }
+
+  const memTxt = (s.memo || []).map(m => "\n- Note mémoire : " + m).join("");
+  const heroBg = s.heroBg ? "\nBackground du lecteur : " + s.heroBg : "";
+  const autoSum = s.resume ? "\n\nRésumé des chapitres précédents :\n" + s.resume : "";
+
+  const prompt = "Tu es un auteur expert de récits animés/fandoms. Écris un chapitre fluide en français.\n"
+    + "Titre : " + s.title + "\nUnivers : " + s.idea + "\nPersonnage du lecteur : " + s.hero + heroBg + canonPrompt + memTxt + autoSum + "\n\n"
+    + "RÈGLES IMPÉRATIVES DE STYLE :\n"
+    + "1. Équilibre du chapitre : 70% de DIALOGUES vivants et 30% de NARRATION/DESCRIPTION.\n"
+    + "2. Format des répliques : Commence CHAQUE réplique par le Nom et la Relation entre parenthèses suivi d'un deux-points (ex. « Nom (Sa relation avec toi) : ... »). N'utilise aucune balise de couleur HTML.\n"
+    + "3. Pas de titre de chapitre (comme 'Chapitre X').\n\n"
+    + ((s.chapters && s.chapters.length) ? "Derniers événements :\n" + s.chapters.slice(-2).join("\n\n") : "C'est le Chapitre 1 : " + (s.startConsigne && s.startConsigne.trim() !== 'rien' ? s.startConsigne : "Intègre le lecteur immédiatement au moment choisi."))
+    + ($('d').value.trim() ? "\nConsigne du lecteur : " + $('d').value.trim() : "");
+
+  const live = $('live'); live.classList.remove('hide'); live.innerHTML = '';
+  try {
+    const r = await sample(prompt, { onText: ({ text }) => { live.innerHTML = ''; para(clean(text), live); } });
+    s.chapters = s.chapters || []; s.chapters.push(r.text.trim());
+    save(); $('d').value = ''; say('');
+  } catch (e) { say(e.message || "Erreur de génération."); }
+  live.classList.add('hide'); renderStory(); busy = false; $('next').disabled = false;
+}
+
+/* NAVIGATION ACCUEIL ET FORMULAIRES */
+$('new').onclick = () => show('choice');$('choice_cancel').onclick = renderHome;
+$('btn_orig').onclick = () => show('setup');$('btn_exist').onclick = () => show('setup1');
+
+$('cancel').onclick = renderHome;
+$('step1_cancel').onclick = renderHome;
+$('back').onclick = () => renderHome();
+
+$('ai').onclick = () => {
+  const b = $('aiset'); b.innerHTML = ''; const c = CFG();
+  const h = document.createElement('h1'); h.textContent = '⚙️ Réglages IA';
+  const l = document.createElement('label'); l.textContent = 'Clé API OpenRouter';
+  const k = document.createElement('input'); k.type = 'password'; k.value = c.key;
+  k.oninput = () => { c.key = k.value.trim(); saveCFG(c); };
+  const bk = document.createElement('button'); bk.className = 'alt'; bk.textContent = '← Retour'; bk.style.marginTop = '14px'; bk.onclick = renderHome;
+  b.append(h, l, k, bk); show('aiset');
 };
 
-$('imp').onclick=()=>{
-  const s={id:uid(),title:'Les Archiducs',hero:'Kafka Ibino',idea:RECAP,mode:'hybrid',chapters:[]};
-  L.list.push(s);L.cur=s.id;save();openStory();gen();
+$('imp').onclick = () => {
+  const s = { id: uid(), title: 'Les Archiducs', hero: 'Kafka Ibino', idea: RECAP, mode: 'hybrid', chapters: [] };
+  L.list.push(s); L.cur = s.id; save(); openStory(); gen();
 };
 
-/* Lancement Histoire Simple */
-$('go').onclick=()=>{
-  const t=$('t').value.trim(),i=$('i').value.trim(),h=$('h').value.trim();
-  if(!t){say('Écris un titre.');return}
-  const s={id:uid(),title:t,idea:i||'Libre',hero:h||'Le Héros',mode:$('m').value,chapters:[]};
-  L.list.push(s);L.cur=s.id;save();openStory();gen();
+/* HISTOIRE SIMPLE */
+$('go').onclick = () => {
+  const t = $('t').value.trim(), i = $('i').value.trim(), h =$('h').value.trim();
+  if (!t) { say('Indique un titre.'); return; }
+  const s = { id: uid(), title: t, idea: i || 'Libre', hero: h || 'Le Héros', heroBg: i, mode: $('m').value, chapters: [] };
+  L.list.push(s); L.cur = s.id; save(); openStory(); gen();
 };
 
-/* TUNNEL 3 ÉTAPES (OEUVRE EXISTANTE) */
-let tempStore={};
+/* TUNNEL 3 ÉTAPES (ŒUVRE EXISTANTE) */
+let tempStore = {};
 
-$('step1_next').onclick=()=>{
-  tempStore.summary=$('wkt').value.trim();
-  tempStore.links=$('wkl').value.trim();
-  tempStore.charsText=$('wkt_char').value.trim();
+$('step1_next').onclick = () => {
+  tempStore.summary = $('wkt').value.trim();
+  tempStore.links = $('wkl').value.trim();
+  tempStore.charsText = $('wkt_char').value.trim();
   show('setup2');
 };
-$('step2_back').onclick=()=>show('setup1');
+$('step2_back').onclick = () => show('setup1');
 
-$('step2_next').onclick=()=>{
-  tempStore.title=$('t2').value.trim();
-  tempStore.hero=$('h2').value.trim();
-  tempStore.idea=$('i2').value.trim();
-  tempStore.mode=$('m2').value;
-  if(!tempStore.title||!tempStore.hero){say("Indique un titre et un nom de personnage.");return}
+$('step2_next').onclick = () => {
+  tempStore.title = $('t2').value.trim();
+  tempStore.hero = $('h2').value.trim();
+  tempStore.idea = $('i2').value.trim();
+  tempStore.mode = $('m2').value;
+  if (!tempStore.title || !tempStore.hero) { say("Merci de renseigner un titre et le nom de ton personnage."); return; }
   show('setup3');
 };
-$('step3_back').onclick=()=>show('setup2');
+$('step3_back').onclick = () => show('setup2');
 
-// Validation du moment d'apparition par l'IA
-$('wkf').onclick=async()=>{
-  const at=$('wka').value.trim();
-  const st=$('wkr');
-  if(!at){st.textContent="Écris d'abord le moment souhaité.";return;}
-  const sample=await getSample();if(!sample)return;
-  
-  $('wkf').disabled=true;st.textContent="Recherche et validation du moment...";
-  try{
-    const sourceText=(tempStore.summary||"")+"\n"+(tempStore.links||"");
-    const r=await sample("Analyse ce contexte d'œuvre :\n"+sourceText.slice(0,8000)+"\n\nLe lecteur veut apparaître à ce moment précis : « "+at+" ». Est-ce cohérent ? Réponds en JSON strict : {\"trouve\":true,\"moment\":\"description validée\"} ou {\"trouve\":false}",{cache:false});
-    const m=r.text.match(/\{[\s\S]*\}/);
-    let j=null;try{j=JSON.parse(m&&m[0])}catch(e){}
-    
-    if(j && j.trouve){
-      st.textContent="✅ Moment validé : "+(j.moment||at);
+/* VALIDATION CONTEXTUELLE DU MOMENT PAR L'IA (SAISON, ÉPISODE, RÉSULTAT) */
+$('wkf').onclick = async () => {
+  const at = $('wka').value.trim();
+  const resBox = $('valid_res'), epEl = $('v_ep'), descEl =$('v_desc');
+  if (!at) { say("Décris d'abord le moment exact où tu veux apparaître."); return; }
+  const sample = await getSample(); if (!sample) return;
+
+  $('wkf').disabled = true; say("🔍 Recherche et validation contextuelle dans l'œuvre...");
+  try {
+    const sourceText = (tempStore.summary || "") + "\n" + (tempStore.links || "");
+    const prompt = "Tu es un expert absolu de l'œuvre décrite ici :\n" + sourceText.slice(0, 8000) + "\n\n"
+      + "Le lecteur souhaite apparaître à ce moment précis : « " + at + " ».\n"
+      + "Identifie la Saison, l'Épisode/Arc exact et fais un court résumé (2-3 phrases) de la scène.\n"
+      + "Réponds au format JSON strict : {\"trouve\":true, \"episode\":\"Saison X, Épisode Y (ou Nom de l'Arc)\", \"resume\":\"Court résumé de ce qui se passe à cet instant précis\"} ou {\"trouve\":false}";
+
+    const r = await sample(prompt, { cache: false });
+    const m = r.text.match(/\{[\s\S]*\}/);
+    let j = null; try { j = JSON.parse(m && m[0]); } catch (e) {}
+
+    if (j && j.trouve) {
+      epEl.textContent = "✅ " + j.episode;
+      descEl.textContent = j.resume;
+      resBox.classList.remove('hide');
       $('wkk').classList.remove('hide');
+      say('');
     } else {
-      st.textContent="❌ Moment imprécis ou introuvable. Essaye de reformuler (ex: nom d'un arc).";
+      resBox.classList.add('hide');
+      say("❌ Moment introuvable ou trop vague. Essaye de donner plus de détails (ex: noms des personnages présents, lieu).");
     }
-  }catch(e){st.textContent="Erreur lors de la vérification."}
-  $('wkf').disabled=false;
+  } catch (e) { say("Erreur lors de la vérification contextuelle."); }
+  $('wkf').disabled = false;
 };
 
-$('go_exist').onclick=()=>{
-  const at=$('wka').value.trim();
-  if(!at){say("Entre ton moment d'apparition.");return}
-  const keep=$('wkp2').value==="keep";
-  const s={
-    id:uid(),title:tempStore.title,hero:tempStore.hero,idea:tempStore.idea||tempStore.summary,
-    mode:tempStore.mode,chapters:[],
-    wk:{at:at,before:tempStore.summary||tempStore.links||"Œuvre existante", after: keep ? "Conserver la trame" : "Divergence totale"}
+$('go_exist').onclick = () => {
+  const at = $('wka').value.trim();
+  if (!at) { say("Indique ton moment d'apparition."); return; }
+  const keep = $('wkp2').value === "keep";
+  const startCons = $('start_consigne').value.trim();
+  const s = {
+    id: uid(), title: tempStore.title, hero: tempStore.hero, idea: tempStore.idea || tempStore.summary,
+    heroBg: tempStore.idea, mode: tempStore.mode, chapters: [],
+    startConsigne: startCons,
+    wk: { at: at, before: tempStore.summary || tempStore.links || "Œuvre existante", after: keep ? "Conserver la trame canon" : "Divergence totale" }
   };
-  L.list.push(s);L.cur=s.id;save();openStory();gen();
+  L.list.push(s); L.cur = s.id; save(); openStory(); gen();
 };
 
-/* CHARGEMENT DES LIENS (Proxy + CORS) */
+/* CHARGEMENT DES LIENS WIKI / PROXY */
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 async function fetchWithFallback(url) {
-  try {
-    const r = await fetch(url);
-    if (r.ok) return await r.text();
-  } catch (e) {}
+  try { const r = await fetch(url); if (r.ok) return await r.text(); } catch (e) {}
   const proxyUrl = 'https://api.allorigins.win/raw?url=' + encodeURIComponent(url);
   const rProxy = await fetch(proxyUrl);
   if (!rProxy.ok) throw new Error("Accès impossible (" + rProxy.status + ")");
   return await rProxy.text();
 }
-const strip=h=>{const d=new DOMParser().parseFromString(h,"text/html");d.querySelectorAll("script,style,sup,table,.mw-editsection,.reference").forEach(e=>e.remove());return (d.body.textContent||"").replace(/\n{3,}/g,"\n\n").trim()};
-function apiOf(u){const pre=u.pathname.split("/wiki/")[0];return u.origin+(/wikipedia\.org$/.test(u.hostname)?"/w":pre)+"/api.php"}
+const strip = h => { const d = new DOMParser().parseFromString(h, "text/html"); d.querySelectorAll("script,style,sup,table,.mw-editsection,.reference").forEach(e => e.remove()); return (d.body.textContent || "").replace(/\n{3,}/g, "\n\n").trim(); };
+function apiOf(u) { const pre = u.pathname.split("/wiki/")[0]; return u.origin + (/wikipedia\.org$/.test(u.hostname) ? "/w" : pre) + "/api.php"; }
 
-async function grab(url){
-  let u;try{u=new URL(url.trim())}catch(e){throw new Error("Lien invalide")}
-  if(u.pathname.indexOf("/wiki/")>=0){
-    const title=decodeURIComponent(u.pathname.split("/wiki/")[1]);
+async function grab(url) {
+  let u; try { u = new URL(url.trim()); } catch (e) { throw new Error("Lien invalide"); }
+  if (u.pathname.indexOf("/wiki/") >= 0) {
+    const title = decodeURIComponent(u.pathname.split("/wiki/")[1]);
     try {
-      const r=await fetch(apiOf(u)+"?action=parse&format=json&prop=text&redirects=1&origin=*&page="+encodeURIComponent(title));
-      if(r.ok){const j=await r.json();if(j.parse&&j.parse.text)return strip(j.parse.text["*"]);}
-    }catch(e){}
+      const r = await fetch(apiOf(u) + "?action=parse&format=json&prop=text&redirects=1&origin=*&page=" + encodeURIComponent(title));
+      if (r.ok) { const j = await r.json(); if (j.parse && j.parse.text) return strip(j.parse.text["*"]); }
+    } catch (e) {}
   }
   const html = await fetchWithFallback(url);
   return strip(html);
 }
 
-$('wkg').onclick=async()=>{
-  const st=$('wks'),btn=$('wkg');
-  const links=$('wkl').value.split('\n').map(x=>x.trim()).filter(Boolean);
-  if(!links.length){st.textContent="Colle un lien.";return}
-  btn.disabled=true;
-  try{
-    let txt="";
-    for(let i=0;i<links.length;i++){
-      st.textContent="Lecture du lien "+(i+1)+"/"+links.length+"…";
-      txt+="\n\n"+await grab(links[i]);
+$('wkg').onclick = async () => {
+  const st = $('wks'), btn =$('wkg');
+  const links = $('wkl').value.split('\n').map(x => x.trim()).filter(Boolean);
+  if (!links.length) { st.textContent = "Colle un lien."; return; }
+  btn.disabled = true;
+  try {
+    let txt = "";
+    for (let i = 0; i < links.length; i++) {
+      st.textContent = "Chargement " + (i + 1) + "/" + links.length + "…";
+      txt += "\n\n" + await grab(links[i]);
       await sleep(600);
     }
-    $('wkt').value = txt.trim().slice(0,35000);
-    st.textContent="✅ Liens chargés et convertis en texte !";
-  }catch(e){st.textContent="Erreur de lecture du lien. Colle le texte directement dans la case 3."}
-  btn.disabled=false;
+    $('wkt').value = txt.trim().slice(0, 35000);
+    st.textContent = "✅ Contenu extrait et ajouté au texte !";
+  } catch (e) { st.textContent = "Erreur de chargement. Colle le texte du résumé directement dans la case 3."; }
+  btn.disabled = false;
 };
 
-$('wkn').onclick=async()=>{
-  const st=$('wkns'),btn=$('wkn');
-  const links=$('wkc').value.split('\n').map(x=>x.trim()).filter(Boolean);
-  if(!links.length){st.textContent="Colle un lien.";return}
-  btn.disabled=true;
-  try{
-    let txt="";
-    for(let i=0;i<links.length;i++){
-      st.textContent="Lecture personnages "+(i+1)+"/"+links.length+"…";
-      txt+=" "+await grab(links[i]);
+$('wkn').onclick = async () => {
+  const st = $('wkns'), btn =$('wkn');
+  const links = $('wkc').value.split('\n').map(x => x.trim()).filter(Boolean);
+  if (!links.length) { st.textContent = "Colle un lien."; return; }
+  btn.disabled = true;
+  try {
+    let txt = "";
+    for (let i = 0; i < links.length; i++) {
+      st.textContent = "Chargement personnages " + (i + 1) + "/" + links.length + "…";
+      txt += " " + await grab(links[i]);
       await sleep(600);
     }
-    $('wkt_char').value = txt.trim().slice(0,20000);
-    st.textContent="✅ Personnages chargés et convertis !";
-  }catch(e){st.textContent="Erreur de lecture. Colle la liste directement dans la case 4."}
-  btn.disabled=false;
+    $('wkt_char').value = txt.trim().slice(0, 20000);
+    st.textContent = "✅ Liste extraite !";
+  } catch (e) { st.textContent = "Erreur de chargement. Colle la liste directement dans la case 4."; }
+  btn.disabled = false;
 };
 
-/* SAUVEGARDE */
-$('bx').onclick=()=>{
-  $('bk').value=JSON.stringify(L);$('bmsg').textContent='Copie ce texte de sauvegarde.';
+/* DICTÉE VOCALE & BOUTON CORRIGER */
+const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+const ANDROID = /Android/i.test(navigator.userAgent);
+var DC = null;
+function dictEnd() { if (!DC) return; const d = DC; DC = null; d.on = false; try { d.r.abort(); } catch (e) {} d.btn.textContent = '🎤 Dicter'; }
+function dict(el, btn) {
+  if (!SR) { el.focus(); say("La dictée n'est pas supportée sur ce navigateur."); return; }
+  const same = DC && DC.btn === btn; dictEnd(); if (same) return;
+  const r = new SR(); r.lang = 'fr-FR'; r.interimResults = true; r.continuous = !ANDROID;
+  const d = { r: r, btn: btn, on: true }; DC = d;
+  let base = el.value;
+  const join = (a, b) => a && b ? a + (/\s$/.test(a) ? '' : ' ') + b : a + b;
+  r.onresult = ev => { el.value = join(base, Array.from(ev.results).map(x => x[0].transcript).join('').trim()); };
+  r.onerror = () => { if (DC === d) dictEnd(); };
+  r.onend = () => { if (DC !== d) return; if (d.on) { base = el.value; try { r.start(); } catch (e) { dictEnd(); } } else dictEnd(); };
+  try { r.start(); btn.textContent = '⏹ Arrêter'; say("🎙️ Je t'écoute..."); } catch (e) { dictEnd(); }
+}
+
+function makeMicGroup(el) {
+  const g = document.createElement('div'); g.className = 'mic-group';
+  const m = document.createElement('button'); m.type = 'button'; m.className = 'mic alt'; m.textContent = '🎤 Dicter';
+  m.onclick = () => dict(el, m);
+  const f = document.createElement('button'); f.type = 'button'; f.className = 'mic alt'; f.textContent = '✨ Corriger';
+  f.onclick = async () => {
+    const txt = el.value.trim(); if (!txt) return;
+    const sample = await getSample(); if (!sample) return;
+    f.disabled = true; f.textContent = '…';
+    try {
+      const r = await sample("Corrige la grammaire et l'orthographe de ce texte sans en changer le sens :\n\n" + txt, { cache: false });
+      el.value = r.text.trim(); say('');
+    } catch (e) {}
+    f.disabled = false; f.textContent = '✨ Corriger';
+  };
+  g.append(m, f);
+  return g;
+}
+
+['t', 'i', 'h', 'd', 't2', 'i2', 'h2', 'wkt', 'wkt_char', 'wka', 'start_consigne'].forEach(id => {
+  const el = $(id); if (!el) return;
+  const lab = document.querySelector('label[for=' + id + ']'); if (!lab) return;
+  lab.append(makeMicGroup(el));
+});
+
+/* BOUTONS D'ACTION SUR LA LECTURE */
+$('cfg').onclick = () => {
+  const p = $('set');
+  if (p.classList.contains('hide')) { renderSet(); p.classList.remove('hide'); }
+  else p.classList.add('hide');
 };
-$('bi').onclick=()=>{
-  try{
-    const o=JSON.parse($('bk').value);
-    if(o&&o.list){L=o;save();renderHome();$('bmsg').textContent='Importation réussie !';}
-  }catch(e){$('bmsg').textContent='Sauvegarde invalide.';}
+$('lastch').onclick = () => window.scrollTo(0, document.body.scrollHeight);
+$('rw').onclick = () => gen(true);$('undo').onclick = () => {
+  const s = S(); if (!s || !s.chapters.length) return;
+  s.chapters.pop(); save(); renderStory();
 };
 
-$('next').onclick=gen;
+/* EXPORT / IMPORT SAUVEGARDE */
+$('bx').onclick = () => { $('bk').value = JSON.stringify(L);$('bmsg').textContent = 'Sauvegarde copiée dans le presse-papier.'; };
+$('bi').onclick = () => {
+  try {
+    const o = JSON.parse($('bk').value);
+    if (o && o.list) { L = o; save(); renderHome(); $('bmsg').textContent = 'Importation réussie !'; }
+  } catch (e) { $('bmsg').textContent = 'Sauvegarde invalide.'; }
+};
+
+$('next').onclick = () => gen();
 
 renderHome();
 </script>
