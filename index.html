@@ -116,7 +116,7 @@ button:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
 .speaker-neutral { color: #60a5fa !important; }
 .speaker-unknown { color: #facc15 !important; }
 
-/* BOUTONS DE CHOIX D'ACTION */
+/* CHOIX D'ACTION */
 .choice-btn {
   width: 100%;
   text-align: left;
@@ -129,7 +129,6 @@ button:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
 }
 .choice-btn:hover { background: rgba(139, 92, 246, 0.25); border-color: var(--ac); }
 
-/* TAGS FICHE / CODEX */
 .tag-badge {
   display: inline-block;
   background: rgba(139, 92, 246, 0.2);
@@ -180,7 +179,7 @@ button:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
   </div>
 </section>
 
-<!-- FORMULAIRE CLASSIQUE (ORIGINAL) -->
+<!-- FORMULAIRE CLASSIQUE -->
 <section id="setup" class="card hide">
   <h1>Nouvelle histoire originale</h1>
   <label for="m">Type d'histoire</label>
@@ -348,22 +347,42 @@ button:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
 
   <h2 id="stt"></h2>
   
-  <!-- CHAPITRES AVEC ÉDITION MANUELLE (CHOIX 2) -->
+  <!-- CHAPITRES -->
   <div id="chs"></div>
 
   <!-- ZONE DE STREAMING LIVE -->
   <div id="live" class="card ch hide"></div>
 
-  <!-- CHOIX D'ACTIONS AUTOMATIQUES (CHOIX 1) -->
+  <!-- 3 CHOIX AUTOMATIQUES -->
   <div id="choices_container" class="card hide">
     <h2>⚡ Choix d'action proposés par l'IA :</h2>
     <div id="choices_list"></div>
   </div>
 
+  <!-- PANNEAU DE RÉÉCRITURE AVANCÉ -->
+  <div id="rw_box" class="card hide" style="border-color: #ec4899; background: rgba(236, 72, 153, 0.08);">
+    <h2>🔁 Réécriture du Chapitre</h2>
+    <p class="sub">Dis à l'IA ce qui ne va pas pour qu'elle s'ajuste parfaitement.</p>
+
+    <label for="rw_type">Que souhaites-tu faire ?</label>
+    <select id="rw_type">
+      <option value="fix">🎯 Corriger une erreur (Garder la même scène et réparer le bug / faux détail)</option>
+      <option value="fresh">🔀 Changer la tournure (Rejeter cette version et écrire une scène différente)</option>
+    </select>
+
+    <label for="rw_critique">Ce que tu n'as pas aimé / L'erreur à corriger</label>
+    <textarea id="rw_critique" placeholder="Ex pour une erreur : 'Perugius ne me vouvoie pas alors que je suis son maître. Corrige ses paroles.'&#10;Ex pour une tournure : 'Je ne veux pas aller au banquet, je préfère m'échapper discrètement.'"></textarea>
+
+    <div class="row" style="margin-top:12px">
+      <button id="rw_confirm" style="background:linear-gradient(135deg, #ec4899, #8b5cf6);">🚀 Lancer la réécriture</button>
+      <button id="rw_cancel" class="alt">Annuler</button>
+    </div>
+  </div>
+
   <!-- ZONE D'ACTION / PROMPT -->
   <div class="card" style="margin-top:16px">
-    <label for="d">Ton action personnalisée ou consigne de correction (Ex : « OOC : Corrige le fait que... »)</label>
-    <textarea id="d" placeholder="Écris ici ton action, ou clique sur l'un des 3 choix au-dessus (ou laisse vide pour continuer)..."></textarea>
+    <label for="d">Ton action personnalisée (ou clique sur un choix proposé)</label>
+    <textarea id="d" placeholder="Écris ici ton action pour le prochain chapitre, ou clique sur l'un des choix au-dessus..."></textarea>
     
     <div class="row">
       <button id="next">Écrire la suite</button>
@@ -384,7 +403,7 @@ const MODES={anime:'🎬 Animé',rpg:'⚔️ RPG',hybrid:'🎬⚔️ Hybride'};
 const RECAP=`Univers inventé : un roi et des nobles classés du plus faible au plus puissant...`;
 
 /* ==========================================================================
-   1. SAUVEGARDE ROBUSTE ET ILLIMITÉE : INDEXEDDB (IDÉE F)
+   INDEXEDDB (STOCKAGE ILLIMITÉ SANS LIMITE DE 5 MO)
    ========================================================================== */
 const DB = {
   db: null,
@@ -420,7 +439,6 @@ const DB = {
 
 let L = { list: [], cur: null }, busy = false, armed = null, restartArmed = false;
 
-// Migration automatique depuis LocalStorage vers IndexedDB
 async function initStore() {
   await DB.init();
   const dbData = await DB.get('lib');
@@ -442,7 +460,7 @@ const S = () => L.list.find(s => s.id === L.cur);
 
 async function save() {
   await DB.set('lib', L);
-  try { localStorage.setItem('lib', JSON.stringify(L)); } catch(e) {} // Copie de secours
+  try { localStorage.setItem('lib', JSON.stringify(L)); } catch(e) {}
 }
 
 function say(t, isSuccess = false) {
@@ -464,7 +482,7 @@ function show(v) {
 }
 
 /* ==========================================================================
-   DÉTECTION RELATIONS & COLORATION DES DIALOGUES
+   DÉTECTION RELATIONS & COLORATION DIALOGUES
    ========================================================================== */
 function getRelationClass(str) {
   const s = str.toLowerCase();
@@ -495,9 +513,14 @@ function para(text, box) {
   });
 }
 
-/* NETTOYAGE DU TEXTE ET EXTRACTION IA */
+/* ==========================================================================
+   NETTOYAGE DU TEXTE & FIX « USER SAFETY »
+   ========================================================================== */
 function extractAndClean(rawText, s) {
   let txt = rawText;
+
+  // FIX DU BUG : Supprime le préfixe ou artefact 'User Safety: safe' généré par les proxys
+  txt = txt.replace(/User Safety\s*:\s*safe/gi, '').trim();
 
   // 1. Extraire CHOIX :
   const chMatch = txt.match(/CHOIX\s*:\s*([\s\S]*?)(?=(PERSOS_MAJ|HERO_MAJ|$))/i);
@@ -543,11 +566,12 @@ function extractAndClean(rawText, s) {
     }
   }
 
-  // Nettoyage de la narration
+  // Nettoyage final pour l'affichage de l'histoire
   return txt
     .replace(/CHOIX\s*:[\s\S]*$/i, '')
     .replace(/PERSOS_MAJ\s*:[\s\S]*$/i, '')
     .replace(/HERO_MAJ\s*:[\s\S]*$/i, '')
+    .replace(/User Safety\s*:\s*safe/gi, '')
     .trim();
 }
 
@@ -580,7 +604,7 @@ function renderHome() {
 }
 
 /* ==========================================================================
-   2. RENDU DE L'HISTOIRE & MODIFICATION MANUELLE (CHOIX 2)
+   RENDU HISTOIRE & MODIFICATION MANUELLE
    ========================================================================== */
 function renderStory() {
   const s = S(); if (!s) return;
@@ -597,7 +621,6 @@ function renderStory() {
 
     const h = document.createElement('h2'); h.textContent = 'Chapitre ' + (n + 1);
     
-    // Bouton Modifier manuel
     const editBtn = document.createElement('button');
     editBtn.className = 'alt';
     editBtn.style.padding = '4px 10px';
@@ -611,9 +634,8 @@ function renderStory() {
     para(c, bodyDiv);
     d.append(bodyDiv);
 
-    // Mode édition au clic
     editBtn.onclick = () => {
-      if (d.querySelector('textarea')) return; // Déjà en édition
+      if (d.querySelector('textarea')) return;
       bodyDiv.classList.add('hide');
 
       const editBox = document.createElement('div');
@@ -652,9 +674,6 @@ function renderStory() {
   renderHeroStats();
 }
 
-/* ==========================================================================
-   3. CHOIX D'ACTIONS CLICABLES AUTOMATIQUES (CHOIX 1)
-   ========================================================================== */
 function renderChoices() {
   const s = S(); if (!s) return;
   const box = $('choices_list'), cont = $('choices_container');
@@ -677,16 +696,13 @@ function renderChoices() {
   }
 }
 
-/* ==========================================================================
-   4. CODEX DES PERSONNAGES (IDÉE B)
-   ========================================================================== */
 function renderCodex() {
   const s = S(), box = $('codex_list'); if (!s || !box) return;
   box.innerHTML = '';
   s.codex = s.codex || [];
 
   if (!s.codex.length) {
-    box.innerHTML = '<p class="sub">Aucun personnage répertorié. Ils apparaîtront ici automatiquement au fil des dialogues.</p>';
+    box.innerHTML = '<p class="sub">Aucun personnage répertorié. Ils s\'ajouteront automatiquement.</p>';
     return;
   }
 
@@ -727,9 +743,6 @@ $('cdx_add').onclick = () => {
   say('Personnage ajouté au Codex !', true);
 };
 
-/* ==========================================================================
-   5. FICHE DE PROGRESSION DU HÉROS (IDÉE C)
-   ========================================================================== */
 function renderHeroStats() {
   const s = S(); if (!s) return;
   s.heroStats = s.heroStats || { rank: '', techniques: [], items: [] };
@@ -779,9 +792,6 @@ $('h_save').onclick = () => {
   say('✅ Fiche du héros enregistrée !', true);
 };
 
-/* ==========================================================================
-   GESTION DES PANNEAUX RETRACTABLES
-   ========================================================================== */
 $('toggle_hero').onclick = () => { $('hero_panel').classList.toggle('hide'); $('codex_panel').classList.add('hide'); $('set').classList.add('hide'); };
 $('toggle_codex').onclick = () => { $('codex_panel').classList.toggle('hide'); $('hero_panel').classList.add('hide'); $('set').classList.add('hide'); };
 $('cfg').onclick = () => { $('set').classList.toggle('hide'); $('hero_panel').classList.add('hide'); $('codex_panel').classList.add('hide'); if (!$('set').classList.contains('hide')) renderSet(); };
@@ -813,17 +823,21 @@ function renderSet() {
   });
 }
 
-function openStory() { const s = S(); if (s && !s.memo) s.memo = []; show('story'); $('set').classList.add('hide'); $('hero_panel').classList.add('hide'); $('codex_panel').classList.add('hide'); renderStory(); }
+function openStory() { const s = S(); if (s && !s.memo) s.memo = []; show('story'); $('set').classList.add('hide'); $('hero_panel').classList.add('hide'); $('codex_panel').classList.add('hide'); $('rw_box').classList.add('hide'); renderStory(); }
 
 /* ==========================================================================
-   APPEL API OPENROUTER
+   CONFIG MODÈLES ROBUSTES (ANTI-CRASH)
    ========================================================================== */
 const CFG = () => { 
   let c = {}; 
   try { c = JSON.parse(localStorage.getItem('orcfg')) || {}; } catch (e) {} 
   return { 
     key: c.key || '', 
-    models: Array.isArray(c.models) && c.models.length ? c.models : ['meta-llama/llama-3.3-70b-instruct:free', 'openrouter/free'] 
+    models: Array.isArray(c.models) && c.models.length ? c.models : [
+      'meta-llama/llama-3.3-70b-instruct:free',
+      'mistralai/mistral-nemo:free',
+      'qwen/qwen-2.5-72b-instruct:free'
+    ] 
   }; 
 };
 const saveCFG = c => { try { localStorage.setItem('orcfg', JSON.stringify(c)); } catch (e) {} };
@@ -853,35 +867,53 @@ async function callOR(key, model, prompt, onText) {
   return out;
 }
 
+// Fonction avec tentative automatique sur modèle de secours si l'IA renvoie un message vide ou User Safety
 async function getSample() {
   const c = CFG();
   if (!c.key) { say("Ajoute ta clé OpenRouter dans ⚙️ Réglages IA."); return null; }
+  
   return async (prompt, opts) => {
-    return { text: await callOR(c.key, c.models[0] || 'meta-llama/llama-3.3-70b-instruct:free', prompt, opts && opts.onText) };
+    let lastErr = null;
+    const modelList = c.models;
+
+    for (let m = 0; m < modelList.length; m++) {
+      try {
+        const textRes = await callOR(c.key, modelList[m], prompt, opts && opts.onText);
+        const cleanCheck = textRes.replace(/User Safety\s*:\s*safe/gi, '').trim();
+        
+        // Si la réponse est anormalement courte (bug User Safety ou refus silencieux), on bascule sur le modèle suivant
+        if (cleanCheck.split(/\s+/).length < 20 && m < modelList.length - 1) {
+          console.warn("Réponse anormale détectée avec " + modelList[m] + ", basculement automatique...");
+          continue;
+        }
+        return { text: textRes };
+      } catch (err) {
+        lastErr = err;
+      }
+    }
+    throw lastErr || new Error("Erreur de réponse de l'IA.");
   };
 }
 
 /* ==========================================================================
-   GÉNÉRATION INTELLIGENTE DU CHAPITRE
+   GÉNÉRATION DU CHAPITRE AVEC GESTION AVANCÉE DE RÉÉCRITURE
    ========================================================================== */
-async function gen(isRewrite = false) {
+async function gen(isRewrite = false, rwOptions = null) {
   const s = S(); if (busy || !s) return;
   const sample = await getSample(); if (!sample) return;
   
   if (isRewrite && (!s.chapters || s.chapters.length === 0)) {
-    say("Aucun chapitre à réécrire. Clique sur 'Écrire la suite'.");
+    say("Aucun chapitre à réécrire.");
     return;
   }
 
   busy = true; $('next').disabled = true; 
   say(isRewrite ? '✍️ L\'IA réécrit ce chapitre avec tes consignes...' : '✍️ L\'IA tisse le chapitre...');
 
-  // Contexte Codex
   const codexTxt = (s.codex && s.codex.length)
     ? "\nRELATIONS ACTUELLES DES PERSONNAGES :\n" + s.codex.map(c => `- ${c.name} (${c.rel}) : ${c.desc}`).join("\n")
     : "";
 
-  // Contexte Fiche Héros
   const heroStatsTxt = s.heroStats 
     ? `\nFICHE DU HÉROS : Rang: ${s.heroStats.rank || 'Non défini'} | Techniques: ${(s.heroStats.techniques || []).join(', ') || 'Aucune'} | Objets: ${(s.heroStats.items || []).join(', ') || 'Aucun'}`
     : "";
@@ -908,10 +940,22 @@ async function gen(isRewrite = false) {
   const userInput = $('d').value.trim();
 
   if (isRewrite) {
+    const currentChapterText = s.chapters[s.chapters.length - 1];
     const prevContext = s.chapters.length > 1 ? s.chapters.slice(-3, -1).join("\n\n") : "";
-    situationPrompt = "RÉÉCRITURE DU CHAPITRE ACTUEL :\n"
-      + (prevContext ? "Contexte précédant :\n" + prevContext + "\n\n" : "")
-      + (userInput ? "⚠️ INSTRUCTION CRUCIALE DE CORRECTION : " + userInput : "");
+    const crit = rwOptions ? rwOptions.critique : userInput;
+    const type = rwOptions ? rwOptions.type : 'fix';
+
+    if (type === 'fix') {
+      situationPrompt = "MISSION : CORRIGER UNE ERREUR DANS CE CHAPITRE SANS CHANGER LE RESTE DE LA SCÈNE.\n"
+        + "Voici la version actuelle qui contient une erreur :\n" + currentChapterText + "\n\n"
+        + "ERREUR SIGNALÉE PAR L'AUTEUR (À CORRIGER IMPÉRATIVEMENT) :\n" + (crit || "Corrige les erreurs de comportement et de faits.") + "\n\n"
+        + "Conserve la trame et les dialogues qui étaient bons, mais rectifie précisément ce problème.";
+    } else {
+      situationPrompt = "MISSION : ÉCRIRE UNE NOUVELLE VERSION COMPLÈTEMENT DIFFÉRENTE DE CE CHAPITRE.\n"
+        + (prevContext ? "Contexte précédant immédiatement ce chapitre :\n" + prevContext + "\n\n" : "")
+        + "L'auteur a rejeté la version précédente pour la raison suivante :\n" + (crit || "Prends une direction plus prenante et différente.") + "\n\n"
+        + "Écris une toute nouvelle scène originale répondant à ses attentes.";
+    }
   } else {
     if (s.chapters && s.chapters.length) {
       situationPrompt = "DERNIERS ÉVÉNEMENTS :\n" + s.chapters.slice(-2).join("\n\n")
@@ -923,14 +967,15 @@ async function gen(isRewrite = false) {
   }
 
   const prompt = "Tu es un scénariste d'élite d'animés et mangas.\n"
-    + "Rédige la suite en français littéraire et immersif.\n\n"
+    + "Rédige le chapitre complet en français littéraire et immersif (au moins 250 mots).\n"
+    + "Interdiction formelle de renvoyer des messages de sécurité méta comme 'User Safety'. Écris directement le récit.\n\n"
     + "Titre : " + s.title + "\n"
     + "Joueur : " + s.hero + heroBg + heroStatsTxt + "\n"
     + canonPrompt + codexTxt + memTxt + "\n\n"
     + "RÈGLE DES DIALOGUES (70% dialogue, 30% narration) :\n"
     + "Chaque réplique commence par : « Prénom Nom (Relation) : dialogue »\n"
-    + "Ex : Rudeus Greyrat (Ami) : Bonjour !\n\n"
-    + "STRUCTURE FINALE OBLIGATOIRE (À placer TOUT À LA FIN de ta réponse) :\n"
+    + "Ex : Perugius Dola (Disciple) : Bienvenue, Maître.\n\n"
+    + "STRUCTURE FINALE OBLIGATOIRE (TOUT À LA FIN) :\n"
     + "CHOIX :\n"
     + "1. [Choix d'action 1]\n"
     + "2. [Choix d'action 2]\n"
@@ -947,8 +992,12 @@ async function gen(isRewrite = false) {
   try {
     const r = await sample(prompt, { onText: ({ text }) => { live.innerHTML = ''; para(extractAndClean(text, {}), live); } });
     
-    // Nettoyage et extraction automatique
     const cleanedStoryText = extractAndClean(r.text, s);
+
+    // Vérification de sécurité finale : si le texte est vide ou buggé, on ne corrompt pas l'histoire
+    if (cleanedStoryText.split(/\s+/).length < 15) {
+      throw new Error("L'IA a généré une réponse trop courte. Réessaie en cliquant sur Écrire la suite.");
+    }
 
     s.chapters = s.chapters || [];
     if (isRewrite && s.chapters.length > 0) {
@@ -959,6 +1008,7 @@ async function gen(isRewrite = false) {
 
     await save();
     $('d').value = '';
+    $('rw_box').classList.add('hide');
     say('');
   } catch (e) {
     say(e.message || "Erreur de génération.");
@@ -971,8 +1021,8 @@ async function gen(isRewrite = false) {
 }
 
 /* ==========================================================================
-   BOUTONS DE CONTRÔLE ET NAVIGATION
-   ========================================================================= */
+   NAVIGATION & GESTION DU PANNEAU DE RÉÉCRITURE
+   ========================================================================== */
 $('new').onclick = () => show('choice');
 $('choice_cancel').onclick = renderHome;
 $('btn_orig').onclick = () => show('setup');
@@ -983,7 +1033,26 @@ $('step1_cancel').onclick = renderHome;
 $('back').onclick = () => renderHome();
 
 $('lastch').onclick = () => window.scrollTo(0, document.body.scrollHeight);
-$('rw').onclick = () => gen(true);
+
+// Affiche la boîte de réécriture au clic
+$('rw').onclick = () => {
+  const s = S();
+  if (!s || !s.chapters || !s.chapters.length) {
+    say("Aucun chapitre à réécrire.");
+    return;
+  }
+  $('rw_box').classList.remove('hide');
+  $('rw_critique').focus();
+  window.scrollTo(0, $('rw_box').offsetTop - 30);
+};
+
+$('rw_cancel').onclick = () => $('rw_box').classList.add('hide');
+
+$('rw_confirm').onclick = () => {
+  const crit = $('rw_critique').value.trim();
+  const type = $('rw_type').value;
+  gen(true, { type, critique: crit });
+};
 
 $('undo').onclick = async () => {
   const s = S(); if (!s || !s.chapters.length) return;
@@ -1010,7 +1079,6 @@ $('restart').onclick = async () => {
 
 $('next').onclick = () => gen(false);
 
-/* CRÉATION RAPIDE HISTOIRE ORIGINALE */
 $('go').onclick = async () => {
   const t = $('t').value.trim(), i = $('i').value.trim(), h = $('h').value.trim();
   if (!t) { say('Indique un titre.'); return; }
@@ -1021,7 +1089,6 @@ $('go').onclick = async () => {
   L.list.push(s); L.cur = s.id; await save(); openStory(); gen();
 };
 
-/* TUNNEL CRÉATION ŒUVRE EXISTANTE */
 let tempStore = {};
 $('step1_next').onclick = () => {
   if ($('wkl').value.trim() && !$('wkt').value.trim()) {
@@ -1084,7 +1151,6 @@ $('go_exist').onclick = async () => {
   L.list.push(s); L.cur = s.id; await save(); openStory(); gen();
 };
 
-/* RÉGLAGES IA */
 $('ai').onclick = () => {
   const b = $('aiset'); b.innerHTML = ''; const c = CFG();
   const h = document.createElement('h1'); h.textContent = '⚙️ Réglages IA';
@@ -1095,7 +1161,6 @@ $('ai').onclick = () => {
   b.append(h, l, k, bk); show('aiset');
 };
 
-/* EXPORT / IMPORT */
 $('bx').onclick = () => { $('bk').value = JSON.stringify(L); $('bmsg').textContent = 'Sauvegarde copiée !'; };
 $('bi').onclick = async () => {
   try {
@@ -1104,7 +1169,6 @@ $('bi').onclick = async () => {
   } catch (e) { $('bmsg').textContent = 'Sauvegarde invalide.'; }
 };
 
-/* CHARGEMENT WIKI */
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 async function fetchWithFallback(url) {
   try { const r = await fetch(url); if (r.ok) return await r.text(); } catch (e) {}
@@ -1160,7 +1224,6 @@ $('wkn').onclick = async () => {
   btn.disabled = false;
 };
 
-/* DICTÉE VOCALE */
 const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
 var DC = null;
 function dictEnd() { if (!DC) return; const d = DC; DC = null; d.on = false; try { d.r.abort(); } catch (e) {} d.btn.textContent = '🎤 Dicter'; }
@@ -1194,13 +1257,12 @@ function makeMicGroup(el) {
   g.append(m, f); return g;
 }
 
-['t', 'i', 'h', 'd', 't2', 'i2', 'h2', 'wkt', 'wkt_char', 'wka', 'start_consigne'].forEach(id => {
+['t', 'i', 'h', 'd', 't2', 'i2', 'h2', 'wkt', 'wkt_char', 'wka', 'start_consigne', 'rw_critique'].forEach(id => {
   const el = $(id); if (!el) return;
   const lab = document.querySelector('label[for=' + id + ']'); if (!lab) return;
   lab.append(makeMicGroup(el));
 });
 
-// Lancement au chargement
 initStore();
 </script>
 </body>
