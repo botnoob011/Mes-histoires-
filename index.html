@@ -122,6 +122,7 @@ button:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
 .ch p b.speaker { font-weight: 700; display: inline; }
 
 /* RELATIONS DIALOGUES */
+.speaker-hero { color: #38bdf8 !important; text-shadow: 0 0 8px rgba(56, 189, 248, 0.3); }
 .speaker-ally { color: #4ade80 !important; }
 .speaker-enemy { color: #f87171 !important; }
 .speaker-neutral { color: #60a5fa !important; }
@@ -184,25 +185,31 @@ button:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
   <h1>Nouvelle histoire</h1>
   <p class="sub">Quel type d'univers souhaites-tu lancer ?</p>
   <div class="row" style="flex-direction:column;gap:12px">
-    <button id="btn_orig">🆕 Histoire originale (De zéro, 100% inventée)</button>
-    <button id="btn_inspired" style="background:linear-gradient(135deg, #06b6d4, #8b5cf6);">✨ Histoire inspirée d'un animé (Mêmes thèmes & pouvoirs, intrigue originale)</button>
+    <button id="btn_orig">🆕 Histoire originale (De zéro)</button>
+    <button id="btn_inspired" style="background:linear-gradient(135deg, #06b6d4, #8b5cf6);">✨ Dans le style d'un animé (Même univers/pouvoirs, nouvelle intrigue)</button>
     <button id="btn_exist" class="alt">📖 Dans une œuvre existante (Canon officiel avec les vrais personnages)</button>
     <button id="choice_cancel" class="alt">← Retour</button>
   </div>
 </section>
 
-<!-- FORMULAIRE 1 : HISTOIRE ORIGINALE -->
+<!-- FORMULAIRE 1 : HISTOIRE ORIGINALE (DE ZÉRO) -->
 <section id="setup" class="card hide">
-  <h1>Nouvelle histoire originale</h1>
+  <h1>Nouvelle histoire de zéro</h1>
   <label for="m">Type d'histoire</label>
   <select id="m">
     <option value="anime">🎬 Animé / Roman (histoire narrative)</option>
     <option value="rpg">⚔️ RPG (stats, loots, niveaux)</option>
     <option value="hybrid">🎬⚔️ Hybride</option>
   </select>
-  <label for="t">Titre de l'histoire</label><input id="t" placeholder="Ex : Le Sanctuaire Éthéré">
-  <label for="i">Idée, monde, style & univers</label><textarea id="i" placeholder="Ex : Monde d'épéistes magiques, système de noblesse, un empereur craint..."></textarea>
-  <label for="h">Ton personnage (Nom)</label><input id="h" placeholder="Ex : Acil">
+  <label for="t">Titre de l'histoire</label>
+  <input id="t" placeholder="Ex : Le Retour du Fils Perdu">
+  
+  <label for="h">Ton personnage (Prénom et Nom EXACT)</label>
+  <input id="h" placeholder="Ex : KKA Hibino">
+
+  <label for="i">Contexte de l'histoire (Tout ce qui s'est passé avant le Chapitre 1)</label>
+  <textarea id="i" style="min-height:140px" placeholder="Décris ici tout le passé : tes origines, tes parents, ce que tu as vécu avant la scène 1...&#10;Ex : Fils des deux héros Marie et Marc Hibino qui ont sauvé l'humanité. Kidnappé à 8 ans sur le territoire démoniaque, j'ai mis 6 ans à fuir et rentrer chez moi. J'arrive au cimetière le jour même de mes funérailles où tout le monde me croyait mort..."></textarea>
+
   <div class="row">
     <button id="go">🚀 Commencer l'histoire</button>
     <button id="cancel" class="alt">Retour</button>
@@ -210,10 +217,10 @@ button:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
   <p id="smsg"></p>
 </section>
 
-<!-- FORMULAIRE 2 : HISTOIRE INSPIRÉE D'UN ANIMÉ (NOUVEAU !) -->
+<!-- FORMULAIRE 2 : STYLE D'UN ANIMÉ (SANS CHAMP MONDE INUTILE) -->
 <section id="setup_inspired" class="card hide">
-  <h1>✨ Histoire inspirée d'un animé</h1>
-  <p class="sub">Crée une nouvelle histoire originale basée sur les mécaniques, l'ambiance et les pouvoirs d'une œuvre existante.</p>
+  <h1>✨ Histoire dans le style d'un animé</h1>
+  <p class="sub">L'univers et les mécaniques sont directement calqués sur l'animé de ton choix.</p>
   
   <label for="mi">Type d'histoire</label>
   <select id="mi">
@@ -223,46 +230,43 @@ button:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
   </select>
 
   <label for="ti">Titre de ton histoire</label>
-  <input id="ti" placeholder="Ex : L'Ordre des Fléaux, Le Monarque Déchu...">
+  <input id="ti" placeholder="Ex : Les Nouveaux Exorcistes">
 
   <label for="ai_insp">Animé ou Manga d'inspiration</label>
   <input id="ai_insp" placeholder="Ex : Jujutsu Kaisen, Solo Leveling, Hunter x Hunter, Bleach, Chainsaw Man...">
 
-  <label for="ii">Éléments à reprendre (Système de pouvoirs, ambiance, thèmes)</label>
-  <textarea id="ii" placeholder="Ex : Le même système d'énergie occulte et de pactes, une académie secrète dans un monde moderne, mais avec une guerre de clans originale..."></textarea>
-
-  <label for="hi">Ton personnage (Nom)</label>
+  <label for="hi">Ton personnage (Prénom et Nom EXACT)</label>
   <input id="hi" placeholder="Ex : Kael">
 
   <label for="hbi">Background & particularité de ton personnage</label>
-  <textarea id="hbi" placeholder="Ex : Un exorciste né sans aucune énergie occulte, mais capable d'annuler les sorts d'autrui au contact physique..."></textarea>
+  <textarea id="hbi" placeholder="Ex : Un combattant réputé sans talent magique qui s'éveille soudainement après avoir survécu à une catastrophe..."></textarea>
 
   <div class="row">
-    <button id="go_inspired">🚀 Lancer l'histoire inspirée</button>
+    <button id="go_inspired">🚀 Lancer l'histoire</button>
     <button id="cancel_inspired" class="alt">Retour</button>
   </div>
   <p id="smsg_insp"></p>
 </section>
 
-<!-- FORMULAIRE 3 : TUNNEL 3 ÉTAPES (ŒUVRE EXISTANTE) -->
+<!-- FORMULAIRE 3 : ŒUVRE EXISTANTE (CANON) -->
 <section id="setup1" class="card hide">
   <h1>Configuration de l'Œuvre (Étape 1/3)</h1>
   <p class="sub">Données et contexte de l'animé</p>
 
-  <label for="wkl">1. Liens vers l’histoire (Wiki, Fandom, Résumés...)</label>
+  <label for="wkl">1. Liens vers l’histoire (Wiki, Fandom...)</label>
   <textarea id="wkl" placeholder="https://…"></textarea>
-  <div class="row"><button type="button" id="wkg" class="alt">📥 Charger les liens de l'histoire</button></div>
+  <div class="row"><button type="button" id="wkg" class="alt">📥 Charger les liens</button></div>
   <p class="sub" id="wks"></p>
 
   <label for="wkc">2. Liens vers la liste des personnages</label>
   <textarea id="wkc" style="min-height:56px" placeholder="https://…"></textarea>
-  <div class="row"><button type="button" id="wkn" class="alt">📥 Charger la liste des personnages</button></div>
+  <div class="row"><button type="button" id="wkn" class="alt">📥 Charger les personnages</button></div>
   <p class="sub" id="wkns"></p>
 
-  <label for="wkt">3. Ou écris / colle le résumé de l'animé</label>
+  <label for="wkt">3. Ou colle le résumé de l'animé</label>
   <textarea id="wkt" placeholder="Résumé global de l'œuvre..."></textarea>
 
-  <label for="wkt_char">4. Ou écris / colle la liste des personnages</label>
+  <label for="wkt_char">4. Ou colle la liste des personnages</label>
   <textarea id="wkt_char" placeholder="Personnages principaux et leurs rôles..."></textarea>
 
   <div class="row" style="margin-top:18px">
@@ -286,11 +290,11 @@ button:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
   <label for="t2">Titre de ton histoire</label>
   <input id="t2" placeholder="Ex : Mon aventure dans Mushoku Tensei...">
 
-  <label for="h2">Nom de ton personnage</label>
+  <label for="h2">Nom de ton personnage (Prénom Nom)</label>
   <input id="h2" placeholder="Ex : Acil">
 
   <label for="i2">Histoire, background et statut de ton personnage</label>
-  <textarea id="i2" placeholder="Ex : Je suis le maître de Perugius Dola. Il me doit un respect absolu..."></textarea>
+  <textarea id="i2" placeholder="Ex : Je suis le maître de Perugius Dola..."></textarea>
 
   <div class="row" style="margin-top:18px">
     <button id="step2_next">Suivant (Moment d'Apparition) →</button>
@@ -322,8 +326,8 @@ button:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
       <option value="cut">Bifurquer (Trame 100% originale à partir de mon arrivée)</option>
     </select>
 
-    <label for="start_consigne">Comment commence la Scène 1 ? (Optionnel)</label>
-    <textarea id="start_consigne" placeholder="Écris ici ton action de départ, ou laisse vide pour un démarrage naturel."></textarea>
+    <label for="start_consigne">Comment commence la Scène 1 ?</label>
+    <textarea id="start_consigne" placeholder="Ex : Pendant le discours de ma mère au cimetière lors de mes funérailles..."></textarea>
   </div>
 
   <div class="row" style="margin-top:18px">
@@ -350,7 +354,7 @@ button:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
   <div id="hero_panel" class="card hide">
     <h2>⚔️ Progression & Fiche du Héros</h2>
     <label>Rang / Palier de Puissance</label>
-    <input id="h_rank" placeholder="Ex : Exorciste Rang S, Mage Saint, Chasseur Rang Élite...">
+    <input id="h_rank" placeholder="Ex : Survivant Démoniaque, Rang S...">
     <label>Techniques, Sorts & Dons débloqués</label>
     <div id="h_tech_list"></div>
     <div class="row" style="margin-top:6px">
@@ -373,17 +377,17 @@ button:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
     <h2>👥 Personnages & Relations (Codex)</h2>
     <div id="codex_list"></div>
     <div class="card" style="margin-top:12px;background:rgba(0,0,0,0.25)">
-      <h3>Ajouter manuellement un personnage</h3>
-      <input id="cdx_name" placeholder="Nom du personnage">
+      <h3>Ajouter / Modifier manuellement un personnage</h3>
+      <input id="cdx_name" placeholder="Nom du personnage (ex : Marie Hibino)">
       <div class="row" style="margin:8px 0">
         <select id="cdx_rel" style="flex:1">
-          <option value="Allié">🟢 Allié / Ami / Disciple</option>
+          <option value="Allié">🟢 Allié / Famille / Mère / Père / Ami</option>
           <option value="Neutre">🔵 Neutre / Connaissance</option>
           <option value="Ennemi">🔴 Ennemi / Rival</option>
           <option value="Inconnu">🟡 Inconnu / Mystérieux</option>
         </select>
       </div>
-      <input id="cdx_desc" placeholder="Statut ou sentiment actuel...">
+      <input id="cdx_desc" placeholder="Rôle exact (ex : Mère du héros, héroïne légendaire)">
       <button id="cdx_add" style="margin-top:10px">Enregistrer dans les Personnages</button>
     </div>
   </div>
@@ -393,13 +397,9 @@ button:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
 
   <h2 id="stt"></h2>
   
-  <!-- CONTENEUR DES CHAPITRES ET DE LEURS SCÈNES -->
   <div id="chs"></div>
-
-  <!-- ZONE DE STREAMING LIVE -->
   <div id="live" class="card ch hide"></div>
 
-  <!-- 3 CHOIX AUTOMATIQUES -->
   <div id="choices_container" class="card hide">
     <h2>⚡ Choix d'action proposés par l'IA :</h2>
     <div id="choices_list"></div>
@@ -417,7 +417,7 @@ button:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
     </select>
 
     <label for="rw_critique">Ce que tu n'as pas aimé / L'erreur à corriger</label>
-    <textarea id="rw_critique" placeholder="Ex : 'Il doit me vouvoyer et s'incliner.' ou 'Je préfère qu'on passe à l'action directement.'"></textarea>
+    <textarea id="rw_critique" placeholder="Ex : 'Marie est ma mère, elle doit pleurer et être une alliée !'"></textarea>
 
     <div class="row" style="margin-top:12px">
       <button id="rw_confirm" style="background:linear-gradient(135deg, #ec4899, #8b5cf6);">🚀 Lancer la réécriture</button>
@@ -556,7 +556,8 @@ function normalizeRel(rel) {
   return 'Neutre';
 }
 
-function getRelationClass(str) {
+function getRelationClass(str, isHero = false) {
+  if (isHero) return 'speaker-hero';
   const s = str.toLowerCase();
   if (/inconnu|anonyme|myst[eé]rieu|silhouette|[eé]trang|masqu[eé]|passant/i.test(s)) return 'speaker-unknown';
   if (/ennemi|rival|d[eé]test|hostil|tra[iî]tr|adversaire|menace|haine|rivale|monstre/i.test(s)) return 'speaker-enemy';
@@ -566,23 +567,34 @@ function getRelationClass(str) {
 
 function para(text, box) {
   const curStory = S();
+  const heroNameLower = (curStory ? curStory.hero : '').toLowerCase().trim();
+
   text.split('\n').forEach(l => {
     if (!l.trim()) return;
     const m = l.match(/^\s*\*?\*?([^:：]{1,100})\*?\*?\s*[:：]\s*(.*)$/);
     if (m && !l.startsWith('http')) {
       const p = document.createElement('p');
       const b = document.createElement('b');
-      let speakerText = m[1].replace(/[*_`]/g, '').trim();
+      let speakerRaw = m[1].replace(/[*_`]/g, '').trim();
 
-      if (!speakerText.includes('(') && curStory && curStory.codex) {
-        const found = curStory.codex.find(c => c.name.toLowerCase() === speakerText.toLowerCase());
-        if (found) {
-          speakerText = `${found.name} (${found.rel || 'Neutre'})`;
+      const speakerCleanName = speakerRaw.replace(/\s*\([^)]*\)/, '').trim();
+      const isHero = heroNameLower && (speakerCleanName.toLowerCase() === heroNameLower || speakerCleanName.toLowerCase().includes(heroNameLower));
+
+      let finalSpeakerText = speakerRaw;
+
+      if (isHero) {
+        finalSpeakerText = curStory.hero;
+      } else {
+        if (!speakerRaw.includes('(') && curStory && curStory.codex) {
+          const found = curStory.codex.find(c => c.name.toLowerCase() === speakerCleanName.toLowerCase());
+          if (found) {
+            finalSpeakerText = `${found.name} (${found.rel || 'Neutre'})`;
+          }
         }
       }
 
-      b.className = 'speaker ' + getRelationClass(speakerText);
-      b.textContent = speakerText + ' : ';
+      b.className = 'speaker ' + getRelationClass(finalSpeakerText, isHero);
+      b.textContent = finalSpeakerText + ' : ';
       p.append(b, m[2]);
       box.append(p);
     } else {
@@ -607,7 +619,6 @@ function extractAndClean(rawText, s) {
            .replace(/^\s*Scène\s*\d+\s*[:\-–—]?\s*/gi, '')
            .trim();
 
-  // 1. Choix
   const chMatch = txt.match(/CHOIX\s*:\s*([\s\S]*?)(?=(PERSOS_MAJ|HERO_MAJ|$))/i);
   if (chMatch && s) {
     const rawLines = chMatch[1].split('\n');
@@ -621,11 +632,12 @@ function extractAndClean(rawText, s) {
     s.lastChoices = validChoices.slice(0, 3);
   }
 
-  // 2. Codex
   const cdxMatch = txt.match(/PERSOS_MAJ\s*:\s*([\s\S]*?)(?=(CHOIX|HERO_MAJ|$))/i);
   if (cdxMatch && s) {
     s.codex = s.codex || [];
+    const heroNameLower = (s.hero || '').toLowerCase().trim();
     const lines = cdxMatch[1].split('\n').map(x => x.trim()).filter(Boolean);
+
     lines.forEach(l => {
       let clean = l.replace(/^[-*•\d\.\)\s]+/, '').replace(/[*_`]/g, '').trim();
       if (!clean) return;
@@ -653,7 +665,7 @@ function extractAndClean(rawText, s) {
         }
       }
 
-      if (name && name.length >= 2) {
+      if (name && name.length >= 2 && name.toLowerCase() !== heroNameLower) {
         const rNorm = normalizeRel(rel);
         const existing = s.codex.find(c => c.name.toLowerCase() === name.toLowerCase());
         if (existing) {
@@ -666,7 +678,6 @@ function extractAndClean(rawText, s) {
     });
   }
 
-  // 3. Fiche Héros
   const heroMatch = txt.match(/HERO_MAJ\s*:\s*([\s\S]*?)(?=(CHOIX|PERSOS_MAJ|$))/i);
   if (heroMatch && s) {
     s.heroStats = s.heroStats || { rank: '', techniques: [], items: [] };
@@ -711,8 +722,8 @@ function renderHome() {
     const b = document.createElement('b'); b.textContent = s.title;
     const sm = document.createElement('div'); sm.className = 'badge';
     
-    let kindTag = '🆕 Original';
-    if (s.inspiredBy) kindTag = `✨ Inspiré de ${s.inspiredBy}`;
+    let kindTag = '🆕 De zéro';
+    if (s.inspiredBy) kindTag = `✨ Style ${s.inspiredBy}`;
     else if (s.wk) kindTag = '📖 Œuvre officielle';
 
     sm.textContent = (MODES[s.mode] || '🎬 Animé') + ' · ' + kindTag + ' · ' + (s.chapters ? s.chapters.length : 0) + ' chapitre(s) (' + countTotalScenes(s) + ' scènes)';
@@ -850,7 +861,7 @@ function renderCodex() {
   s.codex = s.codex || [];
 
   if (!s.codex.length) {
-    box.innerHTML = '<p class="sub">Aucun personnage enregistré pour l\'instant. L\'IA les ajoutera dès le début de l\'histoire !</p>';
+    box.innerHTML = '<p class="sub">Aucun personnage enregistré. L\'IA les ajoutera au fil du récit.</p>';
     return;
   }
 
@@ -948,13 +959,13 @@ function renderSet() {
   const s = S(), b = $('set'); if (!b) return; b.innerHTML = '';
   const h = document.createElement('h2'); h.textContent = "⚙️ Mémoire Permanente de l'Histoire"; b.append(h);
 
-  const lb = document.createElement('label'); lb.textContent = 'Background & Rôle de ton personnage';
+  const lb = document.createElement('label'); lb.textContent = 'Passé et Contexte du héros';
   const tb = document.createElement('textarea'); tb.value = s.heroBg || ''; tb.oninput = () => { s.heroBg = tb.value; save(); };
   lb.append(makeMicGroup(tb));
   b.append(lb, tb);
 
   const ln = document.createElement('label'); ln.textContent = "Fait crucial à garder en mémoire absolue";
-  const ta = document.createElement('textarea'); ta.placeholder = "Ex : Le souverain m'a juré allégeance...";
+  const ta = document.createElement('textarea'); ta.placeholder = "Ex : Marie est ma mère, Marc est mon père, ils ont sauvé le monde...";
   ln.append(makeMicGroup(ta));
   b.append(ln, ta);
 
@@ -996,11 +1007,18 @@ const CFG = () => {
 };
 const saveCFG = c => { try { localStorage.setItem('orcfg', JSON.stringify(c)); } catch (e) {} };
 
-async function callOR(key, model, prompt, onText) {
+async function callOR(key, model, systemPrompt, userPrompt, onText) {
   const r = await fetch('https://openrouter.ai/api/v1/chat/completions', {
     method: 'POST',
     headers: { 'Authorization': 'Bearer ' + key, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ model: model, messages: [{ role: 'user', content: prompt }], stream: true })
+    body: JSON.stringify({ 
+      model: model, 
+      messages: [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: userPrompt }
+      ], 
+      stream: true 
+    })
   });
   if (!r.ok) throw new Error('Erreur API ' + r.status);
   const rd = r.body.getReader(), dec = new TextDecoder(); let buf = '', out = '';
@@ -1025,13 +1043,13 @@ async function getSample() {
   const c = CFG();
   if (!c.key) { say("Ajoute ta clé OpenRouter dans ⚙️ Réglages IA."); return null; }
   
-  return async (prompt, opts) => {
+  return async (systemPrompt, userPrompt, opts) => {
     let lastErr = null;
     const modelList = c.models;
 
     for (let m = 0; m < modelList.length; m++) {
       try {
-        const textRes = await callOR(c.key, modelList[m], prompt, opts && opts.onText);
+        const textRes = await callOR(c.key, modelList[m], systemPrompt, userPrompt, opts && opts.onText);
         const cleanCheck = textRes.replace(/User Safety\s*:\s*safe/gi, '').trim();
         
         if (cleanCheck.split(/\s+/).length < 20 && m < modelList.length - 1) {
@@ -1047,7 +1065,7 @@ async function getSample() {
 }
 
 /* ==========================================================================
-   GÉNÉRATION : GESTION DES 3 MODES (ORIGINAL, INSPIRÉ, CANON)
+   GÉNÉRATION AVEC CONTEXTE DU PASSÉ ET IDENTITÉ PROTÉGÉE
    ========================================================================== */
 async function gen(options = {}) {
   const s = S(); if (busy || !s) return;
@@ -1070,144 +1088,107 @@ async function gen(options = {}) {
   say(isRewrite ? '✍️ Réécriture de la scène...' : (isNewChapter ? '📑 L\'IA ouvre un nouveau chapitre...' : '🎬 L\'IA tisse la scène suivante...'));
 
   const codexTxt = (s.codex && s.codex.length)
-    ? "\nPERSONNAGES ET RELATIONS CONNUS AVEC LE JOUEUR :\n" + s.codex.map(c => `- ${c.name} (${c.rel}) : ${c.desc}`).join("\n")
-    : "\nAucun personnage répertorié pour l'instant. Tu DOIS en créer et les ajouter.";
+    ? "\nPERSONNAGES CONNUS ET LEURS RELATIONS RÉELLES :\n" + s.codex.map(c => `- ${c.name} (${c.rel}) : ${c.desc}`).join("\n")
+    : "\n(Aucun personnage secondaire répertorié. Fais très attention aux liens familiaux indiqués dans le contexte passé !)";
 
   const heroStatsTxt = s.heroStats 
-    ? `\nFICHE DU HÉROS : Rang: ${s.heroStats.rank || 'Non défini'} | Techniques: ${(s.heroStats.techniques || []).join(', ') || 'Aucune'} | Objets: ${(s.heroStats.items || []).join(', ') || 'Aucun'}`
+    ? `\nFICHE DU JOUEUR : Rang: ${s.heroStats.rank || 'Débutant'} | Techniques: ${(s.heroStats.techniques || []).join(', ') || 'Aucune'} | Objets: ${(s.heroStats.items || []).join(', ') || 'Aucun'}`
     : "";
+
+  const memTxt = (s.memo || []).map(m => "\n- VÉRITÉ ABSOLUE : " + m).join("");
+
+  const systemPrompt = `Tu es un scénariste d'élite de Light Novels, Mangas et Animés japonais.
+Rédige un récit immersif, intense, poignant et littéraire en français.
+
+RÈGLES CAPITALES SUR L'IDENTITÉ :
+1. LE JOUEUR EST LE HÉROS PRINCIPAL : Son nom exact est « ${s.hero} ». Tu n'as STRICTEMENT PAS LE DROIT de modifier ou déformer son nom.
+2. DIALOGUES DU JOUEUR : Quand « ${s.hero} » parle, commence STRICTEMENT par :
+« ${s.hero} : son texte »
+INTERDICTION ABSOLUE de lui mettre une parenthèse ou une relation (ex: INTERDIT d'écrire "${s.hero} (Allié)"). Le joueur ne peut pas être son propre allié !
+3. DIALOGUES DES AUTRES PERSONNAGES : Tous les PNJ qui parlent DOIVENT commencer par leur Nom et leur relation avec « ${s.hero} » entre parenthèses :
+« Nom (Relation) : dialogue »
+Exemples :
+Marie Hibino (Alliée) : Mon fils... tu es vivant ?
+Garde royal (Neutre) : Qui s'approche du cimetière ?
+Démon (Ennemi) : Tu ne m'échapperas pas.
+4. RESPECT DU CONTEXTE PASSÉ : Tout ce qui est décrit dans le passé du héros est la VÉRITÉ ABSOLUE. Si Marie et Marc sont ses parents, Marie est une ALLIÉE/MÈRE aimante, JAMAIS une inconnue ou une ennemie !`;
 
   let canonPrompt = "";
   if (s.wk) {
-    // Mode Canon
-    const loreClean = (s.wk.before || "").slice(0, 10000);
-    const charsClean = (s.wk.chars || "").slice(0, 5000);
-
-    canonPrompt = "\n\n=== CONTEXTE OFFICIEL DE L'ŒUVRE EXISTANTE ===\n"
-      + (loreClean ? "RÉSUMÉ :\n" + loreClean + "\n\n" : "")
-      + (charsClean ? "PERSONNAGES :\n" + charsClean + "\n\n" : "")
-      + "=== CHRONOLOGIE & RÈGLES CANONIQUES ===\n"
-      + "1. POINT D'APPARITION : " + s.wk.at + "\n"
-      + "2. PAS DE SPOILERS : Les événements futurs ne se sont pas encore produits.\n"
-      + "3. CASTING : Uniquement les personnages physiquement présents sur place.\n"
-      + "4. RESPECT DU STATUT DU JOUEUR : Respecte strictement l'autorité et le background de « " + s.hero + " ».\n";
+    canonPrompt = `\n=== UNIVERS OFFICIEL ===\nContexte : ${(s.wk.before || "").slice(0, 5000)}\nPoint d'arrivée : ${s.wk.at}\n`;
   } else if (s.inspiredBy) {
-    // Mode Inspiré d'un Animé
-    canonPrompt = "\n\n=== UNIVERS INSPIRÉ ET HOMMAGE À L'ANIMÉ : « " + s.inspiredBy.toUpperCase() + " » ===\n"
-      + "RÈGLES DU MONDE INSPIRÉ :\n"
-      + "1. C'est une histoire et un monde 100% ORIGINAUX mais basés fidèlement sur les thèmes, l'ambiance et les règles de l'œuvre « " + s.inspiredBy + " ».\n"
-      + "2. POUVOIRS ET MÉCANIQUES : Reprends le système de pouvoir (ex: énergie occulte/fléaux, rangs de chasseurs, magie, hiérarchie) et les dilemmes de cette œuvre : « " + (s.idea || "") + " ».\n"
-      + "3. CASTING ORIGINAL OBLIGATOIRE : Ne fais PAS apparaître les protagonistes officiels de l'animé (ex: pas de Gojo, pas de Sung Jinwoo). Invente des personnages originaux charismatiques (rivaux, mentors, monstres ou alliés) taillés sur mesure pour cet univers et pour le joueur « " + s.hero + " ».\n";
+    canonPrompt = `\n=== UNIVERS DANS LE STYLE DE « ${s.inspiredBy.toUpperCase()} » ===\nL'histoire se déroule dans un univers original reprenant fidèlement les codes, l'ambiance et les mécaniques de l'animé « ${s.inspiredBy} ».\n`;
   } else {
-    // Mode 100% Original
-    canonPrompt = "\n\n=== CONTEXTE DE CETTE CRÉATION ORIGINALE D'ANIMÉ ===\n"
-      + "UNIVERS & STYLE INVENTÉ : « " + (s.idea || "Monde original") + " »\n"
-      + "RÈGLE MONDE ORIGINAL : C'est une œuvre inventée. Tu as une liberté créative totale pour créer des factions, des mystères, des enjeux épiques et des personnages secondaires charismatiques.\n";
+    canonPrompt = `\n=== HISTOIRE ORIGINALE ===\nTout ce qui suit décrit les événements passés avant le début de l'histoire.\n`;
   }
 
-  const memTxt = (s.memo || []).map(m => "\n- Fait mémorisé : " + m).join("");
-  const heroBg = s.heroBg ? "\nBackground / Statut du joueur : " + s.heroBg : "";
+  let currentChapText = "";
+  if (s.chapters.length > 0) {
+    const curChap = s.chapters[s.chapters.length - 1];
+    if (curChap.scenes && curChap.scenes.length > 0) {
+      currentChapText = "\n=== DÉROULEMENT DU CHAPITRE ACTUEL JUSQU'ICI ===\n" + curChap.scenes.map((sc, i) => `[Scène ${i + 1}]\n${sc}`).join("\n\n");
+    }
+  }
 
   let situationPrompt = "";
   const userInput = $('d').value.trim();
 
-  let lastSceneText = "";
-  if (s.chapters.length > 0) {
-    const lastChap = s.chapters[s.chapters.length - 1];
-    if (lastChap.scenes && lastChap.scenes.length > 0) {
-      lastSceneText = lastChap.scenes[lastChap.scenes.length - 1];
-    }
-  }
-
   if (isRewrite) {
     const crit = options.critique || userInput;
-    const type = options.type || 'fix';
-
-    if (type === 'fix') {
-      situationPrompt = "MISSION : CORRIGER UNE ERREUR DANS CETTE SCÈNE SANS CHANGER LE RESTE.\n"
-        + "Scène actuelle à corriger :\n" + lastSceneText + "\n\n"
-        + "ERREUR SIGNALÉE PAR L'AUTEUR :\n" + (crit || "Corrige les incohérences.") + "\n\n"
-        + "Conserve les éléments validés et rectifie précisément ce problème.";
-    } else {
-      situationPrompt = "MISSION : ÉCRIRE UNE NOUVELLE SCÈNE DIFFÉRENTE.\n"
-        + "L'auteur a rejeté la scène précédente pour cette raison :\n" + (crit || "Prends une autre direction.") + "\n\n"
-        + "Écris une toute nouvelle scène originale répondant à ses attentes.";
-    }
+    const curChap = s.chapters[s.chapters.length - 1];
+    const lastSc = curChap.scenes[curChap.scenes.length - 1];
+    situationPrompt = `MISSION RÉÉCRITURE : Corrige impérativement cette scène selon la consigne de l'auteur.
+Erreur signalée : « ${crit} »
+Scène précédente erronée :
+${lastSc}`;
   } else if (isNewChapter) {
     const nextChapNum = s.chapters.length + 1;
-    situationPrompt = "=== NOUVEAU CHAPITRE (CHAPITRE " + nextChapNum + ") ===\n"
-      + "L'événement précédent est terminé. L'histoire franchit un cap narratif.\n"
-      + "Fin du chapitre précédent :\n« " + lastSceneText.slice(-300) + " »\n\n"
-      + "CONSIGNE NOUVEAU CHAPITRE :\n"
-      + (userInput ? "Action de déclenchement : « " + userInput + " »." : "Effectue une transition fluide (ellipse, changement de décor ou lendemain).") + "\n"
-      + "Ouvre le nouveau décor et commence la première scène du Chapitre " + nextChapNum + ".";
+    situationPrompt = `=== NOUVEAU CHAPITRE (CHAPITRE ${nextChapNum}) ===
+Le chapitre précédent est clos. Fais une transition fluide (ellipse, lendemain ou nouveau lieu).
+Action / Idée du joueur pour ce nouveau chapitre : « ${userInput || "La suite des aventures"} »`;
   } else {
     if (totalScenes > 0) {
-      const lastLines = lastSceneText.split('\n').filter(l => l.trim()).slice(-4).join('\n');
-      situationPrompt = "=== CONTINUITÉ IMMÉDIATE DANS LA MÊME SCÈNE / MÊME LIEU ===\n"
-        + "Tu écris la suite directe de la scène dans le MÊME lieu.\n"
-        + "La scène s'est arrêtée ici :\n«««\n" + lastLines + "\n»»»\n\n"
-        + "INTERVENTION DU JOUEUR :\n"
-        + (userInput ? "« " + userInput + " »" : "L'action continue naturellement.") + "\n\n"
-        + "Fais réagir les personnages sur place, décris les répercussions et développe la scène.";
+      situationPrompt = `=== CONTINUATION DU CHAPITRE (SCÈNE SUIVANTE) ===
+Poursuis l'action immédiatement dans la même continuité temporelle.
+Action ou réplique du joueur « ${s.hero} » : « ${userInput || "L'action se poursuit."} »`;
     } else {
-      // PREMIÈRE SCÈNE
-      if (s.wk) {
-        situationPrompt = "=== PREMIER CHAPITRE - SCÈNE 1 (ŒUVRE EXISTANTE) ===\n"
-          + "Démarre précisément à l'instant d'apparition : « " + s.wk.at + " ».\n"
-          + (s.startConsigne && s.startConsigne.trim() !== 'rien' ? "Consigne : " + s.startConsigne : "")
-          + (userInput ? "\nAction du joueur : " + userInput : "");
-      } else if (s.inspiredBy) {
-        situationPrompt = "=== PREMIER CHAPITRE - SCÈNE 1 (UNIVERS INSPIRÉ DE « " + s.inspiredBy.toUpperCase() + " ») ===\n"
-          + "Éléments et mécaniques repris : « " + s.idea + " ».\n"
-          + "Le joueur incarne « " + s.hero + " » (" + (s.heroBg || "Personnage principal") + ").\n"
-          + "CONSIGNE D'OUVERTURE OBLIGATOIRE : Plonge immédiatement le joueur au cœur d'une situation intense, d'un combat ou d'un incident qui rappelle l'ambiance et les enjeux cultes de " + s.inspiredBy + ".\n"
-          + "Fais impérativement intervenir dès cette première scène au moins 1 ou 2 personnages importants (mentor, rival ou allié) qui s'adressent à " + s.hero + ".\n"
-          + (userInput ? "Action initiale du joueur : « " + userInput + " »" : "");
-      } else {
-        situationPrompt = "=== PREMIER CHAPITRE - SCÈNE 1 (CRÉATION ORIGINALE D'ANIMÉ) ===\n"
-          + "Plonge immédiatement le lecteur dans l'univers : « " + s.idea + " ».\n"
-          + "Le joueur incarne « " + s.hero + " ».\n"
-          + "CONSIGNE D'OUVERTURE OBLIGATOIRE : Pose une ambiance forte et fais intervenir dès cette première scène au moins 1 ou 2 personnages importants (un allié fidèle, un rival arrogant, un mentor ou un souverain) qui s'adressent directement à " + s.hero + ".\n"
-          + (userInput ? "Action initiale du joueur : « " + userInput + " »" : "Démarre au cœur d'une situation intrigante ou d'un tournant décisif.");
-      }
+      situationPrompt = `=== CHAPITRE 1 - SCÈNE 1 (DÉMARRAGE DU RÉCIT) ===
+Le passé du héros s'achève ici. L'histoire commence MAINTENANT, exactement au moment charnière décrit par le joueur.
+${(s.startConsigne || userInput ? "Point de départ imposé : « " + (s.startConsigne || userInput) + " »" : "Plonge directement dans la première scène vivante et poignante.")}
+N'oublie pas : les parents décrits dans le passé sont des alliés aimants de ${s.hero}.`;
     }
   }
 
-  const prompt = "Tu es un scénariste d'élite d'animés et mangas japonais.\n"
-    + "Rédige le récit en français littéraire, dynamique et immersif.\n"
-    + "Interdiction d'écrire des en-têtes comme 'Chapitre X', 'Scène Y' ou 'User Safety'. Écris directement le texte de l'histoire.\n\n"
-    + "Titre de l'histoire : " + s.title + "\n"
-    + "Personnage incarné par l'utilisateur : " + s.hero + heroBg + heroStatsTxt + "\n"
-    + canonPrompt + codexTxt + memTxt + "\n\n"
-    + "========================================================\n"
-    + "RÈGLE ABSOLUE POUR LES DIALOGUES (70% dialogue, 30% narration) :\n"
-    + "Que l'animé soit 100% original, inspiré d'une œuvre ou officiel, CHAQUE réplique de personnage DOIT OBLIGATOIREMENT commencer par son nom ET sa relation avec « " + s.hero + " » entre parenthèses.\n"
-    + "Format obligatoire : Prénom Nom (Relation) : Sa réplique\n"
-    + "Les 4 relations autorisées entre parenthèses sont : (Allié), (Ennemi), (Neutre), (Inconnu) [ou leurs variantes : Rival, Ami, Disciple, etc.].\n"
-    + "Exemples stricts :\n"
-    + "Kaelen (Rival) : Tu crois vraiment pouvoir m'égaler ?\n"
-    + "Luna (Alliée) : Fais attention à toi, je couvre tes arrières !\n"
-    + "Garde royal (Neutre) : Halte ! Déclinez votre identité.\n"
-    + "Silhouette voilée (Inconnu) : Le temps nous est compté...\n"
-    + "========================================================\n\n"
-    + "STRUCTURE FINALE OBLIGATOIRE (À LA TOUTE FIN DU MESSAGE) :\n\n"
-    + "CHOIX :\n"
-    + "1. [Court choix d'action 1]\n"
-    + "2. [Court choix d'action 2]\n"
-    + "3. [Court choix d'action 3]\n\n"
-    + "PERSOS_MAJ:\n"
-    + "(IMPORTANT : Inscris ici OBLIGATOIREMENT chaque personnage intervenant ou mentionné dans cette scène avec ce format exact pour qu'il soit sauvegardé dans les paramètres du joueur) :\n"
-    + "- Nom du personnage | Allié/Ennemi/Neutre/Inconnu | Court rôle ou état d'esprit\n\n"
-    + "HERO_MAJ:\n"
-    + "Rang: [Nouveau rang si évolution sinon vide]\n"
-    + "Technique: [Nouvelle technique apprise sinon vide]\n"
-    + "Objet: [Nouvel objet obtenu sinon vide]\n\n"
-    + situationPrompt;
+  const userPrompt = `DONNÉES DU SCÉNARIO :
+- Titre : ${s.title}
+- Identité du Héros : ${s.hero}
+- CONTEXTE PASSÉ DU HÉROS (Ce qui s'est passé avant le Chapitre 1) :
+« ${s.heroBg || s.idea} »
+${canonPrompt}
+${codexTxt}
+${memTxt}
+${heroStatsTxt}
+${currentChapText}
+
+${situationPrompt}
+
+STRUCTURE DE FIN OBLIGATOIRE :
+CHOIX :
+1. [Choix d'action 1]
+2. [Choix d'action 2]
+3. [Choix d'action 3]
+
+PERSOS_MAJ:
+- Nom | Allié/Ennemi/Neutre/Inconnu | Court rôle ou sentiment
+
+HERO_MAJ:
+Rang: [Évolution ou vide]
+Technique: [Nouvelle technique ou vide]
+Objet: [Nouvel objet ou vide]`;
 
   const live = $('live'); live.classList.remove('hide'); live.innerHTML = '';
   try {
-    const r = await sample(prompt, { onText: ({ text }) => { live.innerHTML = ''; para(extractAndClean(text, {}), live); } });
+    const r = await sample(systemPrompt, userPrompt, { onText: ({ text }) => { live.innerHTML = ''; para(extractAndClean(text, {}), live); } });
     
     const cleanedStoryText = extractAndClean(r.text, s);
 
@@ -1316,26 +1297,29 @@ $('restart').onclick = async () => {
   gen({ mode: 'scene' });
 };
 
-// Lancement Histoire 100% Originale
+// 1. DÉMARRAGE DE ZÉRO : CONTEXTE DU PASSÉ
 $('go').onclick = async () => {
-  const t = $('t').value.trim(), i = $('i').value.trim(), h = $('h').value.trim();
+  const t = $('t').value.trim(), ctxt = $('i').value.trim(), h = $('h').value.trim();
   if (!t) { say('Indique un titre.'); return; }
+  if (!h) { say('Indique le nom de ton personnage.'); return; }
+  
   const s = { 
-    id: uid(), title: t, idea: i || 'Monde original', hero: h || 'Le Héros', heroBg: i, mode: $('m').value, 
-    chapters: [], codex: [], heroStats: { rank: '', techniques: [], items: [] } 
+    id: uid(), title: t, idea: ctxt, hero: h, heroBg: ctxt, mode: $('m').value, 
+    chapters: [], codex: [], heroStats: { rank: 'Survivant', techniques: [], items: [] } 
   };
+  
   L.list.push(s); L.cur = s.id; await save(); openStory(); gen({ mode: 'scene' });
 };
 
-// Lancement Histoire Inspirée (NOUVEAU !)
+// 2. DÉMARRAGE STYLE D'UN ANIMÉ (SANS CHAMP MONDE)
 $('go_inspired').onclick = async () => {
-  const t = $('ti').value.trim(), insp = $('ai_insp').value.trim(), i = $('ii').value.trim(), h = $('hi').value.trim(), bg = $('hbi').value.trim();
-  if (!t) { say('Indique un titre.'); return; }
-  if (!insp) { say("Précise l'animé qui t'inspire."); return; }
+  const t = $('ti').value.trim(), insp = $('ai_insp').value.trim(), h = $('hi').value.trim(), bg = $('hbi').value.trim();
+  if (!t || !h || !insp) { say("Remplis le titre, le héros et l'animé."); return; }
+
   const s = { 
-    id: uid(), title: t, inspiredBy: insp, idea: i || `Inspiré de l'univers et du style de ${insp}`, 
-    hero: h || 'Le Héros', heroBg: bg || i, mode: $('mi').value, 
-    chapters: [], codex: [], heroStats: { rank: '', techniques: [], items: [] } 
+    id: uid(), title: t, inspiredBy: insp, idea: `Univers dans le style de ${insp}`, 
+    hero: h, heroBg: bg || `Héros dans l'univers de ${insp}`, mode: $('mi').value, 
+    chapters: [], codex: [], heroStats: { rank: 'Novice', techniques: [], items: [] } 
   };
   L.list.push(s); L.cur = s.id; await save(); openStory(); gen({ mode: 'scene' });
 };
@@ -1393,7 +1377,7 @@ $('wkf').onclick = async () => {
     const prompt = "Expertise d'animé :\n" + sourceText.slice(0, 8000) + "\n\n"
       + "Moment souhaité : « " + at + " ».\n"
       + "Réponds en JSON strict : {\"trouve\":true, \"episode\":\"Arc/Épisode précis\", \"resume\":\"2 phrases sur ce moment précis\"}";
-    const r = await sample(prompt, { cache: false });
+    const r = await sample("Tu es un expert d'anime.", prompt, { cache: false });
     const j = JSON.parse(r.text.match(/\{[\s\S]*\}/)[0]);
     if (j && j.trouve) {
       $('v_ep').textContent = "✅ " + j.episode;
@@ -1414,7 +1398,7 @@ $('go_exist').onclick = async () => {
     id: uid(), title: tempStore.title, hero: tempStore.hero,
     idea: tempStore.idea || tempStore.summary, heroBg: tempStore.idea,
     mode: tempStore.mode, chapters: [], codex: [],
-    heroStats: { rank: '', techniques: [], items: [] },
+    heroStats: { rank: 'Voyageur', techniques: [], items: [] },
     startConsigne: $('start_consigne').value.trim(),
     wk: { at: at, before: tempStore.summary || "", chars: tempStore.charsText || "", after: keep ? "Canon" : "Divergence" }
   };
@@ -1519,7 +1503,7 @@ function makeMicGroup(el) {
     const sample = await getSample(); if (!sample) return;
     f.disabled = true; f.textContent = '…';
     try {
-      const r = await sample("Corrige l'orthographe sans altérer le sens :\n\n" + txt, { cache: false });
+      const r = await sample("Tu es un correcteur orthographique.", "Corrige l'orthographe sans altérer le sens :\n\n" + txt, { cache: false });
       el.value = r.text.trim();
     } catch (e) {}
     f.disabled = false; f.textContent = '✨ Corriger';
@@ -1527,7 +1511,7 @@ function makeMicGroup(el) {
   g.append(m, f); return g;
 }
 
-['t', 'i', 'h', 'd', 'ti', 'ai_insp', 'ii', 'hi', 'hbi', 't2', 'i2', 'h2', 'wkt', 'wkt_char', 'wka', 'start_consigne', 'rw_critique'].forEach(id => {
+['t', 'i', 'h', 'd', 'ti', 'ai_insp', 'hi', 'hbi', 't2', 'i2', 'h2', 'wkt', 'wkt_char', 'wka', 'start_consigne', 'rw_critique'].forEach(id => {
   const el = $(id); if (!el) return;
   const lab = document.querySelector('label[for=' + id + ']'); if (!lab) return;
   lab.append(makeMicGroup(el));
