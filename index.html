@@ -31,7 +31,7 @@ h2{font-size:1rem;color:var(--ac);margin:0 0 8px}
 .ch b{color:var(--ac)}
 .ch b.c-b{color:#0284c7}.ch b.c-f{color:#1e3a8a}.ch b.c-r{color:#dc2626}.ch b.c-j{color:#ca8a04}
 @media (prefers-color-scheme:dark){.ch b.c-b{color:#7dd3fc}.ch b.c-f{color:#4c6ef5}.ch b.c-r{color:#f87171}.ch b.c-j{color:#facc15}}
-#msg,#smsg{color:var(--mu);font-size:.9rem;min-height:1.2em;margin:8px 0 0}
+#msg,#smsg,#smsg1,#smsg2,#smsg3{color:var(--mu);font-size:.9rem;min-height:1.2em;margin:8px 0 0}
 #nav{position:fixed;right:calc(6px + env(safe-area-inset-right,0px));top:50%;transform:translateY(-50%);display:flex;flex-direction:column;align-items:center;gap:6px;z-index:5}
 #nav button,#nav select{width:auto;padding:7px 9px;border-radius:999px;font-size:.8rem;font-weight:600;text-align:center;background:var(--card);color:var(--tx);border:1px solid var(--bd);box-shadow:0 1px 5px rgba(0,0,0,.3)}
 #nav.hide{display:none}
@@ -42,20 +42,54 @@ h2{font-size:1rem;color:var(--ac);margin:0 0 8px}
 </head>
 <body>
 <main>
+<!-- HOME -->
 <section id="home">
 <h1>📚 Mes histoires</h1>
 <p class="sub">Tes archives : ouvre une histoire ou crée-en une nouvelle.</p>
 <div id="lib"></div>
-<div class="row"><button id="new">＋ Nouvelle histoire</button><button id="imp" class="alt">📥 Ajouter l'histoire des archiducs</button><button id="ai" class="alt">⚙️ Réglages IA</button></div>
-<div class="card" style="margin-top:14px"><h2>💾 Sauvegarde</h2>
-<textarea id="bk" placeholder="Ici s'affichent tes histoires à copier, ou colle ici une sauvegarde à importer"></textarea>
-<div class="row"><button id="bx" class="alt">📤 Exporter</button><button id="bi" class="alt">📥 Importer</button></div><p id="bmsg" class="sub"></p></div>
+<div class="row">
+  <button id="new">＋ Nouvelle histoire</button>
+  <button id="imp" class="alt">📥 Ajouter l'histoire des archiducs</button>
+  <button id="ai" class="alt">⚙️ Réglages IA</button>
+</div>
+<div class="card" style="margin-top:14px">
+  <h2>💾 Sauvegarde</h2>
+  <textarea id="bk" placeholder="Ici s'affichent tes histoires à copier, ou colle ici une sauvegarde à importer"></textarea>
+  <div class="row">
+    <button id="bx" class="alt">📤 Exporter</button>
+    <button id="bi" class="alt">📥 Importer</button>
+  </div>
+  <p id="bmsg" class="sub"></p>
+</div>
 </section>
 
-<!-- ÉTAPE 1 : OEUVRE -->
+<!-- CHOIX MODE CREATION -->
+<section id="choice" class="card hide">
+<h1>Type de création</h1>
+<p class="sub">Que veux-tu créer ?</p>
+<div class="row" style="flex-direction:column;gap:10px">
+  <button id="btn_mode_original">🆕 Histoire 100% originale</button>
+  <button id="btn_mode_existing" class="alt">📖 Dans un animé / œuvre existante</button>
+  <button id="btn_choice_back" class="alt">← Retour</button>
+</div>
+</section>
+
+<!-- SETUP SIMPLE (HISTOIRE ORIGINALE) -->
+<section id="setup_simple" class="card hide">
+<h1>Nouvelle histoire originale</h1>
+<label for="m">Type d'histoire</label>
+<select id="m"><option value="anime">🎬 Animé (histoire)</option><option value="rpg">⚔️ RPG (stats, loots, niveaux)</option><option value="hybrid">🎬⚔️ Hybride (les deux en même temps)</option></select>
+<label for="t">Titre</label><input id="t" placeholder="Ex : Le royaume des archiducs">
+<label for="i">Idée, monde, style (genre, pouvoirs, ennemis…)</label><textarea id="i" placeholder="Ex : Monde de nobles avec des paliers de puissance..."></textarea>
+<label for="h">Ton personnage</label><input id="h" placeholder="Ex : Acil">
+<div class="row"><button id="go_simple">Commencer l'histoire</button><button id="cancel_simple" class="alt">Retour</button></div>
+<p id="smsg"></p>
+</section>
+
+<!-- SETUP STEP 1 : OEUVRE EXISTANTE -->
 <section id="setup1" class="card hide">
-<h1>Nouvelle Histoire : Œuvre Existante</h1>
-<p class="sub">Étape 1 sur 3 : Contexte et données de l'animé</p>
+<h1>Œuvre Existante (Étape 1/3)</h1>
+<p class="sub">Contexte et données de l'animé</p>
 <label for="wkl">1. Liens vers l’histoire de l’œuvre (Wiki, Résumés...)</label>
 <textarea id="wkl" placeholder="https://…"></textarea>
 <div class="row"><button type="button" id="wkg">📥 Charger les liens</button></div>
@@ -66,7 +100,7 @@ h2{font-size:1rem;color:var(--ac);margin:0 0 8px}
 <div class="row"><button type="button" id="wkn">📥 Charger les personnages</button></div>
 <p class="sub" id="wkns"></p>
 
-<label for="wkt">3. Ou écris / colle ici le résumé du monde/animé</label>
+<label for="wkt">3. Ou écris / colle ici le résumé de l'animé</label>
 <textarea id="wkt" placeholder="Résumé de l'œuvre..."></textarea>
 
 <label for="wkt_char">4. Ou écris / colle ici la liste des personnages</label>
@@ -76,45 +110,35 @@ h2{font-size:1rem;color:var(--ac);margin:0 0 8px}
   <button id="step1_next">Suivant (Titre & Personnage) →</button>
   <button id="step1_cancel" class="alt">Retour</button>
 </div>
-<p id="smsg1" style="color:var(--mu);margin-top:8px;font-size:.9rem"></p>
+<p id="smsg1"></p>
 </section>
 
-<!-- ÉTAPE 2 : TITRE ET PERSONNAGE -->
+<!-- SETUP STEP 2 : TITRE ET PERSO -->
 <section id="setup2" class="card hide">
-<h1>Nouvelle Histoire : Titre & Personnage</h1>
-<p class="sub">Étape 2 sur 3 : Qui es-tu dans cette histoire ?</p>
-<label for="m">Type d'histoire</label>
-<select id="m"><option value="anime">🎬 Animé (histoire)</option><option value="rpg">⚔️ RPG (stats, loots, niveaux)</option><option value="hybrid">🎬⚔️ Hybride (les deux en même temps)</option></select>
-
-<label for="t">Titre de l'histoire</label>
-<input id="t" placeholder="Ex : Mon aventure dans l'animé...">
-
-<label for="h">Ton personnage (Nom)</label>
-<input id="h" placeholder="Ex : Acil">
-
-<label for="i">L'histoire de ton personnage (background, pouvoirs, secrets...)</label>
-<textarea id="i" placeholder="Ex : Un mercenaire de l'ombre doté d'une capacité rare..."></textarea>
-
+<h1>Titre & Personnage (Étape 2/3)</h1>
+<p class="sub">Qui es-tu dans cette histoire ?</p>
+<label for="m2">Type d'histoire</label>
+<select id="m2"><option value="anime">🎬 Animé (histoire)</option><option value="rpg">⚔️ RPG (stats, loots, niveaux)</option><option value="hybrid">🎬⚔️ Hybride (les deux)</option></select>
+<label for="t2">Titre de l'histoire</label><input id="t2" placeholder="Ex : Mon aventure dans Naruto...">
+<label for="h2">Ton personnage (Nom)</label><input id="h2" placeholder="Ex : Acil">
+<label for="i2">Histoire de ton personnage (background, pouvoirs...)</label><textarea id="i2" placeholder="Ex : Un ninja nomade doté d'un pouvoir rare..."></textarea>
 <div class="row">
   <button id="step2_next">Suivant (Moment d'Apparition) →</button>
   <button id="step2_back" class="alt">← Retour</button>
 </div>
-<p id="smsg2" style="color:var(--mu);margin-top:8px;font-size:.9rem"></p>
+<p id="smsg2"></p>
 </section>
 
-<!-- ÉTAPE 3 : MOMENT D'APPARITION -->
+<!-- SETUP STEP 3 : MOMENT D'APPARITION -->
 <section id="setup3" class="card hide">
-<h1>Moment d’Apparition & Confirmation</h1>
-<p class="sub">Étape 3 sur 3 : Quand intègres-tu le récit ?</p>
-
+<h1>Moment d’Apparition (Étape 3/3)</h1>
+<p class="sub">Quand intègres-tu le récit ?</p>
 <label for="wka">À quel moment veux-tu apparaître pour la première fois ?</label>
 <input id="wka" placeholder="Ex : Pendant l'examen Chunin, ou juste après le combat contre Freezer...">
-
 <div class="row">
-  <button type="button" id="wkf">🔎 Chercher ce moment (Recherche contextuelle)</button>
+  <button type="button" id="wkf">🔎 Chercher ce moment</button>
 </div>
 <p class="sub" id="wkr" style="margin-top:6px"></p>
-
 <div id="wkk" class="hide" style="margin-top:10px">
   <label for="wkp2">Pour la suite de l’œuvre</label>
   <select id="wkp2">
@@ -122,16 +146,16 @@ h2{font-size:1rem;color:var(--ac);margin:0 0 8px}
     <option value="cut">Bifurquer (histoire 100% originale à partir de mon arrivée)</option>
   </select>
 </div>
-
 <div class="row" style="margin-top:14px">
-  <button id="go">🚀 Confirmer & Lancer (Chapitre 1)</button>
+  <button id="go_exist">🚀 Confirmer & Lancer (Chapitre 1)</button>
   <button id="step3_back" class="alt">← Retour</button>
 </div>
-<p id="smsg3" style="color:var(--mu);margin-top:8px;font-size:.9rem"></p>
+<p id="smsg3"></p>
 </section>
 
 <section id="aiset" class="card hide"></section>
 
+<!-- STORY DISPLAY -->
 <section id="story" class="hide">
 <div class="row" style="margin:0 0 10px"><button id="back" class="alt">← Archives</button><button id="cfg" class="alt">⚙️ Paramètres</button><button id="lastch" class="alt">⏬ Dernier chapitre</button></div>
 <div id="set" class="card hide"></div>
@@ -150,21 +174,32 @@ h2{font-size:1rem;color:var(--ac);margin:0 0 8px}
 </main>
 <button id="stb" class="hide">📊</button>
 <div id="nav" class="hide"><button id="np">▲</button><select id="ns"></select><button id="nn">▼</button></div>
+
 <script>
 const $=id=>document.getElementById(id);
 const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,6);
 const MODES={anime:'🎬 Animé',rpg:'⚔️ RPG',hybrid:'🎬⚔️ Hybride'};
-const RECAP=`Univers inventé : un roi et des nobles classés du plus faible au plus puissant ; l'archiduc est le palier noble le plus haut ; trois familles d'archiducs, dont la famille Ibino (celle du héros). Paliers de puissance de 1 à 10 : les gens normaux sont au palier 4 ou 5 ; les plus forts au 6, exceptionnellement 7 ; les « élus » au 8 (le roi et les deux autres archiducs viennent d'y arriver) ; le père du héros a déjà maîtrisé le 8 et est un peu plus fort qu'eux.
-Le héros, Kafka Ibino, est le petit dernier de la famille, avec une sœur aînée et deux frères jumeaux plus âgés. Pendant 5 ans de guerre contre les démons, il a suivi l'armée en secret (caché dans un carrosse de nourriture), comme stratège sous le nom de Kafka Ibino et comme mercenaire masqué ; seuls le roi, les trois archiducs et son père connaissent l'identité du masque. Victoire quasi parfaite : 90 % des démons abattus, 5 % de pertes. Il vient d'atteindre le palier 8, secret connu seulement du roi et des archiducs (ordre du roi) ; le public le croit palier 2. Il a des cicatrices de combat sur le corps et les bras jusqu'au coude, cachées par ses vêtements nobles (seules les mains et la tête sont visibles) : si on les voyait, on comprendrait qu'il cache sa puissance. Il aime faire des blagues dans ses réponses. Son père lui a demandé ce qu'il voulait : une vie paisible, se reposer, rire avec sa famille.
-Famille : sœur aînée forte et protectrice qui l'adore (palier 4) ; deux frères jumeaux plus âgés (palier 3), un peu jaloux, qui le chambrent mais le défendent ; oncles et tantes (palier 6, sauf deux au palier 2) qui dirigent chacun une branche de la famille (infiltration, reconnaissance, défense, recherche…) ; l'oncle de l'infiltration et de l'assassinat, sans femme ni enfant, est son meilleur ami et le considère comme son fils. Le roi a une fille du même âge que le héros (elle veut le bien du pays et être une reine capable ; elle ne doit pas lui demander directement de l'aide juste après ses 5 ans de guerre) et un petit frère de 12 ans qui rêve de devenir stratège.
-Le père fait une fête en famille au retour ; le roi donnera un banquet de victoire dans 3 jours. L'histoire reprend au retour de la guerre, à la discussion entre le héros et son oncle de l'infiltration dans sa chambre. La guerre a laissé au pays plusieurs problèmes que tu choisis. Ne réécris pas la guerre, déjà racontée.`;
+const RECAP=`Univers inventé : un roi et des nobles classés du plus faible au plus puissant ; l'archiduc est le palier noble le plus haut ; trois familles d'archiducs, dont la famille Ibino (celle du héros). Paliers de puissance de 1 à 10...`;
 const EX='{"niveau":1,"xp":"0/100","pv":"20/20","stats":{"Force":5,"Agilité":5,"Intelligence":5,"Charisme":5,"Chance":5,"Magie":5},"or":0,"inventaire":["objet (rareté)"],"butin":["objets gagnés dans ce chapitre"]}';
+
 let L={list:[],cur:null},busy=false,armed=null;
 try{L=JSON.parse(localStorage.getItem('lib'))||L}catch(e){}
 const S=()=>L.list.find(s=>s.id===L.cur);
 function save(){try{localStorage.setItem('lib',JSON.stringify(L))}catch(e){}}
-function say(t){$('smsg1').textContent=t\vert{}\vert{}'';$('smsg2').textContent=t||'';$('smsg3').textContent=t\vert{}\vert{}'';$('msg').textContent=t||''}
-function show(v){['home','setup1','setup2','setup3','story','aiset'].forEach(x=>$(x).classList.toggle('hide',x!==v));$('nav').classList.add('hide');$('stb').classList.add('hide');say('');if(typeof dictEnd==='function')dictEnd();window.scrollTo(0,0)}
+
+function say(t){
+  ['smsg','smsg1','smsg2','smsg3','msg'].forEach(id=>{
+    const el=$(id);if(el)el.textContent=t||'';
+  });
+}
+
+function show(v){
+  ['home','choice','setup_simple','setup1','setup2','setup3','story','aiset'].forEach(x=>{
+    const el=$(x);if(el)el.classList.toggle('hide',x!==v);
+  });
+  $('nav').classList.add('hide');$('stb').classList.add('hide');say('');
+  window.scrollTo(0,0);
+}
 
 function para(text,box){
   text.split('\n').forEach(l=>{
@@ -184,7 +219,7 @@ function renderHome(){
     const d=document.createElement('div');d.className='card item';
     const t=document.createElement('div');
     const b=document.createElement('b');b.textContent=s.title;
-    const sm=document.createElement('div');sm.className='badge';sm.textContent=MODES[s.mode]+' · '+s.chapters.length+' chapitre(s)';
+    const sm=document.createElement('div');sm.className='badge';sm.textContent=(MODES[s.mode]||'🎬 Animé')+' · '+(s.chapters?s.chapters.length:0)+' chapitre(s)';
     t.append(b,sm);
     const r=document.createElement('div');r.className='row';r.style.margin=0;
     const o=document.createElement('button');o.textContent='Ouvrir';o.onclick=()=>{L.cur=s.id;save();openStory()};
@@ -198,81 +233,39 @@ function renderHome(){
   $('imp').classList.toggle('hide',L.list.some(s=>s.src==='archiducs'));
   show('home');
 }
+
 function updStb(s){const b=$('stb');if(!s\vert{}\vert{}s.mode==='anime'\vert{}\vert{}$('story').classList.contains('hide')){b.classList.add('hide');return}b.classList.remove('hide');b.textContent='📊'+(s.pts?' +'+s.pts:'')}
-function renderRpg(s){updStb(s);
-  const b=$('rpg');
+function renderRpg(s){
+  updStb(s);const b=$('rpg');
   if(s.mode==='anime'){b.classList.add('hide');return}
   b.classList.remove('hide');b.innerHTML='';
-  const e=s.etat;
-  if(!e){b.textContent='Ta fiche de personnage apparaîtra après le premier chapitre.';return}
-  const h=document.createElement('h2');h.textContent='🧙 Niv. '+(e.niveau??1)+'/'+(s.nivMax||1000)+' · ❤ '+(e.pv??'?')+' · ✨ '+(e.xp??'?')+' · 🪙 '+(e.or??0);
-  const st=document.createElement('p');st.textContent=Object.entries(e.stats||{}).map(([k,v])=>k+' '+((+v||0)+((s.bonus&&s.bonus[k])||0))).join(' · ');
-  const iv=document.createElement('p');iv.textContent='🎒 '+((e.inventaire||[]).join(', ')||'vide');
-  b.append(h,st,iv);
+  const e=s.etat;if(!e){b.textContent='Ta fiche apparaîtra après le 1er chapitre.';return}
+  const h=document.createElement('h2');h.textContent='🧙 Niv. '+(e.niveau??1)+' · ❤ '+(e.pv??'?')+' · ✨ '+(e.xp??'?')+' · 🪙 '+(e.or??0);
+  b.append(h);
 }
-function renderOpts(){
-  const s=S(),b=$('opts');
-  if(!b)return;
-  b.innerHTML='';
-  const c=(s&&s.choix)||[];
-  if(!s||!s.chapters.length||!c.length){b.classList.add('hide');return}
-  b.classList.remove('hide');
-  const h=document.createElement('h2');h.textContent='Que fais-tu ?';b.append(h);
-  c.forEach((t,i)=>{
-    const x=document.createElement('button');x.className='alt';
-    x.style.cssText='display:block;width:100%;text-align:left;margin-bottom:8px';
-    x.textContent=(i+1)+'. '+t;
-    x.onclick=()=>{if(busy)return;$('d').value=t;gen()};
-    b.append(x);
-  });
-  const f=document.createElement('button');f.className='alt';
-  f.style.cssText='display:block;width:100%;text-align:left';
-  f.textContent='4. ✏️ Mon idée (je décide)';
-  f.onclick=()=>{$('d').focus()};
-  b.append(f);
-}
-function renderStory(){renderOpts();renderNav();
+
+function renderStory(){
   const s=S();if(!s)return;
-  $('stt').textContent=s.title+' · '+MODES[s.mode];
+  $('stt').textContent=s.title+' · '+(MODES[s.mode]||'🎬 Animé');
   renderRpg(s);
   const box=$('chs');box.innerHTML='';
-  s.chapters.forEach((c,n)=>{
+  (s.chapters||[]).forEach((c,n)=>{
     const d=document.createElement('div');d.className='card ch';
     const h=document.createElement('h2');h.textContent='Chapitre '+(n+1);
-    d.append(h);metaLine(s,n,d);para(c,d);
-    const bt=s.butin&&s.butin[n];
-    if(bt&&bt.length){const p=document.createElement('p');p.textContent='🎁 Butin : '+bt.join(', ');d.append(p)}
-    box.append(d);
+    d.append(h);para(c,d);box.append(d);
   });
 }
-function seed(s){if(s.src==='archiducs'&&!s.rpgInit){s.rpgInit=true;s.mode='hybrid';if(!s.etat){s.etat={niveau:100,xp:'0/1000',pv:'?',stats:{Force:10,Agilité:10,Intelligence:10,Charisme:10,Chance:10,Magie:10},or:0,inventaire:[]};s.pts=(s.pts||0)+990}}if(s.notes){(s.memo=s.memo||[]).push(s.notes);delete s.notes}if(!s.persos)s.persos=[]}
-function castText(s){const nt=(s.memo||[]).map(x=>'\n- '+x).join('');
-  const l=(s.persos||[]).filter(p=>p.nom||p.rel);
-  return (s.bg&&s.bg.trim()?"\nBackground du personnage du lecteur (à respecter) : "+s.bg.trim():"")+(nt?"\nNotes et modifications du lecteur : "+nt:"")+"\n";
-}
-function renderSet(){
-  const s=S(),b=$('set');b.innerHTML='';
-  const h=document.createElement('h2');h.textContent="⚙️ Paramètres de l'histoire";b.append(h);
-  const lm=document.createElement('label');lm.textContent='Mode pour la suite';
-  const sel=document.createElement('select');
-  Object.entries(MODES).forEach(([k,v])=>{const o=document.createElement('option');o.value=k;o.textContent=v;sel.append(o)});
-  sel.value=s.mode;
-  sel.onchange=()=>{s.mode=sel.value;save();$('stt').textContent=s.title+' · '+MODES[s.mode];renderRpg(s)};
-  b.append(lm,sel);
-  const lb=document.createElement('label');lb.textContent='Mon background (résumé)';
-  const tb=document.createElement('textarea');tb.value=s.bg!=null?s.bg:'';tb.oninput=()=>{s.bg=tb.value;save()};
-  b.append(lb,tb);
-}
-function openStory(){const s=S();if(s)seed(s);show('story');$('set').classList.add('hide');renderStory();const go=()=>{if(s&&s.chapters.length&&S()===s&&!$('story').classList.contains('hide'))goCh(s.pos>0?Math.min(s.pos,s.chapters.length-1):s.chapters.length-1,false)};go();setTimeout(go,250)}
 
+function openStory(){const s=S();show('story');renderStory();}
+
+/* APIS & OPENROUTER */
 let MODEL_USED='',NOTES=[];
 const CFG=()=>{let c={};try{c=JSON.parse(localStorage.getItem('orcfg'))||{}}catch(e){}return {key:c.key||'',models:Array.isArray(c.models)?c.models:['openrouter/free']}};
 const saveCFG=c=>{try{localStorage.setItem('orcfg',JSON.stringify(c))}catch(e){}};
-function notice(t){NOTES.push(t);say(t)}
 
 async function callOR(key,model,prompt,onText){
   const r=await fetch('https://openrouter.ai/api/v1/chat/completions',{method:'POST',headers:{'Authorization':'Bearer '+key,'Content-Type':'application/json'},body:JSON.stringify({model:model,messages:[{role:'user',content:prompt}],stream:true})});
-  if(!r.ok){let m='erreur '+r.status;try{const j=await r.json();m=(j.error&&j.error.message)||m}catch(e){}throw new Error(r.status===429?'limite atteinte':m)}
+  if(!r.ok) throw new Error('Erreur API '+r.status);
   const rd=r.body.getReader(),dec=new TextDecoder();let buf='',out='';
   for(;;){
     const x=await rd.read();if(x.done)break;
@@ -284,260 +277,114 @@ async function callOR(key,model,prompt,onText){
       const d=line.slice(5).trim();if(d==='[DONE]')continue;
       let j=null;try{j=JSON.parse(d)}catch(e){}
       if(!j)continue;
-      if(j.error)throw new Error(j.error.message||'erreur');
       const t=j.choices&&j.choices[0]&&j.choices[0].delta&&j.choices[0].delta.content;
       if(t){out+=t;if(onText)onText({text:out})}
     }
   }
   return out;
 }
-async function orSample(prompt,opts){
-  opts=opts||{};
-  const c=CFG();let last='';
-  for(let i=0;i<c.models.length;i++){
-    const m=c.models[i];
-    try{
-      const text=await callOR(c.key,m,prompt,opts.onText);
-      if(!text.trim())throw new Error('réponse vide');
-      MODEL_USED=m;
-      return {text:text};
-    }catch(e){
-      last=(e&&e.message)||'erreur';
-      const nx=c.models[i+1];
-      if(!nx)throw new Error('Tous les modèles sont indisponibles. Dernière erreur : '+m+' ('+last+')');
-      notice('⚠️ Modèle '+m+' expiré ou en erreur ('+last+'). On passe sur le modèle '+nx+'.');
-    }
-  }
-}
+
 async function getSample(){
   const c=CFG();
   if(!c.key){say("Ajoute ta clé OpenRouter dans ⚙️ Réglages IA.");return null}
-  if(!c.models.length){say('Ajoute au moins un modèle.');return null}
-  return orSample;
-}
-function metaLine(s,n,d){
-  const mt=s.meta&&s.meta[n];if(!mt)return;
-  const p=document.createElement('p');p.className='nar';p.style.cssText='color:var(--mu);white-space:pre-line';
-  p.textContent='✍️ '+mt.m+((mt.w&&mt.w.length)?'\n'+mt.w.join('\n'):'');
-  d.append(p);
-}
-function renderAI(){
-  const b=$('aiset');b.innerHTML='';const c=CFG();
-  const h=document.createElement('h1');h.textContent='⚙️ Réglages IA';b.append(h);
-  const p0=document.createElement('p');p0.className='sub';p0.textContent="Clé OpenRouter et modèles.";b.append(p0);
-  const l1=document.createElement('label');l1.textContent='Clé OpenRouter';
-  const k=document.createElement('input');k.type='password';k.value=c.key;k.placeholder='sk-or-v1-…';
-  k.oninput=()=>{const d=CFG();d.key=k.value.trim();saveCFG(d)};
-  b.append(l1,k);
-  const bk=document.createElement('button');bk.className='alt';bk.textContent='← Retour';bk.style.marginTop='12px';bk.onclick=renderHome;b.append(bk);
+  return async (prompt, opts)=>{
+    return {text: await callOR(c.key, c.models[0]||'openrouter/free', prompt, opts.onText)};
+  };
 }
 
-async function gen(rw){
+async function gen(){
   const s=S();if(busy||!s)return;
   const sample=await getSample();if(!sample)return;
-  busy=true;$('next').disabled=true;$('opts').classList.add('hide');say('Écriture en cours…');
-  let old=null,k0=0;NOTES.length=0;
-  if(rw){
-    if(!s.chapters.length){busy=false;$('next').disabled=false;say('Aucun chapitre à réécrire.');return}
-    const k=s.chapters.length-1;
-    old={t:s.chapters.pop(),b:s.butin&&s.butin[k],c:s.choix};
-    if(s.butin)delete s.butin[k];k0=s.chapters.length;
-  }
-  const dir=$('d').value.trim();
-  const past=(s.resume?'Résumé des chapitres précédents :\n'+s.resume+'\n\n':'')+s.chapters.slice(s.sumUpTo||0).map((c,i)=>'[Chapitre '+((s.sumUpTo||0)+i+1)+']\n'+c).join('\n\n').slice(-12000);
-  const rpg=s.mode!=='anime';
-  const kind=s.mode==='rpg'?"de jeu de rôle (RPG)":s.mode==='hybrid'?"d'animé avec RPG":"d'animé originale";
+  busy=true;$('next').disabled=true;say('Écriture en cours…');
   
   let canonPrompt="";
-  if(s.wk){
-    canonPrompt="\n\nFICHE DE L’ŒUVRE (vérité absolue) :\nMoment d'apparition du lecteur : "+s.wk.at+"\nPassé de l'œuvre avant l'arrivée :\n"+s.wk.before;
-  }
-
-  const prompt="Tu écris une histoire "+kind+", en français, chapitre par chapitre.\nTitre : "+s.title+"\nIdée et univers : "+s.idea+"\nPersonnage du lecteur : "+s.hero+castText(s)+canonPrompt+"\n\n"
-   +"Règles : narration COURTE ; dialogues LONGS et vivants. Commence CHAQUE réplique par une balise de couleur selon la relation : [B] allié, [F] proche, [R] ennemi, [J] neutre/inconnu (ex. « [F] Elena (sœur) : … »). Pas de titre de chapitre. Termine sur un moment captivant."
-   +(rpg?"\nMode RPG : gère le niveau, PV, stats, or, butins. État précédent : "+(s.etat?JSON.stringify(s.etat):"crée la fiche de départ."):"")
-   +"\n\n"+(old?"Version précédente à modifier :\n"+old.t+"\n":"")+(past?"Histoire jusqu'ici :\n"+past+"\n\n":"C'est le tout début : écris le chapitre 1 en intégrant le personnage au moment choisi.\n\n")
-   +(dir?"Consigne du lecteur : "+dir:"");
+  if(s.wk){canonPrompt="\n\nFICHE DE L'OEUVRE :\nMoment d'apparition : "+s.wk.at+"\nContexte :\n"+s.wk.before;}
+  
+  const prompt="Tu écris une histoire en français, chapitre par chapitre.\nTitre : "+s.title+"\nUnivers : "+s.idea+"\nPersonnage : "+s.hero+canonPrompt+"\n\n"
+   +"Règles : narration COURTE ; dialogues LONGS. N'écris pas 'Chapitre X'.\n\n"
+   +((s.chapters&&s.chapters.length)?"Suite de l'histoire :\n"+s.chapters.slice(-2).join("\n\n"):"C'est le début : écris le chapitre 1.")
+   +($('d').value.trim()?"\nConsigne : "+$('d').value.trim():"");
 
   const live=$('live');live.classList.remove('hide');live.innerHTML='';
   try{
-    const r=await sample(prompt,{cache:false,onText:({text})=>{live.innerHTML='';para(clean(text),live)}});
-    let txt=r.text,et=null;
-    let ch=null,m=txt.match(/\n?\s*CHOIX\s*:\s*(\[[\s\S]*\])\s*$/i);
-    if(m){try{ch=JSON.parse(m[1])}catch(e){}txt=txt.slice(0,m.index)}
-    m=txt.match(/\n?\s*ETAT\s*:\s*(\{[\s\S]*\})\s*$/i);
-    if(m){try{et=JSON.parse(m[1])}catch(e){}txt=txt.slice(0,m.index)}
-    s.chapters.push(txt.trim());const n=s.chapters.length;s.meta=s.meta||{};s.meta[n-1]={m:MODEL_USED,w:NOTES.splice(0)};
-    if(et){const a=+(s.etat&&s.etat.niveau)||0,c=+et.niveau||0;if(a&&c>a)s.pts=(s.pts||0)+10*(c-a);s.etat=et;s.butin=s.butin||{};s.butin[n-1]=et.butin||[];delete et.butin}
-    s.choix=Array.isArray(ch)?ch.slice(0,3).map(String):[];save();$('d').value='';say('');
-  }catch(e){say((e&&e.message)||"Erreur.");if(old&&s.chapters.length===k0){s.chapters.push(old.t);s.choix=old.c;save()}}
-  live.classList.add('hide');live.innerHTML='';
-  renderStory();busy=false;$('next').disabled=false;
+    const r=await sample(prompt,{onText:({text})=>{live.innerHTML='';para(clean(text),live)}});
+    s.chapters=s.chapters||[];s.chapters.push(r.text.trim());
+    save();$('d').value='';say('');
+  }catch(e){say(e.message||"Erreur.");}
+  live.classList.add('hide');renderStory();busy=false;$('next').disabled=false;
 }
 
-function startCustomStory(data){
-  L.list.push(data);
-  L.cur=data.id;
-  save();
-  openStory();
-  gen();
-}
+/* NAVIGATION & BOUTONS HOMEPAGE */
+$('new').onclick=()=>show('choice');$('btn_mode_original').onclick=()=>show('setup_simple');
+$('btn_mode_existing').onclick=()=>show('setup1');$('btn_choice_back').onclick=renderHome;
+$('cancel_simple').onclick=renderHome;
+$('step1_cancel').onclick=renderHome;
+$('back').onclick=()=>renderHome();
 
-$('new').onclick=()=>show('setup1');$('step1_cancel').onclick=renderHome;
-$('back').onclick=()=>{if(!busy)renderHome()};$('ai').onclick=()=>{renderAI();show('aiset')};
+$('ai').onclick=()=>{
+  const b=$('aiset');b.innerHTML='';const c=CFG();
+  const h=document.createElement('h1');h.textContent='⚙️ Réglages IA';
+  const l=document.createElement('label');l.textContent='Clé OpenRouter';
+  const k=document.createElement('input');k.type='password';k.value=c.key;
+  k.oninput=()=>{c.key=k.value.trim();saveCFG(c)};
+  const bk=document.createElement('button');bk.className='alt';bk.textContent='← Retour';bk.style.marginTop='12px';bk.onclick=renderHome;
+  b.append(h,l,k,bk);show('aiset');
+};
 
-/* ===== GESTION DES 3 ÉTAPES SUCCESSIVES ===== */
-let tempStore = {};
+$('imp').onclick=()=>{
+  const s={id:uid(),title:'Les Archiducs',hero:'Kafka Ibino',idea:RECAP,mode:'hybrid',chapters:[]};
+  L.list.push(s);L.cur=s.id;save();openStory();gen();
+};
 
+/* Lancement Histoire Simple */
+$('go_simple').onclick=()=>{
+  const t=$('t').value.trim(),i=$('i').value.trim(),h=$('h').value.trim();
+  if(!t){say('Écris un titre.');return}
+  const s={id:uid(),title:t,idea:i||'Libre',hero:h||'Le Héros',mode:$('m').value,chapters:[]};
+  L.list.push(s);L.cur=s.id;save();openStory();gen();
+};
+
+/* TUNNEL 3 ETAPES */
+let tempStore={};
 $('step1_next').onclick=()=>{
-  tempStore.links = $('wkl').value.trim();
-  tempStore.charsLink = $('wkc').value.trim();
-  tempStore.summary = $('wkt').value.trim();
-  tempStore.charsText = $('wkt_char').value.trim();
-  
-  if(!tempStore.summary && !tempStore.links){
-    $('smsg1').textContent="Renseigne au moins un résumé ou un lien sur l'œuvre.";
-    return;
-  }
-  $('smsg1').textContent="";
+  tempStore.summary=$('wkt').value.trim();
+  tempStore.links=$('wkl').value.trim();
+  tempStore.charsText=$('wkt_char').value.trim();
   show('setup2');
 };
-
-$('step2_back').onclick=()=>show('setup1');
-
-$('step2_next').onclick=()=>{
-  tempStore.mode = $('m').value;
-  tempStore.title = $('t').value.trim();
-  tempStore.hero = $('h').value.trim();
-  tempStore.idea = $('i').value.trim();
-
-  if(!tempStore.title || !tempStore.hero){
-    $('smsg2').textContent="Donne un titre à l'histoire et nomme ton personnage.";
-    return;
-  }
-  $('smsg2').textContent="";
+$('step2_back').onclick=()=>show('setup1');$('step2_next').onclick=()=>{
+  tempStore.title=$('t2').value.trim();
+  tempStore.hero=$('h2').value.trim();
+  tempStore.idea=$('i2').value.trim();
+  tempStore.mode=$('m2').value;
+  if(!tempStore.title||!tempStore.hero){say("Indique un titre et un nom de personnage.");return}
   show('setup3');
 };
-
 $('step3_back').onclick=()=>show('setup2');
 
-let foundMoment = null;
-$('wkf').onclick=async()=>{
-  const at = $('wka').value.trim();
-  const st = $('wkr');
-  if(!at){st.textContent="Écris d'abord le moment souhaité.";return;}
-  const sample=await getSample();if(!sample)return;
-  
-  $('wkf').disabled=true;st.textContent="Recherche du moment dans l'œuvre...";
-  try{
-    const sourceText = (tempStore.summary || "") + "\n" + (tempStore.links || "");
-    const r=await sample("Analyse ce texte d'œuvre :\n"+sourceText.slice(0,10000)+"\n\nLe lecteur veut apparaître à ce moment précis : « "+at+" ». Est-ce cohérent ou trouvé ? Réponds en JSON strict : {\"trouve\":true,\"moment\":\"description validée\"} ou {\"trouve\":false}",{cache:false});
-    const m=r.text.match(/\{[\s\S]*\}/);
-    let j=null;try{j=JSON.parse(m&&m[0])}catch(e){}
-    
-    if(j && j.trouve){
-      foundMoment = j.moment || at;
-      st.textContent="✅ Moment trouvé et validé : "+foundMoment;
-      $('wkk').classList.remove('hide');
-    } else {
-      st.textContent="❌ Moment introuvable ou imprécis. Essaye de le décrire avec d'autres mots (ex: nom d'un arc ou d'un combat).";
-    }
-  }catch(e){st.textContent="Erreur lors de la recherche."}
-  $('wkf').disabled=false;
-};
-
-$('go').onclick=()=>{
-  const atInput = $('wka').value.trim();
-  if(!atInput){
-    $('smsg3').textContent="Indique ton moment d'apparition avant de lancer.";
-    return;
-  }
-  const keep = $('wkp2').value === "keep";
-  const allText = (tempStore.summary || "") + "\n" + (tempStore.charsText || "");
-
-  const newStory = {
-    id: uid(),
-    title: tempStore.title,
-    hero: tempStore.hero,
-    idea: tempStore.idea || tempStore.summary,
-    mode: tempStore.mode,
-    chapters: [],
-    imgs: {},
-    butin: {},
-    etat: null,
-    wk: {
-      at: atInput,
-      before: allText || tempStore.links || "Contexte général de l'œuvre",
-      after: keep ? "Conserve la trame." : "Divergence totale permise."
-    }
+$('go_exist').onclick=()=>{
+  const at=$('wka').value.trim();
+  if(!at){say("Entre ton moment d'apparition.");return}
+  const s={
+    id:uid(),title:tempStore.title,hero:tempStore.hero,idea:tempStore.idea||tempStore.summary,
+    mode:tempStore.mode,chapters:[],
+    wk:{at:at,before:tempStore.summary||tempStore.links||"Œuvre existante"}
   };
-
-  startCustomStory(newStory);
+  L.list.push(s);L.cur=s.id;save();openStory();gen();
 };
 
-/* ===== CHARGEMENT DE LIENS (Proxy & CORS) ===== */
-const sleep = ms => new Promise(r => setTimeout(r, ms));
-async function fetchWithFallback(url) {
-  try {
-    const r = await fetch(url);
-    if (r.ok) return await r.text();
-  } catch (e) {}
-  const proxyUrl = 'https://api.allorigins.win/raw?url=' + encodeURIComponent(url);
-  const rProxy = await fetch(proxyUrl);
-  if (!rProxy.ok) throw new Error("Accès impossible (" + rProxy.status + ")");
-  return await rProxy.text();
-}
-const strip=h=>{const d=new DOMParser().parseFromString(h,"text/html");d.querySelectorAll("script,style,sup,table,.mw-editsection,.reference").forEach(e=>e.remove());return (d.body.textContent||"").replace(/\n{3,}/g,"\n\n").trim()};
-function apiOf(u){const pre=u.pathname.split("/wiki/")[0];return u.origin+(/wikipedia\.org$/.test(u.hostname)?"/w":pre)+"/api.php"}
-
-async function grab(url){
-  let u;try{u=new URL(url.trim())}catch(e){throw new Error("Lien invalide")}
-  if(u.pathname.indexOf("/wiki/")>=0){
-    const title=decodeURIComponent(u.pathname.split("/wiki/")[1]);
-    try {
-      const r=await fetch(apiOf(u)+"?action=parse&format=json&prop=text&redirects=1&origin=*&page="+encodeURIComponent(title));
-      if(r.ok){const j=await r.json();if(j.parse&&j.parse.text)return strip(j.parse.text["*"]);}
-    }catch(e){}
-  }
-  const html = await fetchWithFallback(url);
-  return strip(html);
-}
-
-$('wkg').onclick=async()=>{
-  const st=$('wks'),btn=$('wkg');
-  const links=$('wkl').value.split('\n').map(x=>x.trim()).filter(Boolean);
-  if(!links.length){st.textContent="Colle un lien.";return}
-  btn.disabled=true;
+/* EXPORT / IMPORT */
+$('bx').onclick=()=>{
+  $('bk').value=JSON.stringify(L);$('bmsg').textContent='Copie ce texte de sauvegarde.';
+};
+$('bi').onclick=()=>{
   try{
-    let txt="";
-    for(let i=0;i<links.length;i++){
-      st.textContent="Lecture du lien "+(i+1)+"/"+links.length+"…";
-      txt+="\n\n"+await grab(links[i]);
-      await sleep(600);
-    }
-    $('wkt').value = txt.trim().slice(0,35000);
-    st.textContent="✅ Liens chargés et convertis en texte !";
-  }catch(e){st.textContent="Erreur de lecture du lien (site protégé). Colle le texte directement dans la case 3."}
-  btn.disabled=false;
+    const o=JSON.parse($('bk').value);
+    if(o&&o.list){L=o;save();renderHome();$('bmsg').textContent='Importation réussie !';}
+  }catch(e){$('bmsg').textContent='Sauvegarde invalide.';}
 };
 
-$('wkn').onclick=async()=>{
-  const st=$('wkns'),btn=$('wkn');
-  const links=$('wkc').value.split('\n').map(x=>x.trim()).filter(Boolean);
-  if(!links.length){st.textContent="Colle un lien.";return}
-  btn.disabled=true;
-  try{
-    let txt="";
-    for(let i=0;i<links.length;i++){
-      st.textContent="Lecture personnages "+(i+1)+"/"+links.length+"…";
-      txt+=" "+await grab(links[i]);
-      await sleep(600);
-    }
-    $('wkt_char').value = txt.trim().slice(0,20000);
-    st.textContent="✅ Personnages chargés et convertis !";
-  }catch(e){st.textContent="Erreur de lecture. Colle la liste directement dans la case 4."}
-  btn.disabled=false;
-};
+$('next').onclick=gen;
 
 renderHome();
 </script>
