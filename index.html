@@ -172,7 +172,6 @@ button:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
 </section>
 
 <!-- TUNNEL 3 ÉTAPES (ŒUVRE EXISTANTE) -->
-<!-- ÉTAPE 1 : OEUVRE & PERSONNAGES -->
 <section id="setup1" class="card hide">
   <h1>Configuration de l'Œuvre (Étape 1/3)</h1>
   <p class="sub">Données et contexte de l'animé</p>
@@ -278,12 +277,13 @@ button:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
   <div id="chs"></div>
   <div id="live" class="card ch hide"></div>
   <div class="card" style="margin-top:16px">
-    <label for="d">Ta prochaine action ou réplique (ou « OOC : ... » pour donner un ordre à l'IA)</label>
-    <textarea id="d" placeholder="Ex : Je m'avance vers Rudeus et je prends la parole... (Laisse vide pour faire avancer l'histoire)"></textarea>
+    <label for="d">Ta prochaine action, réplique ou consigne de correction (Ex : "OOC : Corrige le fait que...")</label>
+    <textarea id="d" placeholder="Ex : Je m'avance vers Rudeus... OU consigne de réécriture : 'Attention, Perugius est mon serviteur et pas mon rival.'"></textarea>
     <div class="row">
       <button id="next">Écrire la suite</button>
-      <button id="rw" class="alt">🔁 Réécrire le dernier chapitre</button>
+      <button id="rw" class="alt">🔁 Réécrire ce chapitre</button>
       <button id="undo" class="alt">🗑 Supprimer le chapitre</button>
+      <button id="restart" class="alt" style="border-color:#f87171;color:#f87171">🔄 Recommencer à zéro</button>
     </div>
     <p id="msg"></p>
   </div>
@@ -296,7 +296,7 @@ const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,6);
 const MODES={anime:'🎬 Animé',rpg:'⚔️ RPG',hybrid:'🎬⚔️ Hybride'};
 const RECAP=`Univers inventé : un roi et des nobles classés du plus faible au plus puissant...`;
 
-let L={list:[],cur:null},busy=false,armed=null;
+let L={list:[],cur:null},busy=false,armed=null,restartArmed=false;
 try{L=JSON.parse(localStorage.getItem('lib'))||L}catch(e){}
 const S=()=>L.list.find(s=>s.id===L.cur);
 function save(){try{localStorage.setItem('lib',JSON.stringify(L))}catch(e){} }
@@ -315,26 +315,14 @@ function show(v){
   window.scrollTo(0,0);
 }
 
-/* DÉTECTION INTELLIGENTE DE LA COULEUR PAR RAPPORT À LA RELATION */
 function getRelationClass(str) {
   const s = str.toLowerCase();
-  // 1. Inconnu / Anonyme (Jaune)
-  if (/inconnu|anonyme|myst[eé]rieu|silhouette|[eé]trang|masqu[eé]|passant/i.test(s)) {
-    return 'speaker-unknown';
-  }
-  // 2. Ennemi / Rival / Détesté (Rouge)
-  if (/ennemi|rival|d[eé]test|hostil|tra[iî]tr|adversaire|menace|haine|rivale|monstre/i.test(s)) {
-    return 'speaker-enemy';
-  }
-  // 3. Allié / Ami / Famille / Amour (Vert)
-  if (/ami|alli[eé]|famille|fr[eè]re|soeur|sœur|p[eè]re|m[eè]re|fils|fille|copin|amour|[eé]pous|fianc|disciple|ma[iî]tre|protecteur|camarade|loyal|acolyte|partenaire/i.test(s)) {
-    return 'speaker-ally';
-  }
-  // 4. Neutre / Connaissance par défaut (Bleu)
+  if (/inconnu|anonyme|myst[eé]rieu|silhouette|[eé]trang|masqu[eé]|passant/i.test(s)) return 'speaker-unknown';
+  if (/ennemi|rival|d[eé]test|hostil|tra[iî]tr|adversaire|menace|haine|rivale|monstre/i.test(s)) return 'speaker-enemy';
+  if (/ami|alli[eé]|famille|fr[eè]re|soeur|sœur|p[eè]re|m[eè]re|fils|fille|copin|amour|[eé]pous|fianc|disciple|ma[iî]tre|protecteur|camarade|loyal|acolyte|partenaire/i.test(s)) return 'speaker-ally';
   return 'speaker-neutral';
 }
 
-/* RENDER DIALOGUES AVEC COULEURS DES RELATIONS */
 function para(text, box) {
   text.split('\n').forEach(l => {
     if (!l.trim()) return;
@@ -343,8 +331,7 @@ function para(text, box) {
       const p = document.createElement('p');
       const b = document.createElement('b');
       const speakerText = m[1].trim();
-      const colorClass = getRelationClass(speakerText);
-      b.className = 'speaker ' + colorClass;
+      b.className = 'speaker ' + getRelationClass(speakerText);
       b.textContent = speakerText + ' : ';
       p.append(b, m[2]);
       box.append(p);
@@ -401,7 +388,6 @@ function renderStory() {
 function seed(s) { if (!s.memo) s.memo = []; }
 function openStory() { const s = S(); if (s) seed(s); show('story'); $('set').classList.add('hide'); renderStory(); }
 
-/* PANNEAU PARAMÈTRES (MÉMOIRE & BACKGROUND) */
 function renderSet() {
   const s = S(), b = $('set'); if (!b) return; b.innerHTML = '';
   const h = document.createElement('h2'); h.textContent = "⚙️ Paramètres & Mémoire de l'Histoire"; b.append(h);
@@ -429,7 +415,6 @@ function renderSet() {
   });
 }
 
-/* OPENROUTER API & GÉNÉRATION */
 const CFG = () => { 
   let c = {}; 
   try { c = JSON.parse(localStorage.getItem('orcfg')) || {}; } catch (e) {} 
@@ -473,7 +458,6 @@ async function getSample() {
   };
 }
 
-/* RÉSUMÉ AUTOMATIQUE TOUS LES 5 CHAPITRES */
 async function autoSummarizeIfNeeded(s, sample) {
   const total = s.chapters.length;
   if (total > 0 && total % 5 === 0 && !s['summed_' + total]) {
@@ -488,13 +472,20 @@ async function autoSummarizeIfNeeded(s, sample) {
   }
 }
 
-/* GÉNÉRATION DU CHAPITRE AVEC LES COULEURS DE DIALOGUE */
-async function gen() {
+/* GÉNÉRATION (AVEC SUPPORT DE LA RÉÉCRITURE ET CORRECTION STRICTE) */
+async function gen(isRewrite = false) {
   const s = S(); if (busy || !s) return;
   const sample = await getSample(); if (!sample) return;
-  busy = true; $('next').disabled = true; say('✍️ L\'IA tisse le chapitre...');
+  
+  if (isRewrite && (!s.chapters || s.chapters.length === 0)) {
+    say("Aucun chapitre à réécrire. Clique sur 'Écrire la suite' ou 'Recommencer à zéro'.");
+    return;
+  }
 
-  await autoSummarizeIfNeeded(s, sample);
+  busy = true; $('next').disabled = true; 
+  say(isRewrite ? '✍️ L\'IA réécrit et applique tes corrections...' : '✍️ L\'IA tisse le chapitre...');
+
+  if (!isRewrite) await autoSummarizeIfNeeded(s, sample);
 
   let canonPrompt = "";
   if (s.wk) {
@@ -506,39 +497,62 @@ async function gen() {
       + (charsClean ? "PERSONNAGES OFFICIELS :\n" + charsClean + "\n\n" : "")
       + "=== CHRONOLOGIE ET RÈGLES CANONIQUES STRICTES ===\n"
       + "1. POINT D'APPARITION : " + s.wk.at + "\n"
-      + "2. INTERDICTION DES SPOILERS / ANACRONISMES : Les événements futurs ne se sont PAS encore produits. Les personnages doivent avoir exactement le niveau, le rôle et les connaissances de ce moment précis.\n"
-      + "3. CASTING : Ne fais intervenir dans la scène QUE les personnages physiquement présents à cet instant précis.\n"
-      + "4. RESPECT DU JOUEUR : Le joueur incarne « " + s.hero + " ». Respecte son statut et les réactions des PNJ face à lui.\n";
+      + "2. INTERDICTION DES SPOILERS / ANACRONISMES : Les événements futurs ne se sont PAS encore produits. Les personnages ont leur niveau et connaissances de ce moment précis.\n"
+      + "3. CASTING : Ne fais intervenir que les personnages présents à cet endroit.\n"
+      + "4. RESPECT ABSOLU DU STATUT : Le joueur incarne « " + s.hero + " ». Respecte son statut et son background à la lettre.\n";
   }
 
   const memTxt = (s.memo || []).map(m => "\n- Fait mémorisé : " + m).join("");
-  const heroBg = s.heroBg ? "\nBackground / Rôle du joueur : " + s.heroBg : "";
+  const heroBg = s.heroBg ? "\nBackground / Rôle et Statut du joueur : " + s.heroBg : "";
   const autoSum = s.resume ? "\n\nRésumé des chapitres précédents :\n" + s.resume : "";
 
+  // Détermination du contexte selon réécriture ou suite
+  let situationPrompt = "";
+  const userInput = $('d').value.trim();
+
+  if (isRewrite) {
+    const prevContext = s.chapters.length > 1 ? s.chapters.slice(-3, -1).join("\n\n") : "";
+    situationPrompt = "RÉÉCRITURE DU CHAPITRE ACTUEL :\n"
+      + (prevContext ? "Contexte précédant ce chapitre :\n" + prevContext + "\n\n" : "")
+      + (s.chapters.length === 1 
+          ? "Il s'agit du tout premier chapitre. Démarre précisément à l'instant d'apparition : " + (s.wk ? s.wk.at : "Début de l'aventure")
+          : "Réécris ce chapitre de manière plus fidèle et captivante.")
+      + (userInput ? "\n\n⚠️ INSTRUCTION DE CORRECTION PRIORITAIRE DE L'AUTEUR (À RESPECTER STRICTEMENT) : " + userInput : "");
+  } else {
+    if (s.chapters && s.chapters.length) {
+      situationPrompt = "DERNIERS ÉVÉNEMENTS (continuité immédiate) :\n" + s.chapters.slice(-2).join("\n\n")
+        + (userInput ? "\n\nAction / Choix du joueur pour ce chapitre : " + userInput : "");
+    } else {
+      situationPrompt = "PREMIER CHAPITRE : " + (s.startConsigne && s.startConsigne.trim() !== 'rien' ? s.startConsigne : "Fais démarrer la scène précisément au moment d'apparition choisi.")
+        + (userInput ? "\n\nConsigne de départ supplémentaire : " + userInput : "");
+    }
+  }
+
   const prompt = "Tu es un romancier et scénariste d'élite spécialisé dans les animés et mangas.\n"
-    + "Tu dois écrire la suite de l'histoire en français littéraire et immersif.\n\n"
+    + "Tu dois écrire ce chapitre en français littéraire, dynamique et immersif.\n\n"
     + "Titre : " + s.title + "\n"
     + "Joueur : " + s.hero + heroBg + "\n"
     + canonPrompt + memTxt + autoSum + "\n\n"
     + "RÈGLE CRUCIALE DES DIALOGUES (FORMAT STRICT) :\n"
     + "- Équilibre : 70% de DIALOGUES vivants et 30% de NARRATION.\n"
-    + "- CHAQUE réplique commence OBLIGATOIREMENT par le Prénom, Nom de famille (si connu) et entre parenthèses sa RELATION exacte avec le joueur, puis un deux-points :\n"
+    + "- CHAQUE réplique commence OBLIGATOIREMENT par le Prénom, Nom et entre parenthèses sa RELATION exacte avec le joueur :\n"
     + "  Format : « Prénom Nom (Relation) : dialogue »\n"
-    + "  La relation DOIT être explicite pour indiquer son statut envers le joueur :\n"
-    + "  * Si c'est un ami, allié, famille, amour : (Ami), (Allié), (Frère), (Petite copine), (Disciple), (Camarade)...\n"
-    + "  * Si c'est un ennemi ou rival : (Ennemi), (Rival), (Adversaire), (Hostile), (Menace)...\n"
-    + "  * Si c'est un personnage neutre ou une connaissance simple : (Neutre), (Connaissance), (Marchand), (Noble)...\n"
-    + "  * Si c'est un personnage dont le joueur ignore tout : (Inconnu), (Anonyme), (Silhouette mystérieuse)...\n"
-    + "- Pas d'intro méta, pas de 'Chapitre X', commence directement l'action.\n\n"
-    + ((s.chapters && s.chapters.length) 
-        ? "DERNIERS ÉVÉNEMENTS (continuité immédiate) :\n" + s.chapters.slice(-2).join("\n\n") 
-        : "PREMIER CHAPITRE : " + (s.startConsigne && s.startConsigne.trim() !== 'rien' ? s.startConsigne : "Fais démarrer la scène précisément au moment d'apparition choisi."))
-    + ($('d').value.trim() ? "\n\nAction / Choix du joueur pour ce chapitre : " + $('d').value.trim() : "");
+    + "  * Exemples : (Ami), (Allié), (Disciple), (Maître), (Ennemi), (Rival), (Neutre), (Inconnu)...\n"
+    + "- Pas d'intro méta, pas de titre 'Chapitre X', commence directement l'action.\n\n"
+    + situationPrompt;
 
   const live = $('live'); live.classList.remove('hide'); live.innerHTML = '';
   try {
     const r = await sample(prompt, { onText: ({ text }) => { live.innerHTML = ''; para(clean(text), live); } });
-    s.chapters = s.chapters || []; s.chapters.push(r.text.trim());
+    s.chapters = s.chapters || [];
+    
+    // Si c'est une réécriture, on remplace le dernier chapitre, sinon on l'ajoute
+    if (isRewrite && s.chapters.length > 0) {
+      s.chapters[s.chapters.length - 1] = r.text.trim();
+    } else {
+      s.chapters.push(r.text.trim());
+    }
+
     save(); $('d').value = ''; say('');
   } catch (e) { say(e.message || "Erreur de génération."); }
   live.classList.add('hide'); renderStory(); busy = false; $('next').disabled = false;
@@ -567,7 +581,6 @@ $('imp').onclick = () => {
   L.list.push(s); L.cur = s.id; save(); openStory(); gen();
 };
 
-/* HISTOIRE SIMPLE */
 $('go').onclick = () => {
   const t = $('t').value.trim(), i = $('i').value.trim(), h =$('h').value.trim();
   if (!t) { say('Indique un titre.'); return; }
@@ -575,7 +588,7 @@ $('go').onclick = () => {
   L.list.push(s); L.cur = s.id; save(); openStory(); gen();
 };
 
-/* TUNNEL 3 ÉTAPES (ŒUVRE EXISTANTE) */
+/* TUNNEL 3 ÉTAPES */
 let tempStore = {};
 
 $('step1_next').onclick = () => {
@@ -600,7 +613,6 @@ $('step2_next').onclick = () => {
 };
 $('step3_back').onclick = () => show('setup2');
 
-/* VALIDATION CONTEXTUELLE DU MOMENT PAR L'IA */
 $('wkf').onclick = async () => {
   const at = $('wka').value.trim();
   const resBox = $('valid_res'), epEl = $('v_ep'), descEl =$('v_desc');
@@ -657,7 +669,7 @@ $('go_exist').onclick = () => {
   L.list.push(s); L.cur = s.id; save(); openStory(); gen();
 };
 
-/* CHARGEMENT DES LIENS WIKI / PROXY */
+/* CHARGEMENT WIKI */
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 async function fetchWithFallback(url) {
   try { const r = await fetch(url); if (r.ok) return await r.text(); } catch (e) {}
@@ -718,7 +730,7 @@ $('wkn').onclick = async () => {
   btn.disabled = false;
 };
 
-/* DICTÉE VOCALE & BOUTON CORRIGER */
+/* DICTÉE VOCALE */
 const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
 const ANDROID = /Android/i.test(navigator.userAgent);
 var DC = null;
@@ -761,19 +773,47 @@ function makeMicGroup(el) {
   lab.append(makeMicGroup(el));
 });
 
-/* BOUTONS D'ACTION SUR LA LECTURE */
+/* ACTIONS LECTURE */
 $('cfg').onclick = () => {
   const p = $('set');
   if (p.classList.contains('hide')) { renderSet(); p.classList.remove('hide'); }
   else p.classList.add('hide');
 };
 $('lastch').onclick = () => window.scrollTo(0, document.body.scrollHeight);
-$('rw').onclick = () => gen(true);$('undo').onclick = () => {
+
+// Réécriture avec le paramètre true
+$('rw').onclick = () => gen(true);
+
+// Suppression du chapitre
+$('undo').onclick = () => {
   const s = S(); if (!s || !s.chapters.length) return;
   s.chapters.pop(); save(); renderStory();
 };
 
-/* EXPORT / IMPORT SAUVEGARDE */
+// RECOMMENCER À ZÉRO
+$('restart').onclick = () => {
+  const s = S(); if (!s) return;
+  if (!restartArmed) {
+    restartArmed = true;
+    $('restart').textContent = '⚠️ Sûr de recommencer ?';
+    setTimeout(() => { restartArmed = false; $('restart').textContent = '🔄 Recommencer à zéro'; }, 4000);
+    return;
+  }
+  restartArmed = false;
+  $('restart').textContent = '🔄 Recommencer à zéro';
+  
+  // Réinitialisation complète des chapitres et des résumés
+  s.chapters = [];
+  s.resume = "";
+  Object.keys(s).forEach(k => { if (k.startsWith('summed_')) delete s[k]; });
+  save();
+  renderStory();
+  
+  // Relance directement le premier chapitre proprement
+  gen(false);
+};
+
+/* EXPORT / IMPORT */
 $('bx').onclick = () => { $('bk').value = JSON.stringify(L);$('bmsg').textContent = 'Sauvegarde copiée dans le presse-papier.'; };
 $('bi').onclick = () => {
   try {
@@ -782,7 +822,7 @@ $('bi').onclick = () => {
   } catch (e) { $('bmsg').textContent = 'Sauvegarde invalide.'; }
 };
 
-$('next').onclick = () => gen();
+$('next').onclick = () => gen(false);
 
 renderHome();
 </script>
