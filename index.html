@@ -52,15 +52,82 @@ h2{font-size:1rem;color:var(--ac);margin:0 0 8px}
 <div class="row"><button id="bx" class="alt">📤 Exporter</button><button id="bi" class="alt">📥 Importer</button></div><p id="bmsg" class="sub"></p></div>
 </section>
 
-<section id="setup" class="card hide">
-<h1>Nouvelle histoire</h1>
+<!-- CONFIGURATION ÉTAPE 1 : OEUVRE -->
+<section id="setup1" class="card hide">
+<h1>Nouvelle Histoire : Œuvre Existante</h1>
+<p class="sub">Étape 1 sur 3 : Contexte et données de l'animé</p>
+<label for="wkl">1. Liens vers l’histoire de l’œuvre (Wiki, Résumés...)</label>
+<textarea id="wkl" placeholder="https://…"></textarea>
+<div class="row"><button type="button" id="wkg">📥 Charger les liens</button></div>
+<p class="sub" id="wks"></p>
+
+<label for="wkc">2. Lien vers la liste des personnages</label>
+<textarea id="wkc" style="min-height:56px" placeholder="https://…"></textarea>
+<div class="row"><button type="button" id="wkn">📥 Charger les personnages</button></div>
+<p class="sub" id="wkns"></p>
+
+<label for="wkt">3. Ou écris / colle ici le résumé du monde/animé</label>
+<textarea id="wkt" placeholder="Résumé de l'œuvre..."></textarea>
+
+<label for="wkt_char">4. Ou écris / colle ici la liste des personnages</label>
+<textarea id="wkt_char" placeholder="Liste des personnages..."></textarea>
+
+<div class="row">
+  <button id="step1_next">Suivant (Titre & Personnage) →</button>
+  <button id="step1_cancel" class="alt">Retour</button>
+</div>
+<p id="smsg1" style="color:var(--mu);margin-top:8px;font-size:.9rem"></p>
+</section>
+
+<!-- CONFIGURATION ÉTAPE 2 : TITRE ET PERSONNAGE -->
+<section id="setup2" class="card hide">
+<h1>Nouvelle Histoire : Titre & Personnage</h1>
+<p class="sub">Étape 2 sur 3 : Qui es-tu dans cette histoire ?</p>
 <label for="m">Type d'histoire</label>
 <select id="m"><option value="anime">🎬 Animé (histoire)</option><option value="rpg">⚔️ RPG (stats, loots, niveaux)</option><option value="hybrid">🎬⚔️ Hybride (les deux en même temps)</option></select>
-<label for="t">Titre</label><input id="t" placeholder="Ex : Le royaume des archiducs">
-<label for="i">Idée, monde, style (genre, pouvoirs, ennemis…)</label><textarea id="i" placeholder="Ex : Monde de nobles avec des paliers de puissance de 1 à 10, guerre contre les démons"></textarea>
-<label for="h">Ton personnage</label><input id="h" placeholder="Ex : Acil">
-<div class="row"><button id="go">Commencer l'histoire</button><button id="cancel" class="alt">Retour</button></div>
-<p id="smsg"></p>
+
+<label for="t">Titre de l'histoire</label>
+<input id="t" placeholder="Ex : Mon aventure dans l'animé...">
+
+<label for="h">Ton personnage (Nom)</label>
+<input id="h" placeholder="Ex : Acil">
+
+<label for="i">L'histoire de ton personnage (background, pouvoirs, secrets...)</label>
+<textarea id="i" placeholder="Ex : Un mercenaire de l'ombre doté d'une capacité rare..."></textarea>
+
+<div class="row">
+  <button id="step2_next">Suivant (Moment d'Apparition) →</button>
+  <button id="step2_back" class="alt">← Retour</button>
+</div>
+<p id="smsg2" style="color:var(--mu);margin-top:8px;font-size:.9rem"></p>
+</section>
+
+<!-- CONFIGURATION ÉTAPE 3 : MOMENT D'APPARITION -->
+<section id="setup3" class="card hide">
+<h1>Moment d’Apparition & Confirmation</h1>
+<p class="sub">Étape 3 sur 3 : Quand intègres-tu le récit ?</p>
+
+<label for="wka">À quel moment veux-tu apparaître pour la première fois ?</label>
+<input id="wka" placeholder="Ex : Pendant l'examen Chunin, ou juste après le combat contre Freezer...">
+
+<div class="row">
+  <button type="button" id="wkf">🔎 Chercher ce moment (Recherche contextuelle)</button>
+</div>
+<p class="sub" id="wkr" style="margin-top:6px"></p>
+
+<div id="wkk" class="hide" style="margin-top:10px">
+  <label for="wkp2">Pour la suite de l’œuvre</label>
+  <select id="wkp2">
+    <option value="keep">Garder en mémoire la suite canon</option>
+    <option value="cut">Bifurquer (histoire 100% originale à partir de mon arrivée)</option>
+  </select>
+</div>
+
+<div class="row" style="margin-top:14px">
+  <button id="go">🚀 Confirmer & Lancer (Chapitre 1)</button>
+  <button id="step3_back" class="alt">← Retour</button>
+</div>
+<p id="smsg3" style="color:var(--mu);margin-top:8px;font-size:.9rem"></p>
 </section>
 
 <section id="aiset" class="card hide"></section>
@@ -94,11 +161,11 @@ Le père fait une fête en famille au retour ; le roi donnera un banquet de vict
 const EX='{"niveau":1,"xp":"0/100","pv":"20/20","stats":{"Force":5,"Agilité":5,"Intelligence":5,"Charisme":5,"Chance":5,"Magie":5},"or":0,"inventaire":["objet (rareté)"],"butin":["objets gagnés dans ce chapitre"]}';
 let L={list:[],cur:null},busy=false,armed=null;
 try{L=JSON.parse(localStorage.getItem('lib'))||L}catch(e){}
-try{const o=JSON.parse(localStorage.getItem('histoire'));if(o&&o.chapters){o.id=uid();o.mode='anime';L.list.push(o);L.cur=null;localStorage.removeItem('histoire');save()}}catch(e){}
 const S=()=>L.list.find(s=>s.id===L.cur);
 function save(){try{localStorage.setItem('lib',JSON.stringify(L))}catch(e){}}
-function say(t){$('smsg').textContent=t||'';$('msg').textContent=t||''}
-function show(v){['home','setup','story','aiset'].forEach(x=>$(x).classList.toggle('hide',x!==v));$('nav').classList.add('hide');$('stb').classList.add('hide');say('');if(typeof dictEnd==='function')dictEnd();window.scrollTo(0,0)}
+function say(t){$('smsg1').textContent=t\vert{}\vert{}'';$('smsg2').textContent=t||'';$('smsg3').textContent=t\vert{}\vert{}'';$('msg').textContent=t||''}
+function show(v){['home','setup1','setup2','setup3','story','aiset'].forEach(x=>$(x).classList.toggle('hide',x!==v));$('nav').classList.add('hide');$('stb').classList.add('hide');say('');if(typeof dictEnd==='function')dictEnd();window.scrollTo(0,0)}
+
 function para(text,box){
   text.split('\n').forEach(l=>{
     if(!l.trim())return;
@@ -109,6 +176,7 @@ function para(text,box){
   });
 }
 const clean=t=>t.replace(/\n?\s*(ETAT|PERSOS|CHOIX)\s*:[\s\S]*$/i,'').replace(/\n?\s*IMAGE\s*:[^\n]*$/i,'');
+
 function renderHome(){
   const box=$('lib');box.innerHTML='';
   if(!L.list.length){const p=document.createElement('p');p.className='sub';p.textContent="Aucune histoire pour l'instant.";box.append(p)}
@@ -130,7 +198,7 @@ function renderHome(){
   $('imp').classList.toggle('hide',L.list.some(s=>s.src==='archiducs'));
   show('home');
 }
-function updStb(s){const b=$('stb');if(!s||s.mode==='anime'||$('story').classList.contains('hide')){b.classList.add('hide');return}b.classList.remove('hide');b.textContent='📊'+(s.pts?' +'+s.pts:'')}
+function updStb(s){const b=$('stb');if(!s\vert{}\vert{}s.mode==='anime'\vert{}\vert{}$('story').classList.contains('hide')){b.classList.add('hide');return}b.classList.remove('hide');b.textContent='📊'+(s.pts?' +'+s.pts:'')}
 function renderRpg(s){updStb(s);
   const b=$('rpg');
   if(s.mode==='anime'){b.classList.add('hide');return}
@@ -177,24 +245,10 @@ function renderStory(){renderOpts();renderNav();
     box.append(d);
   });
 }
-const ARCH=[{nom:'',rel:'sœur aînée'},{nom:'',rel:'frère jumeau (aîné)'},{nom:'',rel:'frère jumeau (aîné)'},{nom:'',rel:'père, archiduc Ibino'},{nom:'',rel:"oncle de l'infiltration, meilleur ami"},{nom:'',rel:'roi'},{nom:'',rel:'fille du roi, même âge'},{nom:'',rel:'petit frère du roi, 12 ans'}];
-const ARCH_ETAT=()=>({niveau:100,xp:'0/1000',pv:'?',stats:{Force:10,Agilité:10,Intelligence:10,Charisme:10,Chance:10,Magie:10},or:0,inventaire:[]});
-const BG_ARCH="Kafka Ibino, petit dernier de la famille d'archiducs Ibino (sœur aînée, deux frères jumeaux). Pendant 5 ans de guerre contre les démons, il a servi en secret comme stratège et comme mercenaire masqué. Il a atteint le palier 8 (secret connu du roi, des archiducs et de son père) ; le public le croit palier 2. Cicatrices cachées sous ses vêtements. Il aime faire des blagues et veut une vie paisible en famille.";
-function seed(s){if(s.src==='archiducs'&&!s.rpgInit){s.rpgInit=true;s.mode='hybrid';if(!s.etat){s.etat=ARCH_ETAT();s.pts=(s.pts||0)+990}}if(s.notes){(s.memo=s.memo||[]).push(s.notes);delete s.notes}if(!s.persos)s.persos=s.src==='archiducs'?ARCH.map(p=>({nom:p.nom,rel:p.rel})):[]}
+function seed(s){if(s.src==='archiducs'&&!s.rpgInit){s.rpgInit=true;s.mode='hybrid';if(!s.etat){s.etat={niveau:100,xp:'0/1000',pv:'?',stats:{Force:10,Agilité:10,Intelligence:10,Charisme:10,Chance:10,Magie:10},or:0,inventaire:[]};s.pts=(s.pts||0)+990}}if(s.notes){(s.memo=s.memo||[]).push(s.notes);delete s.notes}if(!s.persos)s.persos=[]}
 function castText(s){const nt=(s.memo||[]).map(x=>'\n- '+x).join('');
   const l=(s.persos||[]).filter(p=>p.nom||p.rel);
-  return (s.bg&&s.bg.trim()?"\nBackground du personnage du lecteur (à respecter) : "+s.bg.trim():"")+(nt?"\nNotes et modifications du lecteur (à intégrer et respecter dans l'histoire, ce sont des ajouts décidés par le lecteur) : "+nt:"")+"\nRéglages du lecteur : les personnages suivants (nom — relation avec le personnage du lecteur) sont à respecter EXACTEMENT ; ne change jamais un nom ni une relation indiqués ; si un nom est vide, choisis-en un :\n"+(l.length?l.map(p=>"- "+(p.nom||"[nom à choisir]")+" — "+(p.rel||"relation à préciser")).join("\n"):"(aucun pour l'instant)")+"\nÀ la toute fin de ta réponse (après IMAGE et ETAT s'il y en a), ajoute une ligne « PERSOS : » suivie d'un JSON sur une seule ligne qui liste uniquement les personnages CLÉS (importants et récurrents, jamais les personnages secondaires) nouveaux ou à nommer : [{\"nom\":\"...\",\"relation\":\"...\"}] (relation avec le personnage du lecteur) ; sinon []. Puis, tout à la fin de ta réponse (après toutes les autres lignes), ajoute UNE dernière ligne « CHOIX : » suivie d'un JSON sur une seule ligne : un tableau de 3 courtes propositions d'intervention (actions ou paroles) pour le personnage du lecteur, bien différentes les unes des autres, par exemple [\"...\",\"...\",\"...\"]. Le 4e choix libre est géré par l'application : ne l'écris pas.";
-}
-function merge(s,arr){
-  s.persos=s.persos||[];
-  arr.forEach(p=>{
-    if(!p||!p.nom)return;
-    const k=String(p.nom).toLowerCase();
-    if(s.persos.some(x=>(x.nom||'').toLowerCase()===k))return;
-    const e=s.persos.find(x=>!x.nom&&(x.rel||'').toLowerCase()===String(p.relation||'').toLowerCase());
-    if(e)e.nom=p.nom;else s.persos.push({nom:p.nom,rel:p.relation||''});
-  });
-  save();
+  return (s.bg&&s.bg.trim()?"\nBackground du personnage du lecteur (à respecter) : "+s.bg.trim():"")+(nt?"\nNotes et modifications du lecteur : "+nt:"")+"\n";
 }
 function renderSet(){
   const s=S(),b=$('set');b.innerHTML='';
@@ -206,47 +260,16 @@ function renderSet(){
   sel.onchange=()=>{s.mode=sel.value;save();$('stt').textContent=s.title+' · '+MODES[s.mode];renderRpg(s)};
   b.append(lm,sel);
   const lb=document.createElement('label');lb.textContent='Mon background (résumé)';
-  const tb=document.createElement('textarea');tb.value=s.bg!=null?s.bg:(s.src==='archiducs'?BG_ARCH:'');tb.oninput=()=>{s.bg=tb.value;save()};
+  const tb=document.createElement('textarea');tb.value=s.bg!=null?s.bg:'';tb.oninput=()=>{s.bg=tb.value;save()};
   b.append(lb,tb);
-  const ln=document.createElement('label');ln.textContent="Mémoire : écris puis envoie un ajout (background, événements, lieux, planète…)";
-  const ta=document.createElement('textarea');ta.value='';ta.placeholder="Ex : Mon personnage a un ancien rival qui revient…";
-  const fx=document.createElement('button');fx.type='button';fx.className='mic alt';fx.textContent='✨ Corriger';
-  fx.onclick=async()=>{
-    const txt=ta.value.trim();if(!txt)return;
-    const sample=await getSample();
-    if(!sample){return}
-    fx.disabled=true;fx.textContent='…';
-    try{const r=await sample(fixPrompt(txt),{cache:false});ta.value=cleanFix(r.text);say('')}catch(e){say((e&&e.message)||'Erreur, réessaie.')}
-    fx.disabled=false;fx.textContent='✨ Corriger';
-  };
-  ln.append(makeMic(ta),fx);
-  b.append(ln,ta);
-  const sn=document.createElement('button');sn.textContent='📨 Envoyer';sn.style.marginTop='8px';
-  sn.onclick=()=>{const v=ta.value.trim();if(!v)return;(s.memo=s.memo||[]).push(v);save();ta.value='';renderSet()};
-  b.append(sn);
-  (s.memo||[]).forEach((n,i)=>{
-    const r=document.createElement('div');r.className='row';r.style.cssText='margin-top:8px;align-items:flex-start;flex-wrap:nowrap';
-    const t=document.createElement('div');t.style.flex='1';t.textContent='✅ '+n;
-    const x=document.createElement('button');x.className='alt';x.textContent='✕';x.onclick=()=>{s.memo.splice(i,1);save();renderSet()};
-    r.append(t,x);b.append(r);
-  });
-  const lp=document.createElement('label');lp.textContent='Personnages : nom et relation avec ton personnage';b.append(lp);
-  (s.persos=s.persos||[]).forEach((p,i)=>{
-    const r=document.createElement('div');r.className='row';r.style.marginTop='6px';
-    const a=document.createElement('input');a.value=p.nom||'';a.placeholder='Prénom et nom (vide = choisi par Claude)';a.style.flex='1 1 130px';a.oninput=()=>{p.nom=a.value;save()};
-    const c=document.createElement('input');c.value=p.rel||'';c.placeholder='Relation avec toi';c.style.flex='1 1 130px';c.oninput=()=>{p.rel=c.value;save()};
-    const x=document.createElement('button');x.className='alt';x.textContent='✕';x.onclick=()=>{s.persos.splice(i,1);save();renderSet()};
-    r.append(a,c,x);b.append(r);
-  });
-  const add=document.createElement('button');add.className='alt';add.textContent='＋ Ajouter un personnage';add.style.marginTop='10px';
-  add.onclick=()=>{s.persos.push({nom:'',rel:''});save();renderSet()};
-  b.append(add);
 }
 function openStory(){const s=S();if(s)seed(s);show('story');$('set').classList.add('hide');renderStory();const go=()=>{if(s&&s.chapters.length&&S()===s&&!$('story').classList.contains('hide'))goCh(s.pos>0?Math.min(s.pos,s.chapters.length-1):s.chapters.length-1,false)};go();setTimeout(go,250)}
+
 let MODEL_USED='',NOTES=[];
 const CFG=()=>{let c={};try{c=JSON.parse(localStorage.getItem('orcfg'))||{}}catch(e){}return {key:c.key||'',models:Array.isArray(c.models)?c.models:['openrouter/free']}};
 const saveCFG=c=>{try{localStorage.setItem('orcfg',JSON.stringify(c))}catch(e){}};
 function notice(t){NOTES.push(t);say(t)}
+
 async function callOR(key,model,prompt,onText){
   const r=await fetch('https://openrouter.ai/api/v1/chat/completions',{method:'POST',headers:{'Authorization':'Bearer '+key,'Content-Type':'application/json'},body:JSON.stringify({model:model,messages:[{role:'user',content:prompt}],stream:true})});
   if(!r.ok){let m='erreur '+r.status;try{const j=await r.json();m=(j.error&&j.error.message)||m}catch(e){}throw new Error(r.status===429?'limite atteinte':m)}
@@ -282,14 +305,14 @@ async function orSample(prompt,opts){
       last=(e&&e.message)||'erreur';
       const nx=c.models[i+1];
       if(!nx)throw new Error('Tous les modèles sont indisponibles. Dernière erreur : '+m+' ('+last+')');
-      notice('⚠️ Modèle '+m+' expiré ou en erreur ('+last+'). On passe sur le modèle '+nx+' et on écrit le chapitre.');
+      notice('⚠️ Modèle '+m+' expiré ou en erreur ('+last+'). On passe sur le modèle '+nx+'.');
     }
   }
 }
 async function getSample(){
   const c=CFG();
-  if(!c.key){say("Ajoute ta clé OpenRouter dans ⚙️ Réglages IA (page d'accueil).");return null}
-  if(!c.models.length){say('Ajoute au moins un modèle dans ⚙️ Réglages IA.');return null}
+  if(!c.key){say("Ajoute ta clé OpenRouter dans ⚙️ Réglages IA.");return null}
+  if(!c.models.length){say('Ajoute au moins un modèle.');return null}
   return orSample;
 }
 function metaLine(s,n,d){
@@ -301,366 +324,159 @@ function metaLine(s,n,d){
 function renderAI(){
   const b=$('aiset');b.innerHTML='';const c=CFG();
   const h=document.createElement('h1');h.textContent='⚙️ Réglages IA';b.append(h);
-  const p0=document.createElement('p');p0.className='sub';p0.textContent="Une seule clé OpenRouter. Les modèles sont essayés dans l'ordre : si l'un est expiré ou en erreur, on passe au suivant.";b.append(p0);
-  const l1=document.createElement('label');l1.textContent='Clé OpenRouter (reste sur ton téléphone)';
+  const p0=document.createElement('p');p0.className='sub';p0.textContent="Clé OpenRouter et modèles.";b.append(p0);
+  const l1=document.createElement('label');l1.textContent='Clé OpenRouter';
   const k=document.createElement('input');k.type='password';k.value=c.key;k.placeholder='sk-or-v1-…';
   k.oninput=()=>{const d=CFG();d.key=k.value.trim();saveCFG(d)};
   b.append(l1,k);
-  const l2=document.createElement('label');l2.textContent='Modèles (le 1er écrit en premier)';b.append(l2);
-  c.models.forEach((m,i)=>{
-    const r=document.createElement('div');r.className='row';r.style.cssText='margin-top:6px;flex-wrap:nowrap;align-items:center';
-    const t=document.createElement('div');t.style.cssText='flex:1;word-break:break-all';t.textContent=(i+1)+'. '+m;
-    const mk=(txt,fn)=>{const x=document.createElement('button');x.className='alt';x.textContent=txt;x.onclick=fn;return x};
-    const mv=dd=>{const q=CFG();const j=i+dd;if(j<0||j>=q.models.length)return;const tmp=q.models[i];q.models[i]=q.models[j];q.models[j]=tmp;saveCFG(q);renderAI()};
-    r.append(t,mk('▲',()=>mv(-1)),mk('▼',()=>mv(1)),mk('✕',()=>{const q=CFG();q.models.splice(i,1);saveCFG(q);renderAI()}));
-    b.append(r);
-  });
-  const ar=document.createElement('div');ar.className='row';
-  const ni=document.createElement('input');ni.placeholder='Ajouter un modèle (ex : qwen/qwen3-coder:free)';ni.style.flex='1 1 200px';
-  const nb=document.createElement('button');nb.textContent='＋ Ajouter';
-  nb.onclick=()=>{const v=ni.value.trim();if(!v)return;const q=CFG();if(q.models.indexOf(v)<0)q.models.push(v);saveCFG(q);renderAI()};
-  ar.append(ni,nb);b.append(ar);
-  const lk=document.createElement('a');lk.href='https://openrouter.ai/models?q=free';lk.target='_blank';lk.rel='noopener';lk.textContent='Voir les modèles gratuits (OpenRouter)';lk.style.cssText='display:block;margin-top:12px;color:var(--ac)';b.append(lk);
   const bk=document.createElement('button');bk.className='alt';bk.textContent='← Retour';bk.style.marginTop='12px';bk.onclick=renderHome;b.append(bk);
 }
+
 async function gen(rw){
   const s=S();if(busy||!s)return;
-  const sample=await getSample();
-  if(!sample){return}
+  const sample=await getSample();if(!sample)return;
   busy=true;$('next').disabled=true;$('opts').classList.add('hide');say('Écriture en cours…');
   let old=null,k0=0;NOTES.length=0;
   if(rw){
     if(!s.chapters.length){busy=false;$('next').disabled=false;say('Aucun chapitre à réécrire.');return}
     const k=s.chapters.length-1;
-    old={t:s.chapters.pop(),i:s.imgs&&s.imgs[k],b:s.butin&&s.butin[k],c:s.choix};
-    if(s.imgs)delete s.imgs[k];if(s.butin)delete s.butin[k];
-    k0=s.chapters.length;
+    old={t:s.chapters.pop(),b:s.butin&&s.butin[k],c:s.choix};
+    if(s.butin)delete s.butin[k];k0=s.chapters.length;
   }
   const dir=$('d').value.trim();
   const past=(s.resume?'Résumé des chapitres précédents :\n'+s.resume+'\n\n':'')+s.chapters.slice(s.sumUpTo||0).map((c,i)=>'[Chapitre '+((s.sumUpTo||0)+i+1)+']\n'+c).join('\n\n').slice(-12000);
   const rpg=s.mode!=='anime';
-  const kind=s.mode==='rpg'?"de jeu de rôle (RPG)":s.mode==='hybrid'?"d'animé qui est aussi un RPG (statistiques, niveaux, butins)":"d'animé originale";
-  const prompt="Tu écris une histoire "+kind+", en français, chapitre par chapitre.\nTitre : "+s.title+"\nIdée et univers : "+s.idea+"\nPersonnage du lecteur : "+s.hero+castText(s)+"\n\n"
-   +"Règles : narration COURTE avec peu de détails ; dialogues LONGS et vivants. Avant chaque réplique, écris le nom puis sa relation avec le personnage du lecteur entre parenthèses, puis « : ». Une réplique par ligne. Commence CHAQUE réplique, pour TOUS les personnages sans exception, par une balise de couleur selon leur relation avec le personnage du lecteur : [B] allié, [F] allié très proche, [R] ennemi, [J] inconnu, neutre ou sans relation (ex. « [F] Elena (sœur) : … »). N'écris pas de titre de chapitre. Termine sur un moment qui donne envie de lire la suite. Si la consigne commence par « OOC », réponds brièvement hors histoire."
-   +(rpg?"\nMode RPG : le personnage du lecteur a des statistiques, un niveau (maximum 1000 ; chaque niveau donne 10 points de compétences au lecteur, répartis par lui via l'application), des PV, de l'or et un inventaire. Fais vivre des combats, des quêtes et des butins (objets rares seulement parfois) et reste cohérent avec l'état précédent. Les stats de ETAT sont les stats de base, normales, liées au palier de puissance du personnage ; le lecteur y ajoute des points bonus manuellement, qui s'ajoutent à ces stats de base sans être inclus dans ETAT (bonus actuels : "+JSON.stringify(s.bonus||{})+"). Tiens-en compte dans l'histoire. Tout à la fin (après la ligne IMAGE s'il y en a une), ajoute une ligne « ETAT : » suivie d'un JSON sur une seule ligne, de cette forme : "+EX+". État précédent : "+(s.etat?JSON.stringify(s.etat):"aucun, crée la fiche de départ."):"")
-   +"\n\n"+(old?"IMPORTANT : tu RÉÉCRIS le chapitre qui suit l'histoire ci-dessous, avec un déroulement différent. Ancienne version à ne pas reproduire :\n"+old.t.slice(0,3000)+"\n":"")+(past?"Histoire jusqu'ici :\n"+past+"\n\n":"C'est le tout début : écris le chapitre 1.\n\n")
-   +(dir?"Consigne du lecteur (dictée vocale, avec possibles erreurs de transcription : interprète-la avec indulgence) : "+dir:"Aucune consigne : fais avancer l'histoire toi-même.");
+  const kind=s.mode==='rpg'?"de jeu de rôle (RPG)":s.mode==='hybrid'?"d'animé avec RPG":"d'animé originale";
+  
+  let canonPrompt="";
+  if(s.wk){
+    canonPrompt="\n\nFICHE DE L’ŒUVRE (vérité absolue) :\nMoment d'apparition du lecteur : "+s.wk.at+"\nPassé de l'œuvre avant l'arrivée :\n"+s.wk.before;
+  }
+
+  const prompt="Tu écris une histoire "+kind+", en français, chapitre par chapitre.\nTitre : "+s.title+"\nIdée et univers : "+s.idea+"\nPersonnage du lecteur : "+s.hero+castText(s)+canonPrompt+"\n\n"
+   +"Règles : narration COURTE ; dialogues LONGS et vivants. Commence CHAQUE réplique par une balise de couleur selon la relation : [B] allié, [F] proche, [R] ennemi, [J] neutre/inconnu (ex. « [F] Elena (sœur) : … »). Pas de titre de chapitre. Termine sur un moment captivant."
+   +(rpg?"\nMode RPG : gère le niveau, PV, stats, or, butins. État précédent : "+(s.etat?JSON.stringify(s.etat):"crée la fiche de départ."):"")
+   +"\n\n"+(old?"Version précédente à modifier :\n"+old.t+"\n":"")+(past?"Histoire jusqu'ici :\n"+past+"\n\n":"C'est le tout début : écris le chapitre 1 en intégrant le personnage au moment choisi.\n\n")
+   +(dir?"Consigne du lecteur : "+dir:"");
+
   const live=$('live');live.classList.remove('hide');live.innerHTML='';
   try{
     const r=await sample(prompt,{cache:false,onText:({text})=>{live.innerHTML='';para(clean(text),live)}});
-    let txt=r.text,im=null,et=null;
+    let txt=r.text,et=null;
     let ch=null,m=txt.match(/\n?\s*CHOIX\s*:\s*(\[[\s\S]*\])\s*$/i);
     if(m){try{ch=JSON.parse(m[1])}catch(e){}txt=txt.slice(0,m.index)}
-    m=txt.match(/\n?\s*PERSOS\s*:\s*(\[[\s\S]*\])\s*$/i);let pe=null;
-    if(m){try{pe=JSON.parse(m[1])}catch(e){}txt=txt.slice(0,m.index)}
     m=txt.match(/\n?\s*ETAT\s*:\s*(\{[\s\S]*\})\s*$/i);
     if(m){try{et=JSON.parse(m[1])}catch(e){}txt=txt.slice(0,m.index)}
-    m=txt.match(/\n?\s*IMAGE\s*:\s*([^\n]+)\s*$/i);
-    if(m){im=m[1].trim();txt=txt.slice(0,m.index)}
     s.chapters.push(txt.trim());const n=s.chapters.length;s.meta=s.meta||{};s.meta[n-1]={m:MODEL_USED,w:NOTES.splice(0)};
     if(et){const a=+(s.etat&&s.etat.niveau)||0,c=+et.niveau||0;if(a&&c>a)s.pts=(s.pts||0)+10*(c-a);s.etat=et;s.butin=s.butin||{};s.butin[n-1]=et.butin||[];delete et.butin}
-    if(Array.isArray(pe))merge(s,pe);s.choix=Array.isArray(ch)?ch.slice(0,3).map(String):[];save();$('d').value='';say('');
-  }catch(e){say((e&&e.message)||"Erreur, réessaie.");if(old&&s.chapters.length===k0){s.chapters.push(old.t);if(old.i){s.imgs=s.imgs||{};s.imgs[k0]=old.i}if(old.b){s.butin=s.butin||{};s.butin[k0]=old.b}s.choix=old.c;save()}}
+    s.choix=Array.isArray(ch)?ch.slice(0,3).map(String):[];save();$('d').value='';say('');
+  }catch(e){say((e&&e.message)||"Erreur.");if(old&&s.chapters.length===k0){s.chapters.push(old.t);s.choix=old.c;save()}}
   live.classList.add('hide');live.innerHTML='';
-  const y0=window.scrollY;renderStory();scrollTo(0,y0);await updResume(s,sample);busy=false;$('next').disabled=false;
+  renderStory();busy=false;$('next').disabled=false;
 }
-function start(s){s.id=uid();s.chapters=[];s.imgs={};s.butin={};s.etat=null;L.list.push(s);L.cur=s.id;save();openStory();gen()}
-$('new').onclick=()=>show('setup');
-$('cancel').onclick=renderHome;
-$('back').onclick=()=>{if(!busy)renderHome()};
-$('go').onclick=()=>{
-  const t=$('t').value.trim(),i=$('i').value.trim(),h=$('h').value.trim();
-  if(!t&&!i){$('smsg').textContent='Écris au moins un titre ou une idée.';return}
-  start({title:t||'Sans titre',idea:i||'Libre, surprends-moi',hero:h||'le héros',mode:$('m').value});
-  ['t','i','h'].forEach(k=>$(k).value='');
+
+function startCustomStory(data){
+  L.list.push(data);
+  L.cur=data.id;
+  save();
+  openStory();
+  gen();
+}
+
+$('new').onclick=()=>show('setup1');$('step1_cancel').onclick=renderHome;
+$('back').onclick=()=>{if(!busy)renderHome()};$('ai').onclick=()=>{renderAI();show('aiset')};
+
+/* ===== GESTION DES 3 ÉTAPES SUCCESSIVES ===== */
+let tempStore = {};
+
+$('step1_next').onclick=()=>{
+  tempStore.links = $('wkl').value.trim();
+  tempStore.charsLink = $('wkc').value.trim();
+  tempStore.summary = $('wkt').value.trim();
+  tempStore.charsText = $('wkt_char').value.trim();
+  
+  if(!tempStore.summary && !tempStore.links){
+    $('smsg1').textContent="Renseigne au moins un résumé ou un lien sur l'œuvre.";
+    return;
+  }
+  $('smsg1').textContent="";
+  show('setup2');
 };
-$('imp').onclick=()=>start({title:'Les Archiducs',hero:'Kafka Ibino',idea:RECAP,mode:'hybrid',src:'archiducs'});
-let lockUntil=0,tick=false;
-function chEls(){return [...document.querySelectorAll('#chs > .card')]}
-function goCh(i,smooth){
-  const s=S(),e=chEls();if(!s||!e.length)return;
-  i=Math.max(0,Math.min(e.length-1,i));
-  lockUntil=Date.now()+600;
-  e[i].scrollIntoView({behavior:smooth?'smooth':'auto',block:'start'});
-  s.pos=i;save();renderNav();
-}
-function curCh(){const e=chEls();let c=0;e.forEach((x,i)=>{if(x.getBoundingClientRect().top<=window.innerHeight*0.35)c=i});return c}
-function renderNav(){
-  const s=S(),n=s?s.chapters.length:0,nav=$('nav'),sel=$('ns');
-  if(!s||n<2||$('story').classList.contains('hide')){nav.classList.add('hide');return}
-  nav.classList.remove('hide');
-  if(sel.options.length!==n){sel.innerHTML='';for(let i=0;i<n;i++){const o=document.createElement('option');o.value=i;o.textContent=(i+1)+'/'+n;sel.append(o)}}
-  sel.value=String(Math.min(s.pos==null?n-1:s.pos,n-1));
-}
-window.addEventListener('scroll',()=>{
-  if(tick)return;tick=true;
-  requestAnimationFrame(()=>{
-    tick=false;
-    const s=S();
-    if(!s||Date.now()<lockUntil||$('story').classList.contains('hide')||!s.chapters.length)return;
-    const c=curCh();
-    if(s.pos!==c){s.pos=c;save();renderNav()}
-  });
-});
-$('np').onclick=()=>{const s=S();if(s)goCh((s.pos==null?s.chapters.length-1:s.pos)-1,true)};
-$('nn').onclick=()=>{const s=S();if(s)goCh((s.pos==null?s.chapters.length-1:s.pos)+1,true)};
-$('ns').onchange=()=>goCh(+$('ns').value,true);
-$('lastch').onclick=()=>{const s=S();if(s&&s.chapters.length)goCh(s.chapters.length-1,true)};
-async function updResume(s,sample){
-  const from=s.sumUpTo||0,to=s.chapters.length-4;
-  if(to-from<3)return;
-  say('Mise à jour de la mémoire…');
+
+$('step2_back').onclick=()=>show('setup1');
+
+$('step2_next').onclick=()=>{
+  tempStore.mode = $('m').value;
+  tempStore.title = $('t').value.trim();
+  tempStore.hero = $('h').value.trim();
+  tempStore.idea = $('i').value.trim();
+
+  if(!tempStore.title || !tempStore.hero){
+    $('smsg2').textContent="Donne un titre à l'histoire et nomme ton personnage.";
+    return;
+  }
+  $('smsg2').textContent="";
+  show('setup3');
+};
+
+$('step3_back').onclick=()=>show('setup2');
+
+let foundMoment = null;
+$('wkf').onclick=async()=>{
+  const at = $('wka').value.trim();
+  const st = $('wkr');
+  if(!at){st.textContent="Écris d'abord le moment souhaité.";return;}
+  const sample=await getSample();if(!sample)return;
+  
+  $('wkf').disabled=true;st.textContent="Recherche du moment dans l'œuvre...";
   try{
-    const r=await sample("Voici le résumé actuel d'une histoire :\n"+(s.resume||"(vide)")+"\n\nChapitres à ajouter au résumé :\n"+s.chapters.slice(from,to).map((c,i)=>'[Chapitre '+(from+i+1)+']\n'+c).join('\n\n')+"\n\nMets à jour le résumé : garde tous les faits importants (événements, décisions, secrets, relations, lieux, objets, promesses en suspens) en moins de 2500 caractères. Réponds uniquement avec le résumé.",{cache:false});
-    s.resume=r.text.trim();s.sumUpTo=to;save();
-  }catch(e){}
-  say('');
-}
-function openStats(){
-  const s=S();if(!s)return;
-  const o=$('sw');if(o)o.remove();
-  const w=document.createElement('div');w.id='sw';
-  w.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:10;display:flex;align-items:center;justify-content:center;padding:16px';
-  w.onclick=ev=>{if(ev.target===w)w.remove()};
-  const c=document.createElement('div');c.className='card';c.style.cssText='width:100%;max-width:460px;max-height:85vh;overflow:auto;margin:0';
-  const h=document.createElement('h2');h.textContent='📊 Statistiques';c.append(h);
-  const e=s.etat;
-  if(!e){c.append(document.createTextNode('Ta fiche apparaîtra après le premier chapitre.'))}
-  else{
-    const p=document.createElement('p');p.textContent='Niveau '+(e.niveau??1)+'/'+(s.nivMax||1000)+' · ✨ '+(e.xp??'?')+' · ❤ '+(e.pv??'?')+' · 🪙 '+(e.or??0);
-    const q=document.createElement('p');const bq=document.createElement('b');bq.textContent='Points à répartir : '+(s.pts||0);q.append(bq);
-    c.append(p,q);
-    const ed=document.createElement('div');ed.className='row';
-    const mkn=(lab,get,set)=>{const l=document.createElement('label');l.style.cssText='flex:1 1 120px;margin:0';l.textContent=lab;const i=document.createElement('input');i.type='number';i.value=get();i.onchange=()=>{set(Math.max(0,Math.floor(+i.value||0)));save();openStats();renderRpg(s)};l.append(i);return l};
-    ed.append(mkn('Niveau (max '+(s.nivMax||1000)+')',()=>e.niveau??1,v=>{e.niveau=Math.min(v,s.nivMax||1000)}),mkn('Points à répartir',()=>s.pts||0,v=>{s.pts=v}));
-    c.append(ed);
-    e.stats=e.stats||{};
-    Object.keys(e.stats).forEach(k=>{
-      const r=document.createElement('div');r.className='item';r.style.marginBottom='8px';
-      const t=document.createElement('span');const bn=(s.bonus&&s.bonus[k])||0,bs=+e.stats[k]||0;t.textContent=k+' : '+(bs+bn)+(bn?'  ('+bs+' de base + '+bn+' bonus)':'');
-      const bw=document.createElement('div');bw.className='row';bw.style.margin=0;[1,10,100].forEach(q=>{const b=document.createElement('button');b.textContent='＋'+q;b.disabled=!(s.pts>=q);if(q>1)b.className='alt';b.onclick=()=>{s.bonus=s.bonus||{};s.bonus[k]=(s.bonus[k]||0)+q;s.pts-=q;save();openStats();renderRpg(s)};bw.append(b)});
-      r.append(t,bw);c.append(r);
-    });
-    const ar=document.createElement('div');ar.className='row';
-    const ni=document.createElement('input');ni.placeholder='Nouvelle stat (ex : Défense)';ni.style.flex='1 1 140px';
-    const nb=document.createElement('button');nb.className='alt';nb.textContent='＋ Ajouter';
-    nb.onclick=()=>{const v=ni.value.trim();if(!v||v in e.stats)return;e.stats[v]=0;save();openStats()};
-    ar.append(ni,nb);c.append(ar);
+    const sourceText = (tempStore.summary || "") + "\n" + (tempStore.links || "");
+    const r=await sample("Analyse ce texte d'œuvre :\n"+sourceText.slice(0,10000)+"\n\nLe lecteur veut apparaître à ce moment précis : « "+at+" ». Est-ce cohérent ou trouvé ? Réponds en JSON strict : {\"trouve\":true,\"moment\":\"description validée\"} ou {\"trouve\":false}",{cache:false});
+    const m=r.text.match(/\{[\s\S]*\}/);
+    let j=null;try{j=JSON.parse(m&&m[0])}catch(e){}
+    
+    if(j && j.trouve){
+      foundMoment = j.moment || at;
+      st.textContent="✅ Moment trouvé et validé : "+foundMoment;
+      $('wkk').classList.remove('hide');
+    } else {
+      st.textContent="❌ Moment introuvable ou imprécis. Essaye de le décrire avec d'autres mots (ex: nom d'un arc ou d'un combat).";
+    }
+  }catch(e){st.textContent="Erreur lors de la recherche."}
+  $('wkf').disabled=false;
+};
+
+$('go').onclick=()=>{
+  const atInput = $('wka').value.trim();
+  if(!atInput){
+    $('smsg3').textContent="Indique ton moment d'apparition avant de lancer.";
+    return;
   }
-  const x=document.createElement('button');x.className='alt';x.textContent='Fermer';x.style.marginTop='12px';x.onclick=()=>w.remove();
-  c.append(x);w.append(c);document.body.append(w);
-}
-$('next').onclick=()=>gen();
-$('rw').onclick=()=>gen(true);
-$('stb').onclick=openStats;
-$('ai').onclick=()=>{renderAI();show('aiset')};
-$('bx').onclick=()=>{const t=$('bk');t.value=JSON.stringify(L);t.focus();t.select();$('bmsg').textContent='Copie tout ce texte (appui long, Tout sélectionner, Copier), puis colle-le dans la nouvelle version avec « Importer ».'};
-$('bi').onclick=()=>{try{const o=JSON.parse($('bk').value);if(!o||!Array.isArray(o.list))throw 0;o.list.forEach(s=>{const i=L.list.findIndex(x=>x.id===s.id);if(i>=0)L.list[i]=s;else L.list.push(s)});save();renderHome();$('bmsg').textContent=o.list.length+' histoire(s) importée(s).'}catch(e){$('bmsg').textContent='Texte invalide : colle ici la sauvegarde complète.'}};
-$('cfg').onclick=()=>{const p=$('set');if(p.classList.contains('hide')){renderSet();p.classList.remove('hide')}else p.classList.add('hide')};
-$('undo').onclick=()=>{
-  const s=S();if(busy||!s)return;
-  const k=s.chapters.length-1;if(k<0)return;
-  if(s.imgs)delete s.imgs[k];if(s.butin)delete s.butin[k];
-  s.chapters.pop();s.choix=[];save();renderStory();
-};
-/* ===== Dictée vocale intégrée ===== */
-const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
-const ANDROID=/Android/i.test(navigator.userAgent);
-var DC=null;
-function dictEnd(){
-  if(!DC)return;
-  const d=DC;DC=null;d.on=false;
-  try{d.r.abort()}catch(e){}
-  d.btn.textContent='🎤 Dicter';
-}
-function dict(el,btn){
-  if(!SR){el.focus();say("La dictée intégrée n'existe pas sur ce navigateur : utilise le micro du clavier.");return}
-  const same=DC&&DC.btn===btn;
-  dictEnd();
-  if(same){say('');return}
-  const r=new SR();r.lang='fr-FR';r.interimResults=true;r.continuous=!ANDROID;
-  const d={r:r,btn:btn,on:true};DC=d;
-  let base=el.value;
-  const join=(a,b)=>a&&b?a+(/\s$/.test(a)?'':' ')+b:a+b;
-  r.onresult=ev=>{
-    const t=Array.from(ev.results).map(x=>x[0].transcript).join('').trim();
-    el.value=join(base,t);
+  const keep = $('wkp2').value === "keep";
+  const allText = (tempStore.summary || "") + "\n" + (tempStore.charsText || "");
+
+  const newStory = {
+    id: uid(),
+    title: tempStore.title,
+    hero: tempStore.hero,
+    idea: tempStore.idea || tempStore.summary,
+    mode: tempStore.mode,
+    chapters: [],
+    imgs: {},
+    butin: {},
+    etat: null,
+    wk: {
+      at: atInput,
+      before: allText || tempStore.links || "Contexte général de l'œuvre",
+      after: keep ? "Conserver la trame." : "Divergence totale permise."
+    }
   };
-  r.onerror=ev=>{
-    const e=ev&&ev.error;
-    if(e==='no-speech'||e==='aborted')return;
-    const msg={'not-allowed':"Micro refusé : autorise le micro pour ce site dans les réglages du navigateur.",'service-not-allowed':"Dictée non autorisée par ce navigateur.",'audio-capture':"Aucun micro détecté.",'network':"La dictée a besoin d'internet."}[e]||("Dictée interrompue ("+e+").");
-    if(DC===d)dictEnd();
-    say(msg);
-  };
-  r.onend=()=>{
-    if(DC!==d)return;
-    if(d.on){base=el.value;try{r.start()}catch(e){dictEnd();say('Dictée arrêtée.')}}
-    else dictEnd();
-  };
-  try{r.start();btn.textContent='⏹ Arrêter';say("🎙️ Je t'écoute… Appuie sur ⏹ pour finir.")}
-  catch(e){dictEnd();say('Impossible de lancer la dictée.')}
-}
-function makeMic(el){
-  const m=document.createElement('button');m.type='button';m.className='mic alt';m.textContent='🎤 Dicter';
-  m.onclick=()=>dict(el,m);
-  return m;
-}
-function glossaire(){
-  const s=S(),parts=[];
-  const add=(l,v)=>{v=(v==null?'':String(v)).trim();if(v)parts.push(l+' : '+v)};
-  if(!$('setup').classList.contains('hide')){
-    add('Titre',$('t').value);add('Idée et univers',$('i').value.slice(0,1500));add('Personnage du lecteur',$('h').value);
-  }else if(s&&!$('story').classList.contains('hide')){
-    add('Titre',s.title);add('Personnage du lecteur',s.hero);add('Univers',(s.idea||'').slice(0,1500));add('Background du personnage',(s.bg||'').slice(0,800));
-  }
-  return parts.join('\n');
-}
-function fixPrompt(txt){
-  const g=glossaire();
-  return "Ce texte vient d'une dictée vocale en français et contient des erreurs de transcription. Corrige-le en gardant exactement le sens et le style, sans rien ajouter ni retirer."
-   +(g?" Contexte :\n"+g+"\n\n":"")+"Réponds uniquement avec le texte corrigé.\n\n=== TEXTE À CORRIGER ===\n"+txt;
-}
-const cleanFix=t=>t.replace(/^[\s\S]*=== TEXTE À CORRIGER ===\s*/,'').trim();
-['t','i','h','d'].forEach(id=>{
-  const lab=document.querySelector('label[for='+id+']'),el=$(id);
-  const m=makeMic(el);
-  const f=document.createElement('button');f.type='button';f.className='mic alt';f.textContent='✨ Corriger';
-  f.onclick=async()=>{
-    const txt=el.value.trim();if(!txt)return;
-    const sample=await getSample();
-    if(!sample){return}
-    f.disabled=true;f.textContent='…';
-    try{const r=await sample(fixPrompt(txt),{cache:false});el.value=cleanFix(r.text);say('')}catch(e){say((e&&e.message)||'Erreur, réessaie.')}
-    f.disabled=false;f.textContent='✨ Corriger';
-  };
-  lab.append(m,f);
-});
-renderHome();
-const RULES_CANON="Rappel important : si l'histoire se passe dans une œuvre existante, respecte son canon : noms, âges, relations, lieux, chronologie et pouvoirs. Ce que le lecteur a établi est la vérité de l'histoire : ne le contredis jamais.";
-const _callOR=callOR;
-callOR=function(key,model,prompt,onText){
-if(prompt.indexOf("Tu écris une histoire")===0)prompt=prompt+"\n\n"+RULES_CANON;
-return _callOR(key,model,prompt,onText);
-};
-const _f=fetch;
-window.fetch=function(u,o){
-try{if(String(u).indexOf('openrouter.ai')>=0&&o&&o.body){const b=JSON.parse(o.body);b.temperature=0.7;o=Object.assign({},o,{body:JSON.stringify(b)})}}catch(e){}
-return _f(u,o);
-};
-(function(){
-const H={};
-const btn=document.createElement("button");
-btn.className="alt";btn.textContent="💬 Modification";
-$("cfg").after(btn);
-btn.onclick=()=>{
-const s=S();if(!s)return;
-const hist=H[s.id]=H[s.id]||[];
-const old=$("tw");if(old)old.remove();
-const w=document.createElement("div");w.id="tw";
-w.style.cssText="position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:10;display:flex;align-items:center;justify-content:center;padding:16px";
-const c=document.createElement("div");c.className="card";
-c.style.cssText="width:100%;max-width:520px;max-height:88vh;overflow:auto;margin:0";
-const h=document.createElement("h2");h.textContent="💬 Parler à l’IA (hors histoire)";
-const info=document.createElement("p");info.className="sub";
-info.textContent="Ici tu parles à l’IA, pas à l’histoire.";
-const log=document.createElement("div");
-const ta=document.createElement("textarea");ta.placeholder="Ex : Je veux que mon personnage ait 17 ans…";
-const st=document.createElement("p");st.className="sub";
-const row=document.createElement("div");row.className="row";
-const send=document.createElement("button");send.textContent="Envoyer";
-const mem=document.createElement("button");mem.className="alt";mem.textContent="✅ Ajouter à la mémoire";
-const cl=document.createElement("button");cl.className="alt";cl.textContent="Fermer";
-const add=(who,t)=>{const p=document.createElement("p");p.style.whiteSpace="pre-wrap";const b=document.createElement("b");b.textContent=who+" : ";p.append(b,t);log.append(p)};
-hist.forEach(m=>add(m.w,m.t));
-const tr=hist=>hist.map(m=>m.w+" : "+m.t).join("\n");
-send.onclick=async()=>{
-const v=ta.value.trim();if(!v)return;
-const sample=await getSample();
-if(!sample){st.textContent="Ajoute ta clé dans ⚙️ Réglages IA.";return}
-send.disabled=true;st.textContent="L’IA réfléchit…";
-hist.push({w:"Moi",t:v});add("Moi",v);ta.value="";
-const prompt="Tu es l’assistant d’écriture. Le lecteur te parle HORS de l’histoire. Réponds en français, brièvement.\n\nHistoire : "+s.title+"\nConversation :\n"+tr(hist);
-try{const r=await sample(prompt,{cache:false});const t=r.text.trim();hist.push({w:"IA",t:t});add("IA",t);st.textContent=""}
-catch(e){st.textContent=(e&&e.message)||"Erreur, réessaie."}
-send.disabled=false;
-};
-mem.onclick=async()=>{
-if(!hist.length)return;
-const sample=await getSample();
-if(!sample){st.textContent="Ajoute ta clé dans ⚙️ Réglages IA.";return}
-mem.disabled=true;st.textContent="Je note le résumé…";
-try{const r=await sample("Résume en une ou deux phrases ce que le lecteur veut ajouter :\n"+tr(hist),{cache:false});
-const n=r.text.trim();(s.memo=s.memo||[]).push(n);save();hist.length=0;log.innerHTML="";
-st.textContent="✅ Ajouté à la mémoire : "+n;
-if(!$("set").classList.contains("hide"))renderSet();
-}catch(e){st.textContent=(e&&e.message)||"Erreur, réessaie."}
-mem.disabled=false;
-};
-cl.onclick=()=>w.remove();
-w.onclick=ev=>{if(ev.target===w)w.remove()};
-row.append(makeMic(ta),send,mem,cl);
-c.append(h,info,log,ta,st,row);w.append(c);document.body.append(w);
-};
-})();
-(function(){
-const _c3=callOR;
-callOR=function(key,model,prompt,onText){
-const s=S();
-if(s&&prompt.indexOf("Tu écris une histoire")===0){
-if(s.wk){const w=s.wk;prompt+="\n\nFICHE DE L’ŒUVRE (vérité absolue : respecte les noms, les relations et les événements). Le personnage du lecteur apparaît pour la première fois à ce moment : "+w.at+".\nPASSÉ DE L’ŒUVRE :\n"+w.before+(w.after?"\n\nSUITE OFFICIELLE DE L’ŒUVRE :\n"+w.after:"\n\nTout ce qui vient après le moment d’apparition est à inventer librement.")}
-}
-return _c3(key,model,prompt,onText);
-};
-const _st=start;
-start=function(s){
-if(!s.src){
-if(window.__wk){s.wk=window.__wk;window.__wk=null;if(s.idea==="Libre, surprends-moi")s.idea="Histoire dans l’œuvre existante, avec le personnage du lecteur."}
-if(window.__wkn&&window.__wkn.length){s.wn=window.__wkn;window.__wkn=null}
-}
-return _st(s);
+
+  startCustomStory(newStory);
 };
 
-const box=document.createElement("div");
-box.innerHTML='<label for="wkm">Départ de l’histoire</label><select id="wkm"><option value="0">🆕 Histoire originale (de zéro)</option><option value="1">📖 Dans une œuvre existante (animé, manga, webtoon...)</option></select>'
-+'<div id="wkp" class="hide">'
-+'<label for="wka" style="color:var(--ac);font-weight:bold;font-size:1rem;margin-top:14px">📍 Moment exact de ta 1ère apparition dans l\'animé</label>'
-+'<input id="wka" placeholder="Ex : Pendant l\'examen Chunin, ou juste après le combat contre Freezer...">'
-+'<label for="wkl" style="margin-top:12px">1. Liens vers l’histoire de l’œuvre (pages wiki, résumés...)</label><textarea id="wkl" placeholder="https://…"></textarea><div class="row"><button type="button" id="wkg">📥 Charger les liens</button></div><p class="sub" id="wks"></p>'
-+'<label for="wkc">2. Lien vers la liste des personnages</label><textarea id="wkc" style="min-height:56px" placeholder="https://…"></textarea><div class="row"><button type="button" id="wkn">📥 Charger les personnages</button></div><p class="sub" id="wkns"></p>'
-+'<label for="wkt">3. Ou écris / colle ici le résumé du monde/animé</label><textarea id="wkt"></textarea><div class="row"><button type="button" id="wkx">📥 Charger le texte</button></div><p class="sub" id="wkxs"></p>'
-+'<div id="wkk" style="margin-top:8px"><label for="wkp2">Pour la suite officielle de l’œuvre</label><select id="wkp2"><option value="keep">Garder en mémoire la suite canon</option><option value="cut">Bifurquer (histoire 100% originale à partir de mon arrivée)</option></select></div>'
-+'</div>';
-
-document.querySelector("#setup h1").after(box);
-
-let gL=[],gT=[];
-
-function syncWk(){
-  const at = $("wka").value.trim() || "Au début de l'œuvre";
-  const keep = $("wkp2").value === "keep";
-  const allTxt = gL.concat(gT).join("\n\n");
-  window.__wk = {
-    at: at,
-    before: allTxt || "Contexte de l'œuvre transmis par le lecteur.",
-    after: keep ? "Respecter la trame originale si possible." : "Laisser l'histoire dévier librement."
-  };
-}
-
-$("wkm").onchange=()=>{
-  const on=$("wkm").value==="1";
-  $("wkp").classList.toggle("hide",!on);
-  if(!on){window.__wk=null;window.__wkn=null}
-  else{syncWk();}
-};
-
-$("wka").oninput=syncWk;
-$("wkp2").onchange=syncWk;
-
-const strip=h=>{const d=new DOMParser().parseFromString(h,"text/html");d.querySelectorAll("script,style,sup,table,.mw-editsection,.reference").forEach(e=>e.remove());return (d.body.textContent||"").replace(/\n{3,}/g,"\n\n").trim()};
-function apiOf(u){const pre=u.pathname.split("/wiki/")[0];return u.origin+(/wikipedia\.org$/.test(u.hostname)?"/w":pre)+"/api.php"}
+/* ===== UTILS DE CHARGEMENT DE LIENS (CORS / Proxy) ===== */
 const sleep = ms => new Promise(r => setTimeout(r, ms));
-
 async function fetchWithFallback(url) {
   try {
     const r = await fetch(url);
@@ -671,37 +487,26 @@ async function fetchWithFallback(url) {
   if (!rProxy.ok) throw new Error("Accès impossible (" + rProxy.status + ")");
   return await rProxy.text();
 }
+const strip=h=>{const d=new DOMParser().parseFromString(h,"text/html");d.querySelectorAll("script,style,sup,table,.mw-editsection,.reference").forEach(e=>e.remove());return (d.body.textContent||"").replace(/\n{3,}/g,"\n\n").trim()};
+function apiOf(u){const pre=u.pathname.split("/wiki/")[0];return u.origin+(/wikipedia\.org$/.test(u.hostname)?"/w":pre)+"/api.php"}
 
 async function grab(url){
-  let u;try{u=new URL(url.trim())}catch(e){throw new Error("Lien invalide : "+url)}
+  let u;try{u=new URL(url.trim())}catch(e){throw new Error("Lien invalide")}
   if(u.pathname.indexOf("/wiki/")>=0){
     const title=decodeURIComponent(u.pathname.split("/wiki/")[1]);
     try {
       const r=await fetch(apiOf(u)+"?action=parse&format=json&prop=text&redirects=1&origin=*&page="+encodeURIComponent(title));
-      if(r.ok){
-        const j=await r.json();
-        if(j.parse&&j.parse.text)return strip(j.parse.text["*"]);
-      }
+      if(r.ok){const j=await r.json();if(j.parse&&j.parse.text)return strip(j.parse.text["*"]);}
     }catch(e){}
   }
-  try {
-    const html = await fetchWithFallback(url);
-    return strip(html);
-  } catch(e) {
-    throw new Error("Ce site bloque la lecture automatique : copie le texte et colle-le dans la case 3. ("+url+")");
-  }
+  const html = await fetchWithFallback(url);
+  return strip(html);
 }
 
-async function needSample(){
-  const s=await getSample();
-  if(!s)throw new Error("Ajoute ta clé dans ⚙️ Réglages IA.");
-  return s;
-}
-
-$("wkg").onclick=async()=>{
-  const st=$("wks"),btn=$("wkg");
-  const links=$("wkl").value.split("\n").map(x=>x.trim()).filter(Boolean);
-  if(!links.length){st.textContent="Colle d’abord au moins un lien.";return}
+$('wkg').onclick=async()=>{
+  const st=$('wks'),btn=$('wkg');
+  const links=$('wkl').value.split('\n').map(x=>x.trim()).filter(Boolean);
+  if(!links.length){st.textContent="Colle un lien.";return}
   btn.disabled=true;
   try{
     let txt="";
@@ -710,41 +515,31 @@ $("wkg").onclick=async()=>{
       txt+="\n\n"+await grab(links[i]);
       await sleep(600);
     }
-    gL=[txt.trim().slice(0,30000)];
-    syncWk();
-    st.textContent="✅ Histoire chargée ! Tu peux maintenant indiquer ton moment d'apparition ci-dessus.";
-  }catch(e){st.textContent=(e&&e.message)||"Erreur, réessaie."}
+    $('wkt').value = txt.trim().slice(0,35000);
+    st.textContent="✅ Liens chargés et convertis en texte !";
+  }catch(e){st.textContent="Erreur de lecture du lien (site protégé). Colle le texte directement dans la case 3."}
   btn.disabled=false;
 };
 
-$("wkn").onclick=async()=>{
-  const st=$("wkns"),btn=$("wkn");
-  const links=$("wkc").value.split("\n").map(x=>x.trim()).filter(Boolean);
-  if(!links.length){st.textContent="Colle d’abord un lien.";return}
+$('wkn').onclick=async()=>{
+  const st=$('wkns'),btn=$('wkn');
+  const links=$('wkc').value.split('\n').map(x=>x.trim()).filter(Boolean);
+  if(!links.length){st.textContent="Colle un lien.";return}
   btn.disabled=true;
   try{
     let txt="";
     for(let i=0;i<links.length;i++){
-      st.textContent="Lecture du lien "+(i+1)+"/"+links.length+"…";
+      st.textContent="Lecture personnages "+(i+1)+"/"+links.length+"…";
       txt+=" "+await grab(links[i]);
       await sleep(600);
     }
-    const names = txt.match(/[A-Z][a-z]+(?:\s+[A-Z][a-z]+)*/g)||[ ];
-    window.__wkn = [...new Set(names)].slice(0,100);
-    st.textContent="✅ "+window.__wkn.length+" noms trouvés pour la correction d'orthographe.";
-  }catch(e){st.textContent=(e&&e.message)||"Erreur, réessaie."}
+    $('wkt_char').value = txt.trim().slice(0,20000);
+    st.textContent="✅ Personnages chargés et convertis !";
+  }catch(e){st.textContent="Erreur de lecture. Colle la liste directement dans la case 4."}
   btn.disabled=false;
 };
 
-$("wkx").onclick=async()=>{
-  const t=$("wkt").value.trim();
-  if(!t){$("wkxs").textContent="Écris ou colle un texte.";return}
-  gT=[t];
-  syncWk();
-  $("wkxs").textContent="✅ Texte enregistré.";
-};
-
-})();
+renderHome();
 </script>
 </body>
 </html>
