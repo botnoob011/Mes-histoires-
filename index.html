@@ -52,7 +52,7 @@ h2{font-size:1rem;color:var(--ac);margin:0 0 8px}
 <div class="row"><button id="bx" class="alt">📤 Exporter</button><button id="bi" class="alt">📥 Importer</button></div><p id="bmsg" class="sub"></p></div>
 </section>
 
-<!-- CONFIGURATION ÉTAPE 1 : OEUVRE -->
+<!-- ÉTAPE 1 : OEUVRE -->
 <section id="setup1" class="card hide">
 <h1>Nouvelle Histoire : Œuvre Existante</h1>
 <p class="sub">Étape 1 sur 3 : Contexte et données de l'animé</p>
@@ -79,7 +79,7 @@ h2{font-size:1rem;color:var(--ac);margin:0 0 8px}
 <p id="smsg1" style="color:var(--mu);margin-top:8px;font-size:.9rem"></p>
 </section>
 
-<!-- CONFIGURATION ÉTAPE 2 : TITRE ET PERSONNAGE -->
+<!-- ÉTAPE 2 : TITRE ET PERSONNAGE -->
 <section id="setup2" class="card hide">
 <h1>Nouvelle Histoire : Titre & Personnage</h1>
 <p class="sub">Étape 2 sur 3 : Qui es-tu dans cette histoire ?</p>
@@ -102,7 +102,7 @@ h2{font-size:1rem;color:var(--ac);margin:0 0 8px}
 <p id="smsg2" style="color:var(--mu);margin-top:8px;font-size:.9rem"></p>
 </section>
 
-<!-- CONFIGURATION ÉTAPE 3 : MOMENT D'APPARITION -->
+<!-- ÉTAPE 3 : MOMENT D'APPARITION -->
 <section id="setup3" class="card hide">
 <h1>Moment d’Apparition & Confirmation</h1>
 <p class="sub">Étape 3 sur 3 : Quand intègres-tu le récit ?</p>
@@ -468,14 +468,14 @@ $('go').onclick=()=>{
     wk: {
       at: atInput,
       before: allText || tempStore.links || "Contexte général de l'œuvre",
-      after: keep ? "Conserver la trame." : "Divergence totale permise."
+      after: keep ? "Conserve la trame." : "Divergence totale permise."
     }
   };
 
   startCustomStory(newStory);
 };
 
-/* ===== UTILS DE CHARGEMENT DE LIENS (CORS / Proxy) ===== */
+/* ===== CHARGEMENT DE LIENS (Proxy & CORS) ===== */
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 async function fetchWithFallback(url) {
   try {
