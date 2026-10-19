@@ -106,7 +106,13 @@ button:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
 
 .ch p { margin: 0 0 0.8em; line-height: 1.65; }
 .ch p.nar { color: #e5e7eb; }
-.ch p b.speaker { color: #fff; font-weight: 700; display: inline; }
+.ch p b.speaker { font-weight: 700; display: inline; }
+
+/* COULEURS DES RELATIONS */
+.speaker-ally { color: #4ade80 !important; }    /* Vert : Allié, Ami, Famille */
+.speaker-enemy { color: #f87171 !important; }   /* Rouge : Ennemi, Rival */
+.speaker-neutral { color: #60a5fa !important; } /* Bleu : Neutre, Connu */
+.speaker-unknown { color: #facc15 !important; } /* Jaune : Inconnu, Anonyme */
 
 #msg, #smsg, #smsg1, #smsg2, #smsg3 { color: #a7f3d0; font-size: 0.9rem; min-height: 1.2em; margin: 8px 0 0; }
 .hide { display: none !important; }
@@ -293,7 +299,7 @@ const RECAP=`Univers inventé : un roi et des nobles classés du plus faible au 
 let L={list:[],cur:null},busy=false,armed=null;
 try{L=JSON.parse(localStorage.getItem('lib'))||L}catch(e){}
 const S=()=>L.list.find(s=>s.id===L.cur);
-function save(){try{localStorage.setItem('lib',JSON.stringify(L))}catch(e){}}
+function save(){try{localStorage.setItem('lib',JSON.stringify(L))}catch(e){} }
 
 function say(t){
   ['smsg','smsg1','smsg2','smsg3','msg'].forEach(id=>{
@@ -309,22 +315,45 @@ function show(v){
   window.scrollTo(0,0);
 }
 
-/* RENDER DIALOGUES (70% DIALOGUE / 30% NARRATION, NOMS EN GRAS) */
+/* DÉTECTION INTELLIGENTE DE LA COULEUR PAR RAPPORT À LA RELATION */
+function getRelationClass(str) {
+  const s = str.toLowerCase();
+  // 1. Inconnu / Anonyme (Jaune)
+  if (/inconnu|anonyme|myst[eé]rieu|silhouette|[eé]trang|masqu[eé]|passant/i.test(s)) {
+    return 'speaker-unknown';
+  }
+  // 2. Ennemi / Rival / Détesté (Rouge)
+  if (/ennemi|rival|d[eé]test|hostil|tra[iî]tr|adversaire|menace|haine|rivale|monstre/i.test(s)) {
+    return 'speaker-enemy';
+  }
+  // 3. Allié / Ami / Famille / Amour (Vert)
+  if (/ami|alli[eé]|famille|fr[eè]re|soeur|sœur|p[eè]re|m[eè]re|fils|fille|copin|amour|[eé]pous|fianc|disciple|ma[iî]tre|protecteur|camarade|loyal|acolyte|partenaire/i.test(s)) {
+    return 'speaker-ally';
+  }
+  // 4. Neutre / Connaissance par défaut (Bleu)
+  return 'speaker-neutral';
+}
+
+/* RENDER DIALOGUES AVEC COULEURS DES RELATIONS */
 function para(text, box) {
   text.split('\n').forEach(l => {
     if (!l.trim()) return;
-    const p = document.createElement('p');
-    const m = l.match(/^\s*\*?\*?([^:：]{1,80})\*?\*?\s*[:：]\s*(.*)$/);
+    const m = l.match(/^\s*\*?\*?([^:：]{1,100})\*?\*?\s*[:：]\s*(.*)$/);
     if (m && !l.startsWith('http')) {
+      const p = document.createElement('p');
       const b = document.createElement('b');
-      b.className = 'speaker';
-      b.textContent = m[1].trim() + ' : ';
+      const speakerText = m[1].trim();
+      const colorClass = getRelationClass(speakerText);
+      b.className = 'speaker ' + colorClass;
+      b.textContent = speakerText + ' : ';
       p.append(b, m[2]);
+      box.append(p);
     } else {
+      const p = document.createElement('p');
       p.textContent = l;
       p.className = 'nar';
+      box.append(p);
     }
-    box.append(p);
   });
 }
 
@@ -401,7 +430,6 @@ function renderSet() {
 }
 
 /* OPENROUTER API & GÉNÉRATION */
-let MODEL_USED = '';
 const CFG = () => { 
   let c = {}; 
   try { c = JSON.parse(localStorage.getItem('orcfg')) || {}; } catch (e) {} 
@@ -460,7 +488,7 @@ async function autoSummarizeIfNeeded(s, sample) {
   }
 }
 
-/* GÉNÉRATION DU CHAPITRE (AVEC PROMPT STRICT ANTI-ERREURS) */
+/* GÉNÉRATION DU CHAPITRE AVEC LES COULEURS DE DIALOGUE */
 async function gen() {
   const s = S(); if (busy || !s) return;
   const sample = await getSample(); if (!sample) return;
@@ -478,9 +506,9 @@ async function gen() {
       + (charsClean ? "PERSONNAGES OFFICIELS :\n" + charsClean + "\n\n" : "")
       + "=== CHRONOLOGIE ET RÈGLES CANONIQUES STRICTES ===\n"
       + "1. POINT D'APPARITION : " + s.wk.at + "\n"
-      + "2. INTERDICTION DES SPOILERS / ANACRONISMES : Les événements qui se déroulent APRÈS ce moment précis dans l'œuvre ne se sont PAS encore produits. Les personnages doivent avoir le niveau, le caractère et les connaissances de ce moment précis.\n"
-      + "3. CASTING : Ne fais intervenir dans la scène QUE les personnages physiquement présents à cet instant précis sur le lieu. N'invente pas l'apparition magique d'autres personnages.\n"
-      + "4. RESPECT DU JOUEUR : Le joueur incarne « " + s.hero + " ». Respecte son statut, son identité et les réactions des PNJ face à lui.\n";
+      + "2. INTERDICTION DES SPOILERS / ANACRONISMES : Les événements futurs ne se sont PAS encore produits. Les personnages doivent avoir exactement le niveau, le rôle et les connaissances de ce moment précis.\n"
+      + "3. CASTING : Ne fais intervenir dans la scène QUE les personnages physiquement présents à cet instant précis.\n"
+      + "4. RESPECT DU JOUEUR : Le joueur incarne « " + s.hero + " ». Respecte son statut et les réactions des PNJ face à lui.\n";
   }
 
   const memTxt = (s.memo || []).map(m => "\n- Fait mémorisé : " + m).join("");
@@ -492,13 +520,19 @@ async function gen() {
     + "Titre : " + s.title + "\n"
     + "Joueur : " + s.hero + heroBg + "\n"
     + canonPrompt + memTxt + autoSum + "\n\n"
-    + "RÈGLES D'ÉCRITURE OBLIGATOIRES :\n"
-    + "- Équilibre : 70% de DIALOGUES percutants et vivants, 30% de NARRATION/ACTIONS.\n"
-    + "- Format des dialogues : Chaque réplique commence obligatoirement par « Nom (Relation ou Titre) : dialogue ».\n"
-    + "- Pas d'intro méta, pas de 'Chapitre X', commence directement par la scène.\n\n"
+    + "RÈGLE CRUCIALE DES DIALOGUES (FORMAT STRICT) :\n"
+    + "- Équilibre : 70% de DIALOGUES vivants et 30% de NARRATION.\n"
+    + "- CHAQUE réplique commence OBLIGATOIREMENT par le Prénom, Nom de famille (si connu) et entre parenthèses sa RELATION exacte avec le joueur, puis un deux-points :\n"
+    + "  Format : « Prénom Nom (Relation) : dialogue »\n"
+    + "  La relation DOIT être explicite pour indiquer son statut envers le joueur :\n"
+    + "  * Si c'est un ami, allié, famille, amour : (Ami), (Allié), (Frère), (Petite copine), (Disciple), (Camarade)...\n"
+    + "  * Si c'est un ennemi ou rival : (Ennemi), (Rival), (Adversaire), (Hostile), (Menace)...\n"
+    + "  * Si c'est un personnage neutre ou une connaissance simple : (Neutre), (Connaissance), (Marchand), (Noble)...\n"
+    + "  * Si c'est un personnage dont le joueur ignore tout : (Inconnu), (Anonyme), (Silhouette mystérieuse)...\n"
+    + "- Pas d'intro méta, pas de 'Chapitre X', commence directement l'action.\n\n"
     + ((s.chapters && s.chapters.length) 
-        ? "DERNIERS ÉVÉNEMENTS (sois dans la continuité immédiate) :\n" + s.chapters.slice(-2).join("\n\n") 
-        : "PREMIER CHAPITRE : " + (s.startConsigne && s.startConsigne.trim() !== 'rien' ? s.startConsigne : "Fais démarrer la scène précisément au moment d'apparition choisi, avec l'entrée en scène du joueur."))
+        ? "DERNIERS ÉVÉNEMENTS (continuité immédiate) :\n" + s.chapters.slice(-2).join("\n\n") 
+        : "PREMIER CHAPITRE : " + (s.startConsigne && s.startConsigne.trim() !== 'rien' ? s.startConsigne : "Fais démarrer la scène précisément au moment d'apparition choisi."))
     + ($('d').value.trim() ? "\n\nAction / Choix du joueur pour ce chapitre : " + $('d').value.trim() : "");
 
   const live = $('live'); live.classList.remove('hide'); live.innerHTML = '';
