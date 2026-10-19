@@ -35,8 +35,8 @@ body {
 main { max-width: 720px; margin: 0 auto; padding: 20px 16px; }
 
 h1 { font-size: 1.6rem; font-weight: 700; margin: 0 0 6px; color: #fff; text-shadow: 0 2px 10px rgba(139, 92, 246, 0.3); }
-h2 { font-size: 1.15rem; color: var(--ac); margin: 0 0 10px; }
-h3 { font-size: 0.95rem; margin: 10px 0 6px; color: #d1d5db; }
+h2 { font-size: 1.18rem; color: var(--ac); margin: 0 0 10px; }
+h3 { font-size: 0.95rem; margin: 12px 0 6px; color: #d8b4fe; font-weight: 600; }
 .sub, .badge { color: var(--mu); margin: 0 0 14px; font-size: 0.9rem; }
 .badge { margin: 0; }
 
@@ -49,6 +49,17 @@ h3 { font-size: 0.95rem; margin: 10px 0 6px; color: #d1d5db; }
   padding: 18px;
   margin-bottom: 16px;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.37);
+}
+
+.scene-block {
+  border-top: 1px solid rgba(139, 92, 246, 0.2);
+  padding-top: 14px;
+  margin-top: 14px;
+}
+.scene-block:first-child {
+  border-top: none;
+  padding-top: 0;
+  margin-top: 0;
 }
 
 .item { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
@@ -150,7 +161,7 @@ button:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
 <!-- ACCUEIL -->
 <section id="home">
   <h1>📚 Mes histoires</h1>
-  <p class="sub">Tes aventures interactives. Sauvegardes locales automatiques et illimitées.</p>
+  <p class="sub">Univers manga & animés avec gestion multi-scènes.</p>
   <div id="lib"></div>
   <div class="row">
     <button id="new">＋ Nouvelle histoire</button>
@@ -276,12 +287,12 @@ button:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
       <option value="cut">Bifurquer (Trame 100% originale à partir de mon arrivée)</option>
     </select>
 
-    <label for="start_consigne">Comment commence le Chapitre 1 ? (Optionnel)</label>
+    <label for="start_consigne">Comment commence la Scène 1 ? (Optionnel)</label>
     <textarea id="start_consigne" placeholder="Écris ici ton action de départ, ou laisse vide pour un démarrage naturel."></textarea>
   </div>
 
   <div class="row" style="margin-top:18px">
-    <button id="go_exist">🚀 Lancer le Chapitre 1</button>
+    <button id="go_exist">🚀 Lancer l'histoire</button>
     <button id="step3_back" class="alt">← Retour</button>
   </div>
   <p id="smsg3"></p>
@@ -347,7 +358,7 @@ button:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
 
   <h2 id="stt"></h2>
   
-  <!-- CHAPITRES -->
+  <!-- CONTENEUR DES CHAPITRES ET DE LEURS SCÈNES -->
   <div id="chs"></div>
 
   <!-- ZONE DE STREAMING LIVE -->
@@ -359,19 +370,19 @@ button:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
     <div id="choices_list"></div>
   </div>
 
-  <!-- PANNEAU DE RÉÉCRITURE AVANCÉ -->
+  <!-- PANNEAU DE RÉÉCRITURE -->
   <div id="rw_box" class="card hide" style="border-color: #ec4899; background: rgba(236, 72, 153, 0.08);">
-    <h2>🔁 Réécriture du Chapitre</h2>
-    <p class="sub">Dis à l'IA ce qui ne va pas pour qu'elle s'ajuste parfaitement.</p>
+    <h2>🔁 Réécriture de la Dernière Scène</h2>
+    <p class="sub">Dis à l'IA ce qui ne va pas pour qu'elle réajuste la scène.</p>
 
     <label for="rw_type">Que souhaites-tu faire ?</label>
     <select id="rw_type">
-      <option value="fix">🎯 Corriger une erreur (Garder la même scène et réparer le bug / faux détail)</option>
-      <option value="fresh">🔀 Changer la tournure (Rejeter cette version et écrire une scène différente)</option>
+      <option value="fix">🎯 Corriger une erreur (Garder la scène et réparer le détail faux)</option>
+      <option value="fresh">🔀 Changer la tournure (Rejeter cette scène et en écrire une nouvelle)</option>
     </select>
 
     <label for="rw_critique">Ce que tu n'as pas aimé / L'erreur à corriger</label>
-    <textarea id="rw_critique" placeholder="Ex pour une erreur : 'Perugius ne me vouvoie pas alors que je suis son maître. Corrige ses paroles.'&#10;Ex pour une tournure : 'Je ne veux pas aller au banquet, je préfère m'échapper discrètement.'"></textarea>
+    <textarea id="rw_critique" placeholder="Ex : 'Perugius doit me vouvoyer et s'incliner.' ou 'Je préfère qu'on règle le problème de la feuille immédiatement.'"></textarea>
 
     <div class="row" style="margin-top:12px">
       <button id="rw_confirm" style="background:linear-gradient(135deg, #ec4899, #8b5cf6);">🚀 Lancer la réécriture</button>
@@ -381,13 +392,18 @@ button:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
 
   <!-- ZONE D'ACTION / PROMPT -->
   <div class="card" style="margin-top:16px">
-    <label for="d">Ton action personnalisée (ou clique sur un choix proposé)</label>
-    <textarea id="d" placeholder="Écris ici ton action pour le prochain chapitre, ou clique sur l'un des choix au-dessus..."></textarea>
+    <label for="d">Ton action ou réplique (ou clique sur un choix proposé au-dessus)</label>
+    <textarea id="d" placeholder="Écris ici ce que tu fais ou dis... Puis choisis 'Scène suivante' pour continuer la scène, ou 'Chapitre suivant' pour clore l'événement."></textarea>
     
-    <div class="row">
-      <button id="next">Écrire la suite</button>
-      <button id="rw" class="alt">🔁 Réécrire ce chapitre</button>
-      <button id="undo" class="alt">🗑 Supprimer</button>
+    <!-- LES DEUX NOUVEAUX BOUTONS CLÉS -->
+    <div class="row" style="gap:10px">
+      <button id="btn_scene" style="flex:1; padding:13px 18px; font-size:1rem;">🎬 Scène suivante (Même lieu)</button>
+      <button id="btn_chapter" class="alt" style="flex:1; padding:13px 18px; border-color:var(--ac); font-size:1rem;">📑 Chapitre suivant (Nouvel arc)</button>
+    </div>
+
+    <div class="row" style="margin-top:10px">
+      <button id="rw" class="alt">🔁 Réécrire cette scène</button>
+      <button id="undo" class="alt">🗑 Supprimer la scène</button>
       <button id="restart" class="alt" style="border-color:#f87171;color:#f87171">🔄 Recommencer à zéro</button>
     </div>
     <p id="msg"></p>
@@ -439,6 +455,18 @@ const DB = {
 
 let L = { list: [], cur: null }, busy = false, armed = null, restartArmed = false;
 
+// Migration automatique de l'ancienne structure (chapitres textes) vers (chapitres avec scènes)
+function ensureChapterStructure(s) {
+  if (!s.chapters) s.chapters = [];
+  s.chapters = s.chapters.map((c, i) => {
+    if (typeof c === 'string') {
+      return { title: 'Chapitre ' + (i + 1), scenes: [c] };
+    }
+    if (!c.scenes) c.scenes = [];
+    return c;
+  });
+}
+
 async function initStore() {
   await DB.init();
   const dbData = await DB.get('lib');
@@ -453,10 +481,15 @@ async function initStore() {
       }
     } catch(e) {}
   }
+  (L.list || []).forEach(ensureChapterStructure);
   renderHome();
 }
 
-const S = () => L.list.find(s => s.id === L.cur);
+const S = () => {
+  const s = L.list.find(x => x.id === L.cur);
+  if (s) ensureChapterStructure(s);
+  return s;
+};
 
 async function save() {
   await DB.set('lib', L);
@@ -511,7 +544,7 @@ function para(text, box) {
 }
 
 /* ==========================================================================
-   NETTOYAGE DU TEXTE ET EXTRACTION PROPRE
+   EXTRACTION ET NETTOYAGE STRICT
    ========================================================================== */
 function extractAndClean(rawText, s) {
   let txt = rawText;
@@ -520,9 +553,10 @@ function extractAndClean(rawText, s) {
            .replace(/^Choix du joueur\s*:\s*[^\n]+\n?/gi, '')
            .replace(/^Action du joueur\s*:\s*[^\n]+\n?/gi, '')
            .replace(/^\s*Chapitre\s*\d+\s*[:\-–—]?\s*/gi, '')
+           .replace(/^\s*Scène\s*\d+\s*[:\-–—]?\s*/gi, '')
            .trim();
 
-  // Extraction propre des choix
+  // Choix
   const chMatch = txt.match(/CHOIX\s*:\s*([\s\S]*?)(?=(PERSOS_MAJ|HERO_MAJ|$))/i);
   if (chMatch) {
     const rawLines = chMatch[1].split('\n');
@@ -536,7 +570,7 @@ function extractAndClean(rawText, s) {
     s.lastChoices = validChoices.slice(0, 3);
   }
 
-  // Extraction Codex
+  // Codex
   const cdxMatch = txt.match(/PERSOS_MAJ\s*:\s*([\s\S]*?)(?=(CHOIX|HERO_MAJ|$))/i);
   if (cdxMatch) {
     s.codex = s.codex || [];
@@ -555,7 +589,7 @@ function extractAndClean(rawText, s) {
     });
   }
 
-  // Extraction Héros
+  // Fiche Héros
   const heroMatch = txt.match(/HERO_MAJ\s*:\s*([\s\S]*?)(?=(CHOIX|PERSOS_MAJ|$))/i);
   if (heroMatch) {
     s.heroStats = s.heroStats || { rank: '', techniques: [], items: [] };
@@ -579,8 +613,12 @@ function extractAndClean(rawText, s) {
     .replace(/CHOIX\s*:[\s\S]*$/i, '')
     .replace(/PERSOS_MAJ\s*:[\s\S]*$/i, '')
     .replace(/HERO_MAJ\s*:[\s\S]*$/i, '')
-    .replace(/^\s*Chapitre\s*\d+\s*[:\-–—]?\s*/gi, '')
     .trim();
+}
+
+function countTotalScenes(s) {
+  if (!s || !s.chapters) return 0;
+  return s.chapters.reduce((acc, c) => acc + (c.scenes ? c.scenes.length : 0), 0);
 }
 
 function renderHome() {
@@ -595,7 +633,7 @@ function renderHome() {
     const t = document.createElement('div');
     const b = document.createElement('b'); b.textContent = s.title;
     const sm = document.createElement('div'); sm.className = 'badge';
-    sm.textContent = (MODES[s.mode] || '🎬 Animé') + ' · ' + (s.chapters ? s.chapters.length : 0) + ' chapitre(s)';
+    sm.textContent = (MODES[s.mode] || '🎬 Animé') + ' · ' + (s.chapters ? s.chapters.length : 0) + ' chapitre(s) (' + countTotalScenes(s) + ' scènes)';
     t.append(b, sm);
     const r = document.createElement('div'); r.className = 'row'; r.style.margin = 0;
     const o = document.createElement('button'); o.textContent = 'Ouvrir';
@@ -611,65 +649,87 @@ function renderHome() {
   show('home');
 }
 
+/* ==========================================================================
+   RENDU HIÉRARCHIQUE : CHAPITRES ET LEURS SCÈNES
+   ========================================================================== */
 function renderStory() {
   const s = S(); if (!s) return;
   $('stt').textContent = s.title + ' · ' + (MODES[s.mode] || '🎬 Animé');
   const box = $('chs'); box.innerHTML = '';
 
-  (s.chapters || []).forEach((c, n) => {
+  (s.chapters || []).forEach((chap, cIdx) => {
     const d = document.createElement('div'); d.className = 'card ch';
-    d.id = 'chap_' + n;
-
-    const head = document.createElement('div');
-    head.className = 'item';
-    head.style.marginBottom = '8px';
-
-    const h = document.createElement('h2'); h.textContent = 'Chapitre ' + (n + 1);
     
-    const editBtn = document.createElement('button');
-    editBtn.className = 'alt';
-    editBtn.style.padding = '4px 10px';
-    editBtn.style.fontSize = '0.8rem';
-    editBtn.textContent = '✏️ Modifier';
+    const chapHead = document.createElement('div');
+    chapHead.className = 'item';
+    chapHead.style.borderBottom = '1px solid rgba(139, 92, 246, 0.3)';
+    chapHead.style.paddingBottom = '8px';
+    chapHead.style.marginBottom = '12px';
 
-    head.append(h, editBtn);
-    d.append(head);
+    const h = document.createElement('h2');
+    h.textContent = chap.title || ('Chapitre ' + (cIdx + 1));
+    chapHead.append(h);
+    d.append(chapHead);
 
-    const bodyDiv = document.createElement('div');
-    para(c, bodyDiv);
-    d.append(bodyDiv);
+    // Rendu de chaque scène dans ce chapitre
+    (chap.scenes || []).forEach((scText, sIdx) => {
+      const scBox = document.createElement('div');
+      scBox.className = 'scene-block';
 
-    editBtn.onclick = () => {
-      if (d.querySelector('textarea')) return;
-      bodyDiv.classList.add('hide');
+      const scHead = document.createElement('div');
+      scHead.className = 'item';
+      scHead.style.marginBottom = '6px';
 
-      const editBox = document.createElement('div');
-      const ta = document.createElement('textarea');
-      ta.value = s.chapters[n];
-      ta.style.minHeight = '220px';
+      const scTitle = document.createElement('h3');
+      scTitle.textContent = `🎬 Scène ${sIdx + 1}`;
 
-      const btnRow = document.createElement('div');
-      btnRow.className = 'row';
-      btnRow.style.marginTop = '8px';
+      const editBtn = document.createElement('button');
+      editBtn.className = 'alt';
+      editBtn.style.padding = '3px 8px';
+      editBtn.style.fontSize = '0.78rem';
+      editBtn.textContent = '✏️ Modifier';
 
-      const saveEdit = document.createElement('button');
-      saveEdit.textContent = '💾 Sauvegarder';
-      saveEdit.onclick = () => {
-        s.chapters[n] = ta.value.trim();
-        save();
-        renderStory();
-        say('✅ Chapitre ' + (n + 1) + ' modifié et sauvegardé dans l\'histoire !', true);
+      scHead.append(scTitle, editBtn);
+      scBox.append(scHead);
+
+      const bodyDiv = document.createElement('div');
+      para(scText, bodyDiv);
+      scBox.append(bodyDiv);
+
+      editBtn.onclick = () => {
+        if (scBox.querySelector('textarea')) return;
+        bodyDiv.classList.add('hide');
+
+        const editWrap = document.createElement('div');
+        const ta = document.createElement('textarea');
+        ta.value = scText;
+        ta.style.minHeight = '180px';
+
+        const btnRow = document.createElement('div');
+        btnRow.className = 'row';
+        btnRow.style.marginTop = '6px';
+
+        const saveEdit = document.createElement('button');
+        saveEdit.textContent = '💾 Sauvegarder';
+        saveEdit.onclick = () => {
+          chap.scenes[sIdx] = ta.value.trim();
+          save();
+          renderStory();
+          say('✅ Scène ' + (sIdx + 1) + ' modifiée et enregistrée !', true);
+        };
+
+        const cancelEdit = document.createElement('button');
+        cancelEdit.className = 'alt';
+        cancelEdit.textContent = 'Annuler';
+        cancelEdit.onclick = () => renderStory();
+
+        btnRow.append(saveEdit, cancelEdit);
+        editWrap.append(ta, btnRow);
+        scBox.append(editWrap);
       };
 
-      const cancelEdit = document.createElement('button');
-      cancelEdit.className = 'alt';
-      cancelEdit.textContent = 'Annuler';
-      cancelEdit.onclick = () => renderStory();
-
-      btnRow.append(saveEdit, cancelEdit);
-      editBox.append(ta, btnRow);
-      d.append(editBox);
-    };
+      d.append(scBox);
+    });
 
     box.append(d);
   });
@@ -679,16 +739,13 @@ function renderStory() {
   renderHeroStats();
 }
 
-/* ==========================================================================
-   CORRECTION CRUCIALE DE L'AFFICHAGE DES CHOIX
-   ========================================================================== */
 function renderChoices() {
   const s = S(); if (!s) return;
   const box = $('choices_list'), cont = $('choices_container');
   box.innerHTML = '';
 
-  // SI AUCUN CHAPITRE EXISTE OU PAS DE CHOIX VALIDES -> CACHE IMMÉDIATEMENT
-  if (!s.chapters || s.chapters.length === 0 || !s.lastChoices || s.lastChoices.length === 0) {
+  const totalScenes = countTotalScenes(s);
+  if (totalScenes === 0 || !s.lastChoices || s.lastChoices.length === 0) {
     cont.classList.add('hide');
     return;
   }
@@ -700,7 +757,8 @@ function renderChoices() {
     b.textContent = (idx + 1) + '. ' + ch;
     b.onclick = () => {
       $('d').value = ch;
-      gen(false);
+      // Par défaut, cliquer sur un choix continue la scène immédiatement
+      gen({ mode: 'scene' });
     };
     box.append(b);
   });
@@ -908,17 +966,29 @@ async function getSample() {
   };
 }
 
-async function gen(isRewrite = false, rwOptions = null) {
+/* ==========================================================================
+   GÉNÉRATION : GESTION DES SCÈNES ET DES CHAPITRES
+   ========================================================================== */
+async function gen(options = {}) {
   const s = S(); if (busy || !s) return;
   const sample = await getSample(); if (!sample) return;
-  
-  if (isRewrite && (!s.chapters || s.chapters.length === 0)) {
-    say("Aucun chapitre à réécrire.");
+
+  const mode = options.mode || 'scene'; // 'scene', 'chapter', ou 'rewrite'
+  const isRewrite = mode === 'rewrite';
+  const isNewChapter = mode === 'chapter';
+
+  const totalScenes = countTotalScenes(s);
+
+  if (isRewrite && totalScenes === 0) {
+    say("Aucune scène à réécrire.");
     return;
   }
 
-  busy = true; $('next').disabled = true; 
-  say(isRewrite ? '✍️ L\'IA réécrit ce chapitre avec tes consignes...' : '✍️ L\'IA tisse la suite...');
+  busy = true; 
+  $('btn_scene').disabled = true; 
+  $('btn_chapter').disabled = true; 
+
+  say(isRewrite ? '✍️ Réécriture de la scène...' : (isNewChapter ? '📑 L\'IA ouvre un nouveau chapitre...' : '🎬 L\'IA tisse la scène suivante...'));
 
   const codexTxt = (s.codex && s.codex.length)
     ? "\nRELATIONS ACTUELLES DES PERSONNAGES :\n" + s.codex.map(c => `- ${c.name} (${c.rel}) : ${c.desc}`).join("\n")
@@ -948,51 +1018,59 @@ async function gen(isRewrite = false, rwOptions = null) {
 
   let situationPrompt = "";
   const userInput = $('d').value.trim();
-  const nextChapNum = (s.chapters ? s.chapters.length : 0) + 1;
+
+  // Identifier le dernier texte pour la continuité
+  let lastSceneText = "";
+  if (s.chapters.length > 0) {
+    const lastChap = s.chapters[s.chapters.length - 1];
+    if (lastChap.scenes && lastChap.scenes.length > 0) {
+      lastSceneText = lastChap.scenes[lastChap.scenes.length - 1];
+    }
+  }
 
   if (isRewrite) {
-    const currentChapterText = s.chapters[s.chapters.length - 1];
-    const prevContext = s.chapters.length > 1 ? s.chapters.slice(-3, -1).join("\n\n") : "";
-    const crit = rwOptions ? rwOptions.critique : userInput;
-    const type = rwOptions ? rwOptions.type : 'fix';
+    const crit = options.critique || userInput;
+    const type = options.type || 'fix';
 
     if (type === 'fix') {
-      situationPrompt = "MISSION : CORRIGER UNE ERREUR DANS CE CHAPITRE SANS CHANGER LE RESTE DE LA SCÈNE.\n"
-        + "Voici la version actuelle qui contient une erreur :\n" + currentChapterText + "\n\n"
-        + "ERREUR SIGNALÉE PAR L'AUTEUR (À CORRIGER IMPÉRATIVEMENT) :\n" + (crit || "Corrige les erreurs de comportement et de faits.") + "\n\n"
-        + "Conserve la trame et les dialogues qui étaient bons, mais rectifie précisément ce problème.";
+      situationPrompt = "MISSION : CORRIGER UNE ERREUR DANS CETTE SCÈNE SANS CHANGER LE RESTE.\n"
+        + "Scène actuelle à corriger :\n" + lastSceneText + "\n\n"
+        + "ERREUR SIGNALÉE PAR L'AUTEUR (À CORRIGER IMPÉRATIVEMENT) :\n" + (crit || "Corrige les erreurs de comportement ou de faits.") + "\n\n"
+        + "Conserve les bons éléments et rectifie précisément ce problème.";
     } else {
-      situationPrompt = "MISSION : ÉCRIRE UNE NOUVELLE VERSION COMPLÈTEMENT DIFFÉRENTE DE CE CHAPITRE.\n"
-        + (prevContext ? "Contexte précédant immédiatement ce chapitre :\n" + prevContext + "\n\n" : "")
-        + "L'auteur a rejeté la version précédente pour la raison suivante :\n" + (crit || "Prends une direction plus prenante et différente.") + "\n\n"
+      situationPrompt = "MISSION : ÉCRIRE UNE NOUVELLE SCÈNE DIFFÉRENTE.\n"
+        + "L'auteur a rejeté la scène précédente pour cette raison :\n" + (crit || "Prends une autre direction.") + "\n\n"
         + "Écris une toute nouvelle scène originale répondant à ses attentes.";
     }
+  } else if (isNewChapter) {
+    const nextChapNum = s.chapters.length + 1;
+    situationPrompt = "=== NOUVEAU CHAPITRE (CHAPITRE " + nextChapNum + ") ===\n"
+      + "L'événement précédent est terminé. L'histoire franchit une étape.\n"
+      + "Dernière action du chapitre précédent :\n« " + lastSceneText.slice(-300) + " »\n\n"
+      + "CONSIGNE POUR LE NOUVEAU CHAPITRE :\n"
+      + (userInput ? "Déclencheur de ce nouveau chapitre : « " + userInput + " »." : "Fais une transition narrative (ellipse, nouveau lieu, ou lendemain).") + "\n"
+      + "Pose le nouveau cadre et commence la première scène de ce Chapitre " + nextChapNum + ".";
   } else {
-    if (s.chapters && s.chapters.length > 0) {
-      const lastChap = s.chapters[s.chapters.length - 1];
-      const lastLines = lastChap.split('\n').filter(l => l.trim()).slice(-4).join('\n');
-
-      situationPrompt = "=== CONTINUITÉ CHRONOLOGIQUE STRICTE ===\n"
-        + "Tu écris le NOUVEAU CHAPITRE (Chapitre " + nextChapNum + ").\n"
-        + "RÈGLES CAPITALES :\n"
-        + "1. INTERDICTION FORMELLE DE RÉPÉTER, RÉSUMER OU RÉÉCRIRE CE QUI EST DÉJÀ ARRIVÉ DANS LE CHAPITRE 1.\n"
-        + "2. Le chapitre précédent s'est arrêté EXACTEMENT sur ces dernières paroles / actions :\n"
-        + "«««\n" + lastLines + "\n»»»\n\n"
-        + "3. CE QUI SE PASSE MAINTENANT :\n"
-        + (userInput 
-            ? "Le joueur réalise l'action suivante : « " + userInput + " ». Fais réagir immédiatement les personnages et décris la suite des événements dans cette nouvelle scène." 
-            : "L'histoire continue immédiatement après la dernière phrase. Développe la scène suivante et les nouvelles péripéties.") + "\n\n"
-        + "4. Commence DIRECTEMENT par l'action ou les paroles. Ne commence JAMAIS par 'Chapitre " + nextChapNum + "'.";
+    // SCÈNE SUIVANTE DANS LE MÊME CHAPITRE
+    if (totalScenes > 0) {
+      const lastLines = lastSceneText.split('\n').filter(l => l.trim()).slice(-4).join('\n');
+      situationPrompt = "=== CONTINUITÉ IMMÉDIATE DANS LA MÊME SCÈNE / MÊME LIEU ===\n"
+        + "Tu écris la suite directe de la scène dans le MÊME chapitre (pas d'ellipse temporelle, même pièce/lieu).\n"
+        + "La scène s'est arrêtée exactement ici :\n«««\n" + lastLines + "\n»»»\n\n"
+        + "INTERVENTION DU JOUEUR (À TRAITER IMMÉDIATEMENT) :\n"
+        + (userInput ? "« " + userInput + " »" : "L'action se poursuit naturellement.") + "\n\n"
+        + "Fais réagir les personnages sur place, décris les conséquences et développe cette nouvelle scène.";
     } else {
-      situationPrompt = "=== PREMIER CHAPITRE (CHAPITRE 1) ===\n"
+      // TOUT PREMIER DÉMARRAGE
+      situationPrompt = "=== PREMIER CHAPITRE - SCÈNE 1 ===\n"
         + (s.startConsigne && s.startConsigne.trim() !== 'rien' ? s.startConsigne : "Démarre la scène précisément à l'instant d'apparition choisi.")
         + (userInput ? "\nConsigne de départ : " + userInput : "");
     }
   }
 
   const prompt = "Tu es un scénariste d'élite d'animés et mangas.\n"
-    + "Rédige le récit en français littéraire et immersif.\n"
-    + "Interdiction d'écrire des en-têtes comme 'Chapitre X' ou 'Choix du joueur'. Écris directement le texte de l'histoire.\n\n"
+    + "Rédige le récit en français littéraire, captivant et immersif.\n"
+    + "Interdiction d'écrire des en-têtes comme 'Chapitre X', 'Scène Y' ou 'User Safety'. Écris directement le texte.\n\n"
     + "Titre : " + s.title + "\n"
     + "Joueur : " + s.hero + heroBg + heroStatsTxt + "\n"
     + canonPrompt + codexTxt + memTxt + "\n\n"
@@ -1019,14 +1097,23 @@ async function gen(isRewrite = false, rwOptions = null) {
     const cleanedStoryText = extractAndClean(r.text, s);
 
     if (cleanedStoryText.split(/\s+/).length < 15) {
-      throw new Error("L'IA a généré une réponse trop courte. Clique à nouveau sur 'Écrire la suite'.");
+      throw new Error("L'IA a généré une réponse trop courte. Réessaie.");
     }
 
-    s.chapters = s.chapters || [];
-    if (isRewrite && s.chapters.length > 0) {
-      s.chapters[s.chapters.length - 1] = cleanedStoryText;
+    // Gestion de l'arbre Chapitres / Scènes
+    if (s.chapters.length === 0) {
+      s.chapters.push({ title: 'Chapitre 1', scenes: [cleanedStoryText] });
+    } else if (isRewrite) {
+      const curChap = s.chapters[s.chapters.length - 1];
+      if (curChap.scenes && curChap.scenes.length > 0) {
+        curChap.scenes[curChap.scenes.length - 1] = cleanedStoryText;
+      }
+    } else if (isNewChapter) {
+      s.chapters.push({ title: 'Chapitre ' + (s.chapters.length + 1), scenes: [cleanedStoryText] });
     } else {
-      s.chapters.push(cleanedStoryText);
+      // Scène suivante : ajoutée dans le chapitre actuel
+      const curChap = s.chapters[s.chapters.length - 1];
+      curChap.scenes.push(cleanedStoryText);
     }
 
     await save();
@@ -1040,7 +1127,8 @@ async function gen(isRewrite = false, rwOptions = null) {
   live.classList.add('hide');
   renderStory();
   busy = false;
-  $('next').disabled = false;
+  $('btn_scene').disabled = false;
+  $('btn_chapter').disabled = false;
 }
 
 /* ==========================================================================
@@ -1057,10 +1145,17 @@ $('back').onclick = () => renderHome();
 
 $('lastch').onclick = () => window.scrollTo(0, document.body.scrollHeight);
 
+// Bouton 1 : Scène suivante (même chapitre)
+$('btn_scene').onclick = () => gen({ mode: 'scene' });
+
+// Bouton 2 : Chapitre suivant (nouveau chapitre)
+$('btn_chapter').onclick = () => gen({ mode: 'chapter' });
+
+// Réécriture
 $('rw').onclick = () => {
   const s = S();
-  if (!s || !s.chapters || !s.chapters.length) {
-    say("Aucun chapitre à réécrire.");
+  if (!s || countTotalScenes(s) === 0) {
+    say("Aucune scène à réécrire.");
     return;
   }
   $('rw_box').classList.remove('hide');
@@ -1073,20 +1168,26 @@ $('rw_cancel').onclick = () => $('rw_box').classList.add('hide');
 $('rw_confirm').onclick = () => {
   const crit = $('rw_critique').value.trim();
   const type = $('rw_type').value;
-  gen(true, { type, critique: crit });
+  gen({ mode: 'rewrite', type, critique: crit });
 };
 
-// CORRECTION ICI : Quand on supprime un chapitre, on réinitialise ses choix
+// Suppression de la dernière scène
 $('undo').onclick = async () => {
-  const s = S(); if (!s || !s.chapters.length) return;
-  s.chapters.pop();
-  s.lastChoices = []; // Efface les choix immédiatement
+  const s = S(); if (!s || s.chapters.length === 0) return;
+  const curChap = s.chapters[s.chapters.length - 1];
+  if (curChap.scenes && curChap.scenes.length > 0) {
+    curChap.scenes.pop();
+    if (curChap.scenes.length === 0) {
+      s.chapters.pop(); // Supprime le chapitre s'il n'a plus de scènes
+    }
+  }
+  s.lastChoices = [];
   await save();
   renderStory();
-  say("Chapitre supprimé.");
+  say("Scène supprimée.");
 };
 
-// CORRECTION ICI : Recommencer à zéro vide totalement l'histoire et les choix
+// Recommencer à zéro
 $('restart').onclick = async () => {
   const s = S(); if (!s) return;
   if (!restartArmed) {
@@ -1099,14 +1200,12 @@ $('restart').onclick = async () => {
   $('restart').textContent = '🔄 Recommencer à zéro';
   
   s.chapters = [];
-  s.lastChoices = []; // Efface les choix
+  s.lastChoices = [];
   s.resume = "";
   await save();
   renderStory();
-  gen(false); // Relance proprement le Chapitre 1
+  gen({ mode: 'scene' });
 };
-
-$('next').onclick = () => gen(false);
 
 $('go').onclick = async () => {
   const t = $('t').value.trim(), i = $('i').value.trim(), h = $('h').value.trim();
@@ -1115,7 +1214,7 @@ $('go').onclick = async () => {
     id: uid(), title: t, idea: i || 'Libre', hero: h || 'Le Héros', heroBg: i, mode: $('m').value, 
     chapters: [], codex: [], heroStats: { rank: '', techniques: [], items: [] } 
   };
-  L.list.push(s); L.cur = s.id; await save(); openStory(); gen();
+  L.list.push(s); L.cur = s.id; await save(); openStory(); gen({ mode: 'scene' });
 };
 
 let tempStore = {};
@@ -1177,7 +1276,7 @@ $('go_exist').onclick = async () => {
     startConsigne: $('start_consigne').value.trim(),
     wk: { at: at, before: tempStore.summary || "", chars: tempStore.charsText || "", after: keep ? "Canon" : "Divergence" }
   };
-  L.list.push(s); L.cur = s.id; await save(); openStory(); gen();
+  L.list.push(s); L.cur = s.id; await save(); openStory(); gen({ mode: 'scene' });
 };
 
 $('ai').onclick = () => {
@@ -1194,7 +1293,7 @@ $('bx').onclick = () => { $('bk').value = JSON.stringify(L); $('bmsg').textConte
 $('bi').onclick = async () => {
   try {
     const o = JSON.parse($('bk').value);
-    if (o && o.list) { L = o; await save(); renderHome(); $('bmsg').textContent = 'Importation réussie !'; }
+    if (o && o.list) { L = o; (L.list || []).forEach(ensureChapterStructure); await save(); renderHome(); $('bmsg').textContent = 'Importation réussie !'; }
   } catch (e) { $('bmsg').textContent = 'Sauvegarde invalide.'; }
 };
 
