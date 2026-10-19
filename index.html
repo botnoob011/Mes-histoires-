@@ -190,7 +190,7 @@ button:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
   </div>
 </section>
 
-<!-- FORMULAIRE CLASSIQUE -->
+<!-- FORMULAIRE CLASSIQUE (ORIGINAL) -->
 <section id="setup" class="card hide">
   <h1>Nouvelle histoire originale</h1>
   <label for="m">Type d'histoire</label>
@@ -200,7 +200,7 @@ button:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
     <option value="hybrid">🎬⚔️ Hybride</option>
   </select>
   <label for="t">Titre de l'histoire</label><input id="t" placeholder="Ex : Le royaume des archiducs">
-  <label for="i">Idée, monde, style & univers</label><textarea id="i" placeholder="Ex : Monde d'épéistes magiques, système de noblesse..."></textarea>
+  <label for="i">Idée, monde, style & univers</label><textarea id="i" placeholder="Ex : Monde d'épéistes magiques, système de noblesse, un empereur craint..."></textarea>
   <label for="h">Ton personnage (Nom)</label><input id="h" placeholder="Ex : Acil">
   <div class="row">
     <button id="go">🚀 Commencer l'histoire</button>
@@ -306,7 +306,7 @@ button:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
   <div class="row" style="margin:0 0 14px; gap:8px;">
     <button id="back" class="alt">← Archives</button>
     <button id="toggle_hero" class="alt">⚔️ Fiche Héros</button>
-    <button id="toggle_codex" class="alt">👥 Codex</button>
+    <button id="toggle_codex" class="alt">👥 Personnages</button>
     <button id="cfg" class="alt">⚙️ Mémoire</button>
     <button id="lastch" class="alt">⏬ Fin</button>
   </div>
@@ -335,10 +335,10 @@ button:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
 
   <!-- PANNEAU CODEX PERSONNAGES -->
   <div id="codex_panel" class="card hide">
-    <h2>👥 Codex des Personnages & Relations</h2>
+    <h2>👥 Personnages & Relations (Codex)</h2>
     <div id="codex_list"></div>
     <div class="card" style="margin-top:12px;background:rgba(0,0,0,0.25)">
-      <h3>Ajouter / Modifier un personnage</h3>
+      <h3>Ajouter manuellement un personnage</h3>
       <input id="cdx_name" placeholder="Nom du personnage">
       <div class="row" style="margin:8px 0">
         <select id="cdx_rel" style="flex:1">
@@ -349,7 +349,7 @@ button:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
         </select>
       </div>
       <input id="cdx_desc" placeholder="Statut ou sentiment actuel...">
-      <button id="cdx_add" style="margin-top:10px">Enregistrer dans le Codex</button>
+      <button id="cdx_add" style="margin-top:10px">Enregistrer dans les Personnages</button>
     </div>
   </div>
 
@@ -382,7 +382,7 @@ button:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
     </select>
 
     <label for="rw_critique">Ce que tu n'as pas aimé / L'erreur à corriger</label>
-    <textarea id="rw_critique" placeholder="Ex : 'Perugius doit me vouvoyer et s'incliner.' ou 'Je préfère qu'on règle le problème de la feuille immédiatement.'"></textarea>
+    <textarea id="rw_critique" placeholder="Ex : 'Il doit me vouvoyer et s'incliner.' ou 'Je préfère qu'on passe à l'action directement.'"></textarea>
 
     <div class="row" style="margin-top:12px">
       <button id="rw_confirm" style="background:linear-gradient(135deg, #ec4899, #8b5cf6);">🚀 Lancer la réécriture</button>
@@ -393,9 +393,8 @@ button:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
   <!-- ZONE D'ACTION / PROMPT -->
   <div class="card" style="margin-top:16px">
     <label for="d">Ton action ou réplique (ou clique sur un choix proposé au-dessus)</label>
-    <textarea id="d" placeholder="Écris ici ce que tu fais ou dis... Puis choisis 'Scène suivante' pour continuer la scène, ou 'Chapitre suivant' pour clore l'événement."></textarea>
+    <textarea id="d" placeholder="Écris ici ce que tu fais ou dis..."></textarea>
     
-    <!-- LES DEUX NOUVEAUX BOUTONS CLÉS -->
     <div class="row" style="gap:10px">
       <button id="btn_scene" style="flex:1; padding:13px 18px; font-size:1rem;">🎬 Scène suivante (Même lieu)</button>
       <button id="btn_chapter" class="alt" style="flex:1; padding:13px 18px; border-color:var(--ac); font-size:1rem;">📑 Chapitre suivant (Nouvel arc)</button>
@@ -416,7 +415,7 @@ button:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
 const $=id=>document.getElementById(id);
 const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,6);
 const MODES={anime:'🎬 Animé',rpg:'⚔️ RPG',hybrid:'🎬⚔️ Hybride'};
-const RECAP=`Univers inventé : un roi et des nobles classés du plus faible au plus puissant...`;
+const RECAP=`Univers des Archiducs : Le royaume est dominé par des archiducs aux pouvoirs colossaux classés par rangs. Conflits d'influence, magie ancienne et intrigues de cour.`;
 
 /* ==========================================================================
    INDEXEDDB (STOCKAGE ILLIMITÉ)
@@ -455,7 +454,6 @@ const DB = {
 
 let L = { list: [], cur: null }, busy = false, armed = null, restartArmed = false;
 
-// Migration automatique de l'ancienne structure (chapitres textes) vers (chapitres avec scènes)
 function ensureChapterStructure(s) {
   if (!s.chapters) s.chapters = [];
   s.chapters = s.chapters.map((c, i) => {
@@ -514,6 +512,15 @@ function show(v) {
   window.scrollTo(0,0);
 }
 
+function normalizeRel(rel) {
+  if (!rel) return 'Neutre';
+  const r = rel.toLowerCase();
+  if (/alli[eé]|ami|camarade|disciple|famille|fr[eè]re|soeur|sœur|p[eè]re|m[eè]re|protecteur|loyal|amour|acolyte|ma[iî]tre/i.test(r)) return 'Allié';
+  if (/ennemi|rival|adversaire|hostil|tra[iî]tr|monstre|menace/i.test(r)) return 'Ennemi';
+  if (/inconnu|myst[eé]rieu|anonyme|silhouette|passant/i.test(r)) return 'Inconnu';
+  return 'Neutre';
+}
+
 function getRelationClass(str) {
   const s = str.toLowerCase();
   if (/inconnu|anonyme|myst[eé]rieu|silhouette|[eé]trang|masqu[eé]|passant/i.test(s)) return 'speaker-unknown';
@@ -523,13 +530,23 @@ function getRelationClass(str) {
 }
 
 function para(text, box) {
+  const curStory = S();
   text.split('\n').forEach(l => {
     if (!l.trim()) return;
     const m = l.match(/^\s*\*?\*?([^:：]{1,100})\*?\*?\s*[:：]\s*(.*)$/);
     if (m && !l.startsWith('http')) {
       const p = document.createElement('p');
       const b = document.createElement('b');
-      const speakerText = m[1].trim();
+      let speakerText = m[1].replace(/[*_`]/g, '').trim();
+
+      // Sécurité : si l'IA a oublié la relation entre parenthèses, on la cherche dans le Codex
+      if (!speakerText.includes('(') && curStory && curStory.codex) {
+        const found = curStory.codex.find(c => c.name.toLowerCase() === speakerText.toLowerCase());
+        if (found) {
+          speakerText = `${found.name} (${found.rel || 'Neutre'})`;
+        }
+      }
+
       b.className = 'speaker ' + getRelationClass(speakerText);
       b.textContent = speakerText + ' : ';
       p.append(b, m[2]);
@@ -544,7 +561,7 @@ function para(text, box) {
 }
 
 /* ==========================================================================
-   EXTRACTION ET NETTOYAGE STRICT
+   EXTRACTION ROBUSTE (CODEX, CHOIX, STATS)
    ========================================================================== */
 function extractAndClean(rawText, s) {
   let txt = rawText;
@@ -556,9 +573,9 @@ function extractAndClean(rawText, s) {
            .replace(/^\s*Scène\s*\d+\s*[:\-–—]?\s*/gi, '')
            .trim();
 
-  // Choix
+  // 1. Choix
   const chMatch = txt.match(/CHOIX\s*:\s*([\s\S]*?)(?=(PERSOS_MAJ|HERO_MAJ|$))/i);
-  if (chMatch) {
+  if (chMatch && s) {
     const rawLines = chMatch[1].split('\n');
     const validChoices = [];
     for (let line of rawLines) {
@@ -570,28 +587,54 @@ function extractAndClean(rawText, s) {
     s.lastChoices = validChoices.slice(0, 3);
   }
 
-  // Codex
+  // 2. Enregistrement automatique des personnages dans le Codex
   const cdxMatch = txt.match(/PERSOS_MAJ\s*:\s*([\s\S]*?)(?=(CHOIX|HERO_MAJ|$))/i);
-  if (cdxMatch) {
+  if (cdxMatch && s) {
     s.codex = s.codex || [];
-    const lines = cdxMatch[1].split('\n').map(x => x.trim()).filter(x => x.startsWith('-') || x.startsWith('*'));
+    const lines = cdxMatch[1].split('\n').map(x => x.trim()).filter(Boolean);
     lines.forEach(l => {
-      const parts = l.replace(/^[-*]\s*/, '').replace(/[*_`]/g, '').split('|').map(x => x.trim());
-      if (parts.length >= 2) {
-        const existing = s.codex.find(c => c.name.toLowerCase() === parts[0].toLowerCase());
-        if (existing) {
-          existing.rel = parts[1];
-          if (parts[2]) existing.desc = parts[2];
+      let clean = l.replace(/^[-*•\d\.\)\s]+/, '').replace(/[*_`]/g, '').trim();
+      if (!clean) return;
+
+      let name = '', rel = 'Neutre', desc = '';
+
+      if (clean.includes('|')) {
+        const parts = clean.split('|').map(x => x.trim());
+        name = parts[0];
+        rel = parts[1] || 'Neutre';
+        desc = parts[2] || '';
+      } else {
+        const parenMatch = clean.match(/^([^(:\-]+)\s*\(([^)]+)\)\s*[:\-–]?\s*(.*)$/);
+        if (parenMatch) {
+          name = parenMatch[1].trim();
+          rel = parenMatch[2].trim();
+          desc = parenMatch[3].trim();
         } else {
-          s.codex.push({ name: parts[0], rel: parts[1], desc: parts[2] || '' });
+          const colonParts = clean.split(/[:\-–]/).map(x => x.trim());
+          if (colonParts.length >= 2) {
+            name = colonParts[0];
+            rel = colonParts[1];
+            desc = colonParts.slice(2).join(' - ');
+          }
+        }
+      }
+
+      if (name && name.length >= 2) {
+        const rNorm = normalizeRel(rel);
+        const existing = s.codex.find(c => c.name.toLowerCase() === name.toLowerCase());
+        if (existing) {
+          existing.rel = rNorm;
+          if (desc) existing.desc = desc;
+        } else {
+          s.codex.push({ name: name, rel: rNorm, desc: desc || '' });
         }
       }
     });
   }
 
-  // Fiche Héros
+  // 3. Fiche Héros
   const heroMatch = txt.match(/HERO_MAJ\s*:\s*([\s\S]*?)(?=(CHOIX|PERSOS_MAJ|$))/i);
-  if (heroMatch) {
+  if (heroMatch && s) {
     s.heroStats = s.heroStats || { rank: '', techniques: [], items: [] };
     const rM = heroMatch[1].match(/Rang\s*:\s*([^\n]+)/i);
     if (rM && rM[1].trim()) s.heroStats.rank = rM[1].replace(/[*_`]/g, '').trim();
@@ -650,7 +693,7 @@ function renderHome() {
 }
 
 /* ==========================================================================
-   RENDU HIÉRARCHIQUE : CHAPITRES ET LEURS SCÈNES
+   RENDU DE L'HISTOIRE & DES PANNEAUX
    ========================================================================== */
 function renderStory() {
   const s = S(); if (!s) return;
@@ -671,7 +714,6 @@ function renderStory() {
     chapHead.append(h);
     d.append(chapHead);
 
-    // Rendu de chaque scène dans ce chapitre
     (chap.scenes || []).forEach((scText, sIdx) => {
       const scBox = document.createElement('div');
       scBox.className = 'scene-block';
@@ -757,7 +799,6 @@ function renderChoices() {
     b.textContent = (idx + 1) + '. ' + ch;
     b.onclick = () => {
       $('d').value = ch;
-      // Par défaut, cliquer sur un choix continue la scène immédiatement
       gen({ mode: 'scene' });
     };
     box.append(b);
@@ -770,7 +811,7 @@ function renderCodex() {
   s.codex = s.codex || [];
 
   if (!s.codex.length) {
-    box.innerHTML = '<p class="sub">Aucun personnage répertorié. Ils s\'ajouteront automatiquement.</p>';
+    box.innerHTML = '<p class="sub">Aucun personnage enregistré pour l\'instant. L\'IA les ajoutera dès le début de l\'histoire !</p>';
     return;
   }
 
@@ -808,7 +849,7 @@ $('cdx_add').onclick = () => {
   $('cdx_name').value = '';
   $('cdx_desc').value = '';
   renderCodex();
-  say('Personnage ajouté au Codex !', true);
+  say('Personnage ajouté aux paramètres !', true);
 };
 
 function renderHeroStats() {
@@ -874,7 +915,7 @@ function renderSet() {
   b.append(lb, tb);
 
   const ln = document.createElement('label'); ln.textContent = "Fait crucial à garder en mémoire absolue";
-  const ta = document.createElement('textarea'); ta.placeholder = "Ex : Orsted m'a juré fidélité...";
+  const ta = document.createElement('textarea'); ta.placeholder = "Ex : Le souverain m'a juré allégeance...";
   ln.append(makeMicGroup(ta));
   b.append(ln, ta);
 
@@ -967,16 +1008,15 @@ async function getSample() {
 }
 
 /* ==========================================================================
-   GÉNÉRATION : GESTION DES SCÈNES ET DES CHAPITRES
+   GÉNÉRATION : PROMPT RENFORCÉ (ORIGINAL + DIALOGUES + CODEX AUTO)
    ========================================================================== */
 async function gen(options = {}) {
   const s = S(); if (busy || !s) return;
   const sample = await getSample(); if (!sample) return;
 
-  const mode = options.mode || 'scene'; // 'scene', 'chapter', ou 'rewrite'
+  const mode = options.mode || 'scene';
   const isRewrite = mode === 'rewrite';
   const isNewChapter = mode === 'chapter';
-
   const totalScenes = countTotalScenes(s);
 
   if (isRewrite && totalScenes === 0) {
@@ -991,8 +1031,8 @@ async function gen(options = {}) {
   say(isRewrite ? '✍️ Réécriture de la scène...' : (isNewChapter ? '📑 L\'IA ouvre un nouveau chapitre...' : '🎬 L\'IA tisse la scène suivante...'));
 
   const codexTxt = (s.codex && s.codex.length)
-    ? "\nRELATIONS ACTUELLES DES PERSONNAGES :\n" + s.codex.map(c => `- ${c.name} (${c.rel}) : ${c.desc}`).join("\n")
-    : "";
+    ? "\nPERSONNAGES ET RELATIONS CONNUS AVEC LE JOUEUR :\n" + s.codex.map(c => `- ${c.name} (${c.rel}) : ${c.desc}`).join("\n")
+    : "\nAucun personnage répertorié pour l'instant. Tu DOIS en créer et les ajouter.";
 
   const heroStatsTxt = s.heroStats 
     ? `\nFICHE DU HÉROS : Rang: ${s.heroStats.rank || 'Non défini'} | Techniques: ${(s.heroStats.techniques || []).join(', ') || 'Aucune'} | Objets: ${(s.heroStats.items || []).join(', ') || 'Aucun'}`
@@ -1003,7 +1043,7 @@ async function gen(options = {}) {
     const loreClean = (s.wk.before || "").slice(0, 10000);
     const charsClean = (s.wk.chars || "").slice(0, 5000);
 
-    canonPrompt = "\n\n=== CONTEXTE OFFICIEL DE L'ŒUVRE ===\n"
+    canonPrompt = "\n\n=== CONTEXTE OFFICIEL DE L'ŒUVRE EXISTANTE ===\n"
       + (loreClean ? "RÉSUMÉ :\n" + loreClean + "\n\n" : "")
       + (charsClean ? "PERSONNAGES :\n" + charsClean + "\n\n" : "")
       + "=== CHRONOLOGIE & RÈGLES CANONIQUES ===\n"
@@ -1011,6 +1051,10 @@ async function gen(options = {}) {
       + "2. PAS DE SPOILERS : Les événements futurs ne se sont pas encore produits.\n"
       + "3. CASTING : Uniquement les personnages physiquement présents sur place.\n"
       + "4. RESPECT DU STATUT DU JOUEUR : Respecte strictement l'autorité et le background de « " + s.hero + " ».\n";
+  } else {
+    canonPrompt = "\n\n=== CONTEXTE DE CETTE CRÉATION ORIGINALE D'ANIMÉ ===\n"
+      + "UNIVERS & STYLE INVENTÉ : « " + (s.idea || "Monde original") + " »\n"
+      + "RÈGLE MONDE ORIGINAL : C'est une œuvre inventée. Tu as une liberté créative totale pour créer des factions, des mystères, des enjeux épiques et des personnages secondaires charismatiques.\n";
   }
 
   const memTxt = (s.memo || []).map(m => "\n- Fait mémorisé : " + m).join("");
@@ -1019,7 +1063,6 @@ async function gen(options = {}) {
   let situationPrompt = "";
   const userInput = $('d').value.trim();
 
-  // Identifier le dernier texte pour la continuité
   let lastSceneText = "";
   if (s.chapters.length > 0) {
     const lastChap = s.chapters[s.chapters.length - 1];
@@ -1035,8 +1078,8 @@ async function gen(options = {}) {
     if (type === 'fix') {
       situationPrompt = "MISSION : CORRIGER UNE ERREUR DANS CETTE SCÈNE SANS CHANGER LE RESTE.\n"
         + "Scène actuelle à corriger :\n" + lastSceneText + "\n\n"
-        + "ERREUR SIGNALÉE PAR L'AUTEUR (À CORRIGER IMPÉRATIVEMENT) :\n" + (crit || "Corrige les erreurs de comportement ou de faits.") + "\n\n"
-        + "Conserve les bons éléments et rectifie précisément ce problème.";
+        + "ERREUR SIGNALÉE PAR L'AUTEUR :\n" + (crit || "Corrige les incohérences.") + "\n\n"
+        + "Conserve les éléments validés et rectifie précisément ce problème.";
     } else {
       situationPrompt = "MISSION : ÉCRIRE UNE NOUVELLE SCÈNE DIFFÉRENTE.\n"
         + "L'auteur a rejeté la scène précédente pour cette raison :\n" + (crit || "Prends une autre direction.") + "\n\n"
@@ -1045,45 +1088,62 @@ async function gen(options = {}) {
   } else if (isNewChapter) {
     const nextChapNum = s.chapters.length + 1;
     situationPrompt = "=== NOUVEAU CHAPITRE (CHAPITRE " + nextChapNum + ") ===\n"
-      + "L'événement précédent est terminé. L'histoire franchit une étape.\n"
-      + "Dernière action du chapitre précédent :\n« " + lastSceneText.slice(-300) + " »\n\n"
-      + "CONSIGNE POUR LE NOUVEAU CHAPITRE :\n"
-      + (userInput ? "Déclencheur de ce nouveau chapitre : « " + userInput + " »." : "Fais une transition narrative (ellipse, nouveau lieu, ou lendemain).") + "\n"
-      + "Pose le nouveau cadre et commence la première scène de ce Chapitre " + nextChapNum + ".";
+      + "L'événement précédent est terminé. L'histoire franchit un cap narratif.\n"
+      + "Fin du chapitre précédent :\n« " + lastSceneText.slice(-300) + " »\n\n"
+      + "CONSIGNE NOUVEAU CHAPITRE :\n"
+      + (userInput ? "Action de déclenchement : « " + userInput + " »." : "Effectue une transition fluide (ellipse, changement de décor ou lendemain).") + "\n"
+      + "Ouvre le nouveau décor et commence la première scène du Chapitre " + nextChapNum + ".";
   } else {
-    // SCÈNE SUIVANTE DANS LE MÊME CHAPITRE
     if (totalScenes > 0) {
       const lastLines = lastSceneText.split('\n').filter(l => l.trim()).slice(-4).join('\n');
       situationPrompt = "=== CONTINUITÉ IMMÉDIATE DANS LA MÊME SCÈNE / MÊME LIEU ===\n"
-        + "Tu écris la suite directe de la scène dans le MÊME chapitre (pas d'ellipse temporelle, même pièce/lieu).\n"
-        + "La scène s'est arrêtée exactement ici :\n«««\n" + lastLines + "\n»»»\n\n"
-        + "INTERVENTION DU JOUEUR (À TRAITER IMMÉDIATEMENT) :\n"
-        + (userInput ? "« " + userInput + " »" : "L'action se poursuit naturellement.") + "\n\n"
-        + "Fais réagir les personnages sur place, décris les conséquences et développe cette nouvelle scène.";
+        + "Tu écris la suite directe de la scène dans le MÊME lieu.\n"
+        + "La scène s'est arrêtée ici :\n«««\n" + lastLines + "\n»»»\n\n"
+        + "INTERVENTION DU JOUEUR :\n"
+        + (userInput ? "« " + userInput + " »" : "L'action continue naturellement.") + "\n\n"
+        + "Fais réagir les personnages sur place, décris les répercussions et développe la scène.";
     } else {
-      // TOUT PREMIER DÉMARRAGE
-      situationPrompt = "=== PREMIER CHAPITRE - SCÈNE 1 ===\n"
-        + (s.startConsigne && s.startConsigne.trim() !== 'rien' ? s.startConsigne : "Démarre la scène précisément à l'instant d'apparition choisi.")
-        + (userInput ? "\nConsigne de départ : " + userInput : "");
+      // DÉMARRAGE TOUTE PREMIÈRE SCÈNE
+      if (s.wk) {
+        situationPrompt = "=== PREMIER CHAPITRE - SCÈNE 1 (ŒUVRE EXISTANTE) ===\n"
+          + "Démarre précisément à l'instant d'apparition : « " + s.wk.at + " ».\n"
+          + (s.startConsigne && s.startConsigne.trim() !== 'rien' ? "Consigne : " + s.startConsigne : "")
+          + (userInput ? "\nAction du joueur : " + userInput : "");
+      } else {
+        situationPrompt = "=== PREMIER CHAPITRE - SCÈNE 1 (CRÉATION ORIGINALE D'ANIMÉ) ===\n"
+          + "Plonge immédiatement le lecteur dans l'univers : « " + s.idea + " ».\n"
+          + "Le joueur incarne « " + s.hero + " ».\n"
+          + "CONSIGNE D'OUVERTURE OBLIGATOIRE : Pose une ambiance forte et fais intervenir dès cette première scène au moins 1 ou 2 personnages importants (un allié fidèle, un rival arrogant, un mentor ou un souverain) qui s'adressent directement à " + s.hero + ".\n"
+          + (userInput ? "Action initiale du joueur : « " + userInput + " »" : "Démarre au cœur d'une situation intrigante ou d'un tournant décisif.");
+      }
     }
   }
 
-  const prompt = "Tu es un scénariste d'élite d'animés et mangas.\n"
-    + "Rédige le récit en français littéraire, captivant et immersif.\n"
-    + "Interdiction d'écrire des en-têtes comme 'Chapitre X', 'Scène Y' ou 'User Safety'. Écris directement le texte.\n\n"
-    + "Titre : " + s.title + "\n"
-    + "Joueur : " + s.hero + heroBg + heroStatsTxt + "\n"
+  const prompt = "Tu es un scénariste d'élite d'animés et mangas japonais.\n"
+    + "Rédige le récit en français littéraire, dynamique et immersif.\n"
+    + "Interdiction d'écrire des en-têtes comme 'Chapitre X', 'Scène Y' ou 'User Safety'. Écris directement le texte de l'histoire.\n\n"
+    + "Titre de l'histoire : " + s.title + "\n"
+    + "Personnage incarné par l'utilisateur : " + s.hero + heroBg + heroStatsTxt + "\n"
     + canonPrompt + codexTxt + memTxt + "\n\n"
-    + "RÈGLE DES DIALOGUES (70% dialogue, 30% narration) :\n"
-    + "Chaque réplique commence par : « Prénom Nom (Relation) : dialogue »\n"
-    + "Ex : Perugius Dola (Disciple) : Bienvenue, Maître.\n\n"
-    + "STRUCTURE FINALE OBLIGATOIRE (TOUT À LA FIN) :\n"
+    + "========================================================\n"
+    + "RÈGLE ABSOLUE POUR LES DIALOGUES (70% dialogue, 30% narration) :\n"
+    + "Que l'animé existe déjà ou soit 100% INVENTÉ de toutes pièces, CHAQUE réplique de personnage DOIT OBLIGATOIREMENT commencer par son nom ET sa relation avec « " + s.hero + " » entre parenthèses.\n"
+    + "Format obligatoire : Prénom Nom (Relation) : Sa réplique\n"
+    + "Les 4 relations autorisées entre parenthèses sont : (Allié), (Ennemi), (Neutre), (Inconnu) [ou leurs variantes : Rival, Ami, Disciple, etc.].\n"
+    + "Exemples stricts :\n"
+    + "Kaelen (Rival) : Tu crois vraiment pouvoir m'égaler ?\n"
+    + "Luna (Alliée) : Fais attention à toi, je couvre tes arrières !\n"
+    + "Garde royal (Neutre) : Halte ! Déclinez votre identité.\n"
+    + "Silhouette voilée (Inconnu) : Le temps nous est compté...\n"
+    + "========================================================\n\n"
+    + "STRUCTURE FINALE OBLIGATOIRE (À LA TOUTE FIN DU MESSAGE) :\n\n"
     + "CHOIX :\n"
     + "1. [Court choix d'action 1]\n"
     + "2. [Court choix d'action 2]\n"
     + "3. [Court choix d'action 3]\n\n"
     + "PERSOS_MAJ:\n"
-    + "- Nom | Allié/Ennemi/Neutre/Inconnu | Court état d'esprit\n\n"
+    + "(IMPORTANT : Inscris ici OBLIGATOIREMENT chaque personnage intervenant ou mentionné dans cette scène avec ce format exact pour qu'il soit sauvegardé dans les paramètres du joueur) :\n"
+    + "- Nom du personnage | Allié/Ennemi/Neutre/Inconnu | Court rôle ou état d'esprit\n\n"
     + "HERO_MAJ:\n"
     + "Rang: [Nouveau rang si évolution sinon vide]\n"
     + "Technique: [Nouvelle technique apprise sinon vide]\n"
@@ -1100,7 +1160,6 @@ async function gen(options = {}) {
       throw new Error("L'IA a généré une réponse trop courte. Réessaie.");
     }
 
-    // Gestion de l'arbre Chapitres / Scènes
     if (s.chapters.length === 0) {
       s.chapters.push({ title: 'Chapitre 1', scenes: [cleanedStoryText] });
     } else if (isRewrite) {
@@ -1111,7 +1170,6 @@ async function gen(options = {}) {
     } else if (isNewChapter) {
       s.chapters.push({ title: 'Chapitre ' + (s.chapters.length + 1), scenes: [cleanedStoryText] });
     } else {
-      // Scène suivante : ajoutée dans le chapitre actuel
       const curChap = s.chapters[s.chapters.length - 1];
       curChap.scenes.push(cleanedStoryText);
     }
@@ -1145,13 +1203,9 @@ $('back').onclick = () => renderHome();
 
 $('lastch').onclick = () => window.scrollTo(0, document.body.scrollHeight);
 
-// Bouton 1 : Scène suivante (même chapitre)
 $('btn_scene').onclick = () => gen({ mode: 'scene' });
-
-// Bouton 2 : Chapitre suivant (nouveau chapitre)
 $('btn_chapter').onclick = () => gen({ mode: 'chapter' });
 
-// Réécriture
 $('rw').onclick = () => {
   const s = S();
   if (!s || countTotalScenes(s) === 0) {
@@ -1171,14 +1225,13 @@ $('rw_confirm').onclick = () => {
   gen({ mode: 'rewrite', type, critique: crit });
 };
 
-// Suppression de la dernière scène
 $('undo').onclick = async () => {
   const s = S(); if (!s || s.chapters.length === 0) return;
   const curChap = s.chapters[s.chapters.length - 1];
   if (curChap.scenes && curChap.scenes.length > 0) {
     curChap.scenes.pop();
     if (curChap.scenes.length === 0) {
-      s.chapters.pop(); // Supprime le chapitre s'il n'a plus de scènes
+      s.chapters.pop();
     }
   }
   s.lastChoices = [];
@@ -1187,7 +1240,6 @@ $('undo').onclick = async () => {
   say("Scène supprimée.");
 };
 
-// Recommencer à zéro
 $('restart').onclick = async () => {
   const s = S(); if (!s) return;
   if (!restartArmed) {
@@ -1211,8 +1263,27 @@ $('go').onclick = async () => {
   const t = $('t').value.trim(), i = $('i').value.trim(), h = $('h').value.trim();
   if (!t) { say('Indique un titre.'); return; }
   const s = { 
-    id: uid(), title: t, idea: i || 'Libre', hero: h || 'Le Héros', heroBg: i, mode: $('m').value, 
+    id: uid(), title: t, idea: i || 'Monde original', hero: h || 'Le Héros', heroBg: i, mode: $('m').value, 
     chapters: [], codex: [], heroStats: { rank: '', techniques: [], items: [] } 
+  };
+  L.list.push(s); L.cur = s.id; await save(); openStory(); gen({ mode: 'scene' });
+};
+
+$('imp').onclick = async () => {
+  const s = {
+    id: uid(),
+    src: 'archiducs',
+    title: "Le Royaume des Archiducs",
+    idea: RECAP,
+    hero: "Lord Vael",
+    heroBg: "Archiduc déchu en quête de reconquête face aux autres archiducs rivaux.",
+    mode: 'anime',
+    chapters: [],
+    codex: [
+      { name: "Roi Aurelius", rel: "Neutre", desc: "Souverain distant qui observe l'équilibre des pouvoirs." },
+      { name: "Archiduc Malakor", rel: "Ennemi", desc: "Rival impitoyable contrôlant les forges de l'Est." }
+    ],
+    heroStats: { rank: 'Archiduc Déchu', techniques: ['Lame Éthérée'], items: ['Sceau Brisé'] }
   };
   L.list.push(s); L.cur = s.id; await save(); openStory(); gen({ mode: 'scene' });
 };
